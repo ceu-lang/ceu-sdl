@@ -1,0 +1,112 @@
+/*{-{*/
+
+// TODO
+// - test scrolling
+
+C do
+    #define SDL_SIMUL
+end
+
+C _rand(), _srand(), _time();
+
+_srand(_time(null));
+
+var int n1=0, n2=0;
+
+par/or do
+/*
+*/
+    await 30min;
+    //_printf("%d %d\n", n1, n2);
+    await 30min;
+    //_printf("%d %d\n", n1, n2);
+    await 30min;
+    //_printf("%d %d\n", n1, n2);
+    await 30min;
+    //_printf("%d %d\n", n1, n2);
+    await 30min;
+    //_printf("%d %d\n", n1, n2);
+    await 30min;
+    //_printf("%d %d\n", n1, n2);
+with
+    loop do
+        n1 = n1 + 1;
+        async do
+            emit SDL_REDRAW;
+        end
+        await 2min;
+    end
+with
+    loop do
+        n2 = n2 + 1;
+        var int win_w = win_rect.w;
+        var int win_h = win_rect.h;
+        async (ren, win_w, win_h) do
+            var int dt = 0;
+
+            // mouse: one click (0->w, 0->h) every (0->500)ms
+                var _SDL_MouseButtonEvent e_mse;
+                e_mse.type = _SDL_MOUSEBUTTONDOWN;
+                e_mse.x = _rand() % win_w;
+                e_mse.y = _rand() % win_h;
+                emit SDL_MOUSEBUTTONDOWN(&e_mse);
+                do
+                    var int v = _rand() % 500;
+                    emit(v)ms;
+                    dt = dt + v;
+                end
+
+/*
+*/
+            // input
+                // 32=' ' => 126='~'
+                var _char[2] str;
+                    str[0] = ' ';
+                    str[1] = '\0';
+                str[0] = _rand() % (126-32) + 32;
+                var _SDL_TextInputEvent e_inp;
+                e_inp.type = _SDL_TEXTINPUT;
+                _strcpy(e_inp.text, str);
+                emit SDL_TEXTINPUT(&e_inp);
+                do
+                    var int v = _rand() % 500;
+                    emit(v)ms;
+                    dt = dt + v;
+                end
+
+            // keys
+                var _SDL_KeyboardEvent e_key;
+                e_key.type = _SDL_KEYDOWN;
+                var int pct = _rand() % 100;
+                if pct > 50 then
+                    if pct < 95 then
+                        e_key.keysym.sym = _SDLK_BACKSPACE;
+                    else
+                        e_key.keysym.sym = _SDLK_RETURN;
+                    end
+                    loop i, 10 do
+                        emit SDL_KEYDOWN(&e_key);
+                    end
+                    do
+                        var int v = _rand() % 500;
+                        emit(v)ms;
+                        dt = dt + v;
+                    end
+                end
+/*
+            emit SDL_REDRAW;
+            _SDL_SetRenderDrawColor(ren, 0xFF,0x00,0xFF, 0);
+            var _SDL_Rect r;
+                r.x = e_mse.x-7;
+                r.y = e_mse.y-7;
+                r.w = 14;
+                r.h = 14;
+            _SDL_RenderFillRect(ren, &r);
+            _SDL_RenderPresent(ren);
+            _SDL_Delay(dt);
+*/
+        end
+    end
+end
+
+/*}-}*/ dnl

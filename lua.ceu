@@ -1,0 +1,60 @@
+/*{-{*/
+
+C do
+    /******/
+    #include <lua.h>
+    #include <lauxlib.h>
+
+    int ceu_lua_atpanic (lua_State* lua) {
+#ifdef CEU_DEBUG
+        fprintf(stderr, "LUA_ATPANIC on %d: %s\n",
+                CEU.trk.lbl, lua_tostring(lua,-1));
+#endif
+        return 0;
+    }
+    /******/
+end
+
+C _lua_State = 0;
+
+C constant _LUA_NOREF, _LUA_REGISTRYINDEX, _LUA_TSTRING;
+
+C nohold _ceu_lua_atpanic();
+
+C nohold _lua_atpanic(),
+         _lua_call(),
+         _lua_close(),
+         _lua_getfield(),
+         _lua_getglobal(),
+         _lua_gettop(),
+         _lua_isnil(),
+         _lua_newtable(),
+         _lua_objlen(),
+         _lua_pop(),
+         _lua_pushboolean(),
+         _lua_pushnumber(),
+         _lua_pushstring(),
+         _lua_pushvalue(),
+         _lua_rawget(),
+         _lua_rawgeti(),
+         _lua_rawseti(),
+         _lua_remove(),
+         _lua_setglobal(),
+         _lua_settop(),
+         _lua_tonumber(),
+         _lua_tostring(),
+         _lua_touserdata(),
+         _lua_type();
+
+C nohold _luaL_dofile(),
+         _luaL_loadfile(),
+         _luaL_newstate(),
+         _luaL_openlibs(),
+         _luaL_optnumber(),
+         _luaL_unref();
+
+C nohold _luaL_ref();   // TODO: should be hold
+
+C nohold _lua_pushlightuserdata();
+
+/*}-}*/ dnl

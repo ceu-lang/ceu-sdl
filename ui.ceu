@@ -1,0 +1,104 @@
+/*{-{*/
+
+C constant _UI_ALIGN_LEFT, _UI_ALIGN_CENTER, _UI_ALIGN_RIGHT,
+           _UI_ALIGN_TOP,  _UI_ALIGN_MIDDLE, _UI_ALIGN_BOTTOM;
+C _UI_align();
+C do
+    enum {
+        UI_ALIGN_LEFT = 0,
+        UI_ALIGN_CENTER,
+        UI_ALIGN_RIGHT
+    };
+    enum {
+        UI_ALIGN_TOP = 0,
+        UI_ALIGN_MIDDLE,
+        UI_ALIGN_BOTTOM,
+    };
+
+    int UI_align (int p_out, int dim_out, int dim_in, int align)
+    {
+        switch (align)
+        {
+            case UI_ALIGN_LEFT:
+            //case UI_ALIGN_TOP:
+                return p_out;
+
+            case UI_ALIGN_CENTER:
+            //case UI_ALIGN_MIDDLE:
+                return p_out + (dim_out - dim_in)/2;
+
+            case UI_ALIGN_RIGHT:
+            //case UI_ALIGN_BOTTOM:
+                return p_out + (dim_out - dim_in);
+        }
+    }
+end
+
+// TODO:
+// macro p/ verificar que go_redim<-draw/move/etc
+
+interface UI with
+    event void                      go;
+    event void                      go_redraw;
+    event _SDL_Point*               go_move;
+    event _SDL_Rect*                go_redim;
+    event _SDL_MouseButtonEvent*    go_mousebuttondown;
+
+    var   _SDL_Rect                 rect;
+    var   int                       align_x;
+    var   int                       align_y;
+end
+
+class UITexture with
+    interface UI;
+    var   _SDL_Texture* tex;
+    var   int           tex_own?;
+do
+    this.tex      = null;
+    this.tex_own? = 0;
+    this.align_x  = _UI_ALIGN_CENTER;
+    this.align_y  = _UI_ALIGN_MIDDLE;
+
+    await/0 go;
+        _assert(tex != null);
+
+    // TODO: check result
+    var int w, h;
+    _SDL_QueryTexture(tex, null, null, &w, &h);
+
+    var _SDL_Rect rect_out;
+
+    var _SDL_Rect* r = await/0 go_redim;
+    par do
+        loop do
+            if r != null then
+                rect_out = *r;
+            end
+
+            rect.w = w;     // TODO: scale?
+            rect.h = h;
+            rect.x = _UI_align(rect_out.x, rect_out.w, rect.w, align_x);
+            rect.y = _UI_align(rect_out.y, rect_out.h, rect.h, align_y);
+
+            r = await go_redim;
+        end
+    with
+        loop do
+            var _SDL_Point* pt = await go_move;
+            rect.x = rect.x + pt:x;
+            rect.y = rect.y + pt:y;
+            emit go_redim=&rect;
+        end
+    with
+        loop do
+            await go_redraw;
+            _SDL_RenderCopy(global:ren, this.tex, null, &rect);
+        end
+    end
+finally
+    if tex_own? then
+        _SDL_DestroyTexture(this.tex);
+    end
+end
+
+/*}-}*/ dnl

@@ -1,0 +1,150 @@
+/*{-{*/
+
+input _SDL_TextInputEvent*   SDL_TEXTINPUT;
+input _SDL_TextEditingEvent* SDL_TEXTEDITING;
+
+C nohold _strlen(), _strcpy();
+C do
+    #include <string.h>
+end
+
+class UITextField with
+    interface UI;
+    var _SDL_Color      clr_bg, clr_fg;
+    event int           go_keyboard;
+    event _char*        ok_keyboard;
+    var _TTF_Font*      font;
+    var int             font_own?;
+do
+    this.font_own? = 0;
+
+    var int            keyboard? = 0;
+    var _char[21]      txt;
+    var UITexture* tex = null;
+
+    var int txt_len = 0;
+    txt[0] = '\0';
+
+    var int cursor? = 0;
+
+    await/0 go;
+        _assert(font != null);
+
+    var _SDL_Rect* r = await/0 go_redim;
+    par do
+        loop do
+            var _SDL_MouseButtonEvent* but = await go_mousebuttondown;
+            if _SDL_Rect_vs_Mouse(&rect, but) then
+                if keyboard? then
+                    emit ok_keyboard = txt;
+                else
+                    emit go_keyboard;
+                end
+            end
+        end
+    with
+        loop do
+            await go_keyboard;
+            keyboard? = 1;
+            cursor?   = 1;
+            _SDL_StartTextInput();
+
+            par/or do
+                await ok_keyboard;
+                keyboard? = 0;
+                cursor?   = 0;
+                _SDL_StopTextInput();
+            with
+                loop do
+                    await 500ms;
+                    cursor? = not cursor?;
+                end
+            with
+                loop do
+                    var _SDL_KeyboardEvent* key = await SDL_KEYDOWN;
+                    if key:keysym.sym == _SDLK_BACKSPACE then
+                        if txt_len > 0 then
+                            txt_len = txt_len - 1;
+                            txt[txt_len] = '\0';
+                        end
+                        emit go_redim=null;
+                    else/if key:keysym.sym == _SDLK_RETURN then
+                        emit ok_keyboard = txt;
+                    end
+                end
+            with
+                loop do
+                    await SDL_TEXTEDITING;
+//___android_log_print(4, "MTG_TRADER", "QUIT");
+                    emit ok_keyboard = txt;
+                end
+            with
+                loop do
+                    var _SDL_TextInputEvent* inp = await SDL_TEXTINPUT;
+                    if txt_len<20 and _strlen(inp:text)==1 then
+                        txt[txt_len] = inp:text[0];
+                        txt_len = txt_len + 1;
+                    end
+                    emit go_redim=null;
+                end
+            end
+        end
+    with
+        loop do
+            if r != null then
+                rect = *r;
+            end
+            free tex;
+
+            var _char* s = " "; // RenderText returns null for 0-len strings
+            if txt_len > 0 then
+                s = txt;
+            end
+
+            tex = new UITexture;
+            tex:align_x = _UI_ALIGN_LEFT;
+            tex:tex_own? = 1;
+            var _SDL_Surface* sfc :=
+                _TTF_RenderText_Shaded(font, s, clr_fg, clr_bg);
+            tex:tex = _SDL_CreateTextureFromSurface(global:ren, sfc);
+            _SDL_FreeSurface(sfc);
+            emit tex:go;
+            emit tex:go_redim=&rect;
+
+            r = await go_redim;
+        end
+    with
+        loop do
+            var _SDL_Point* pt = await go_move;
+            rect.x = rect.x + pt:x;
+            rect.y = rect.y + pt:y;
+            emit tex:go_move=pt;
+        end
+    with
+        var _SDL_Renderer* ren = global:ren;
+        loop do
+            await go_redraw;
+            // bg
+                _SDL_SetRenderDrawColor(ren, clr_bg.r, clr_bg.g, clr_bg.b, 0);
+                _SDL_RenderFillRect(ren, &rect);
+            // txt
+                emit tex:go_redraw;
+            // cursor
+            if cursor? then
+                var _SDL_Rect rc;
+                    rc.x = rect.x + tex:rect.w;
+                    rc.y = rect.y+2;
+                    rc.w = 2;
+                    rc.h = rect.h-4;
+                _SDL_SetRenderDrawColor(ren, clr_fg.r, clr_fg.g, clr_fg.b, 0);
+                _SDL_RenderDrawRect(ren, &rc);      // TODO: leak (???)
+            end
+        end
+    end
+finally
+    if font_own? then
+        _TTF_CloseFont(font);
+    end
+end
+
+/*}-}*/ dnl

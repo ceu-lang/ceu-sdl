@@ -1,0 +1,294 @@
+/*{-{*/
+
+C nohold _LuaGrid_res_load(), _LuaGrid_res_unload();
+C nohold _LuaGrid_clr(), _LuaGrid_is(), _LuaGrid_num();
+C do
+    /******/
+    void LuaGrid_res_load (lua_State* lua, SDL_Renderer* ren, int h) {
+        int i, len;
+        lua_getglobal(lua, "RES");          // [ RES ]
+
+        // FNTS
+        lua_getfield(lua, -1, "fnts");      // [ RES | fnts ]
+        len = lua_objlen(lua, -1);
+        for (i=1; i<=len; i++) {
+            lua_rawgeti(lua, -1, i);        // [ RES | fnts | i ]
+            lua_getfield(lua, -1, "file");  // [ RES | fnts | i | file ]
+            lua_getfield(lua, -2, "size");  // [ RES | fnts | i | file | size ]
+            TTF_Font* fnt = TTF_OpenFont(lua_tostring(lua,-2),
+                                         lua_tonumber(lua,-1)*h);
+            lua_pushlightuserdata(lua, fnt);// [ ... | file | size | fnt ]
+            lua_setfield(lua, -4, "fnt");   // [ ... | file | size ]
+            lua_pop(lua, 3);                // [ RES | fnts ]
+        }
+        lua_pop(lua, 1);                    // [ RES ]
+
+        // IMGS
+        lua_getfield(lua, -1, "imgs");      // [ RES | imgs ]
+        len = lua_objlen(lua, -1);
+        for (i=1; i<=len; i++) {
+            lua_rawgeti(lua, -1, i);        // [ RES | imgs | i ]
+            lua_getfield(lua, -1, "file");  // [ RES | imgs | i | file ]
+            SDL_Texture* tex = IMG_LoadTexture(ren, lua_tostring(lua, -1));
+            lua_pushlightuserdata(lua, tex);// [ RES | imgs | i | file | tex ]
+            lua_setfield(lua, -3, "tex");   // [ RES | imgs | i | file ]
+            lua_pop(lua, 2);                // [ RES | imgs ]
+        }
+        lua_pop(lua, 2);                    // [ ]
+    }
+
+    void LuaGrid_res_unload (lua_State* lua) {
+        int i, len;
+        lua_getglobal(lua, "RES");          // [ RES ]
+
+        // FNTS
+        lua_getfield(lua, -1, "fnts");      // [ RES | fnts ]
+        len = lua_objlen(lua, -1);
+        for (i=1; i<=len; i++) {
+            lua_rawgeti(lua, -1, i);        // [ RES | fnts | i ]
+            lua_getfield(lua, -1, "fnt");   // [ RES | fnts | i | fnt ]
+            TTF_CloseFont(lua_touserdata(lua, -1));
+            lua_pop(lua, 1);                // [ RES | fnts | i ]
+            lua_pushnil(lua);               // [ RES | fnts | i | nil ]
+            lua_setfield(lua, -2, "fnt");   // [ RES | fnts | i ]
+            lua_pop(lua, 1);                // [ RES | fnts ]
+        }
+        lua_pop(lua, 1);                    // [ RES ]
+
+        // IMGS
+        lua_getfield(lua, -1, "imgs");      // [ RES | imgs ]
+        len = lua_objlen(lua, -1);
+        for (i=1; i<=len; i++) {
+            lua_rawgeti(lua, -1, i);        // [ RES | imgs | i ]
+            lua_getfield(lua, -1, "tex");   // [ RES | imgs | i | tex ]
+            SDL_DestroyTexture(lua_touserdata(lua, -1));
+            lua_pop(lua, 1);                // [ RES | imgs | i ]
+            lua_pushnil(lua);               // [ RES | imgs | i | nil ]
+            lua_setfield(lua, -2, "tex");   // [ RES | imgs | i ]
+            lua_pop(lua, 1);                // [ RES | imgs ]
+        }
+        lua_pop(lua, 2);                    // [ ]
+    }
+
+    int LuaGrid_clr (lua_State* lua, char* str, SDL_Color* clr) {
+        lua_getfield(lua, -1, str);         // [ t | clr ]
+        if ( lua_isnil(lua,-1) ) {
+            lua_pop(lua, 1);                // [ t ]
+            return 0;
+        }
+        lua_rawgeti(lua, -1, 1);            // [ t | clr | 1 ]
+        clr->r = lua_tonumber(lua, -1);
+        lua_pop(lua, 1);                    // [ t | clr ]
+        lua_rawgeti(lua, -1, 2);            // [ t | clr | 2 ]
+        clr->g = lua_tonumber(lua, -1);
+        lua_pop(lua, 1);                    // [ t | clr ]
+        lua_rawgeti(lua, -1, 3);            // [ t | clr | 3 ]
+        clr->b = lua_tonumber(lua, -1);
+        lua_pop(lua, 2);                    // [ t ]
+        return 1;
+    }
+
+    int LuaGrid_is (lua_State* lua, char* tp) {
+        lua_getfield(lua, -1, tp);          // [ t | tp ]
+        if (lua_isnil(lua,-1)) {
+            lua_pop(lua, 1);
+            return 0;                       // [ t ]
+        }
+        return 1;                           // [ t | tp ]
+    }
+
+    float LuaGrid_num (lua_State* lua, char* field) {
+        lua_getfield(lua, -1, field);       // [ grid | num ]
+        float num = lua_tonumber(lua, -1);
+        lua_pop(lua, 1);                    // [ grid ]
+        return num;
+    }
+    /******/
+end
+
+class LuaGrid with
+    event void   go;
+    var   UIGrid grid;
+    var   int    ref;
+do
+    var _lua_State* lua = global:lua;
+    ref = _LUA_NOREF;
+
+    await/0 go;
+        _assert(ref != _LUA_NOREF);
+
+    var int idx = _lua_gettop(lua);
+
+    _lua_getglobal(lua, "RES");                 // [ RES ]
+    _lua_getfield(lua, -1, "fnts");             // [ RES | fnts ]
+    _lua_getfield(lua, -2, "imgs");             // [ RES | imgs ]
+
+    _lua_rawgeti(lua, _LUA_REGISTRYINDEX, ref);     // [ grid ]
+    _luaL_unref(lua, _LUA_REGISTRYINDEX, ref);
+
+    // own?
+        grid.uis_own? = 1;
+        grid.lay_own? = 1;
+
+    // clrs
+        grid.clr_bg?      = _LuaGrid_clr(lua, "clr_bg", &grid.clr_bg);
+        grid.clr_fr?      = _LuaGrid_clr(lua, "clr_fr", &grid.clr_fr);
+        grid.clr_cell_bg? = _LuaGrid_clr(lua, "clr_cell_bg", &grid.clr_cell_bg);
+        grid.clr_cell_fr? = _LuaGrid_clr(lua, "clr_cell_fr", &grid.clr_cell_fr);
+        grid.clr_ui_bg?   = _LuaGrid_clr(lua, "clr_ui_bg", &grid.clr_ui_bg);
+        grid.clr_ui_fr?   = _LuaGrid_clr(lua, "clr_ui_fr", &grid.clr_ui_fr);
+
+    // one
+        grid.one_x = _LuaGrid_num(lua, "one_x");    // [ grid ]
+        grid.one_y = _LuaGrid_num(lua, "one_y");    // [ grid ]
+    // spc
+        grid.spc_x = _LuaGrid_num(lua, "spc_x");    // [ grid ]
+        grid.spc_y = _LuaGrid_num(lua, "spc_y");    // [ grid ]
+    // pad
+        grid.pad_x = _LuaGrid_num(lua, "pad_x");    // [ grid ]
+        grid.pad_y = _LuaGrid_num(lua, "pad_y");    // [ grid ]
+
+    // layout
+        _lua_getfield(lua, -1, "lay");          // [ grid | lay ]
+        _lua_getfield(lua, -1, "lins");         // [ grid | lay | lins ]
+        _lua_getfield(lua, -2, "cols");         // [ grid | lay | lins | cols ]
+
+        grid.lay_lins = _lua_tonumber(lua, -2);
+        grid.lay_cols = _lua_tonumber(lua, -1);
+        grid.lay     := _malloc(grid.lay_lins*grid.lay_cols*sizeof<UI*>);   // grid.lay_own?
+        _lua_pop(lua, 2);                       // [ grid | lay ]
+
+        loop lin, grid.lay_lins do
+            loop col, grid.lay_cols do
+                var int i = lin*grid.lay_cols + col;
+                _lua_rawgeti(lua, -1, i+1);     // [ grid | lay | i ]
+                grid.lay[i] = _lua_tonumber(lua, -1);
+                _lua_pop(lua, 1);               // [ grid | lay ]
+            end
+        end
+        _lua_pop(lua, 1);                       // [ grid ]
+
+    // uis
+
+    _lua_getfield(lua, -1, "uis");          // [ grid | uis ]
+    grid.uis_n = _lua_objlen(lua, -1);
+    grid.uis  := _malloc(grid.uis_n*sizeof<UI*>);   // grid.uis_own?
+
+    // owns all uis
+    var UI* d;   // to be set in all cases below
+
+    // owns all sub-grids
+    var LuaGrid* lg;
+
+    loop i, grid.uis_n do
+        d = null;
+        _lua_rawgeti(lua, -1, i+1);         // [ grid | uis | i ]
+
+        if _LuaGrid_is(lua, "lay") then     // [ grid | uis | i | lay ]
+            _lua_pop(lua, 1);               // [ grid | uis | i ]
+            _lua_pushvalue(lua, -1);        // [ grid | uis | i | i ]
+            lg = new LuaGrid;
+            lg:ref = _luaL_ref(lua, _LUA_REGISTRYINDEX); // [ i ]
+            emit lg:go;
+            d = &lg:grid;
+
+        else/if _LuaGrid_is(lua, "txt") then // [ grid | uis | i | txt ]
+            var _char[255] str;
+            _sprintf(str, "%s", _lua_tostring(lua, -1));
+            _lua_pop(lua, 1);               // [ grid | uis | i ]
+
+            // font
+            _lua_getfield(lua, -1, "font"); // [ grid | uis | i | font ]
+
+            // clr
+            var _SDL_Color clr;
+            _LuaGrid_clr(lua, "color", &clr);
+
+            // res
+            _lua_getfield(lua, -1, "res");  // [ grid | uis | i | font | res ]
+            var int res = _lua_tonumber(lua, -1);
+            _lua_pop(lua, 1);               // [ grid | uis | i | font ]
+            var _TTF_Font* fnt;
+
+            // fnt
+            if res then
+                _lua_rawgeti(lua, idx+2, res);  // [ ... | font | t_res ]
+                _lua_getfield(lua, -1, "fnt");  // [ ... | font | t_res | fnt ]
+                fnt := _lua_touserdata(lua, -1);
+                _lua_pop(lua, 3);               // [ grid | uis | i ]
+            else
+                _lua_getfield(lua, -1, "file"); // [ ... | font | file ]
+                _lua_getfield(lua, -2, "size"); // [ ... | font | file | size ]
+                fnt := _TTF_OpenFont(_lua_tostring(lua,-2),
+                                                _lua_tonumber(lua,-1)*global:win_rect.h);
+                _lua_pop(lua, 3);               // [ grid | uis | i ]
+            end
+
+            // texture
+            var _SDL_Surface* sfc :=
+                _TTF_RenderText_Blended(fnt, str, clr);
+            var _SDL_Texture* tex := _SDL_CreateTextureFromSurface(global:ren, sfc);
+            _SDL_FreeSurface(sfc);
+
+            if res == 0 then
+                _TTF_CloseFont(fnt);
+            end
+
+            // uitexture
+            var UITexture* ui = new UITexture;
+                ui:tex      = tex;
+                ui:tex_own? = 1;
+                emit ui:go;
+            d ::= ui;
+
+        else/if _LuaGrid_is(lua, "img") then    // [ grid | uis | i | img ]
+            var UITexture* ui = new UITexture;
+            var _SDL_Texture* tex;
+
+            if _lua_type(lua,-1) == _LUA_TSTRING then
+                tex := _IMG_LoadTexture(global:ren, _lua_tostring(lua,-1));
+                ui:tex_own? = 1;
+            else
+                _lua_rawgeti(lua, idx+3, _lua_tonumber(lua,-1)); // +3=imgs
+                _lua_getfield(lua, -1, "tex");      // [ img | tex ]
+                tex := _lua_touserdata(lua, -1);
+                _lua_pop(lua, 2);                   // [ ]
+            end
+            _lua_pop(lua, 1);                   // [ grid | uis | i ]
+
+            ui:tex = tex;
+            emit ui:go;
+            d ::= ui;
+
+/*
+        else/if _LuaGrid_is(lua, "ui") then     // [ grid | uis | i | ui ]
+            // does not own it
+            d := _lua_touserdata(lua, -1);  // e2 must have higher scope
+            _lua_pop(lua, 1);                   // [ grid | uis | i ]
+*/
+        end
+
+        if d != null then
+            _lua_getglobal(lua, "ui_align");    // [ grid | uis | i | UI ]
+            _lua_getfield(lua, -2, "align_x");  // [ grid | uis | i | UI | str ]
+            _lua_rawget(lua, -2);               // [ grid | uis | i | UI | num ]
+            d:align_x = _luaL_optnumber(lua, -1, _UI_ALIGN_CENTER);
+            _lua_pop(lua, 1);                   // [ grid | uis | i | UI ]
+            _lua_getfield(lua, -2, "align_y");  // [ grid | uis | i | UI | str ]
+            _lua_rawget(lua, -2);               // [ grid | uis | i | UI | num ]
+            d:align_y = _luaL_optnumber(lua, -1, _UI_ALIGN_MIDDLE);
+            _lua_pop(lua, 2);                   // [ grid | uis | i ]
+        end
+
+        grid.uis[i] = d;    // same scope
+        _lua_pop(lua, 1);                   // [ grid | uis ]
+    end
+
+    _lua_settop(lua, idx);                      // [ ]
+
+    emit grid.go;
+
+    await FOREVER;
+end
+
+/*}-}*/ dnl

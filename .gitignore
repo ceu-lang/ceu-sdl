@@ -1,0 +1,11 @@
+.*.swp
+.*.swo
+_ceu_*
+*.ceu_m4
+chess_clock/
+fnts/
+gol/
+imgs/
+mtg_*/
+ncl/
+snds/

@@ -1,0 +1,105 @@
+/*{-{*/
+
+class UIScroll with
+    interface UI;
+    var UI* ui;
+do
+    this.ui = null;
+
+    await/0 go;
+        _assert(ui != null);
+
+    var _SDL_Rect* r = await/0 go_redim;
+    par do
+        loop do
+            var _SDL_MouseButtonEvent* but = await go_mousebuttondown;
+            emit ui:go_mousebuttondown=but;
+
+            var _SDL_Point pt1, pt2;
+                pt1.x = but:x;
+                pt1.y = but:y;
+
+            loop do
+                await 50ms;
+                var int s = _SDL_GetMouseState(&pt2.x, &pt2.y);
+                if not s then
+                    break;
+                end
+                pt1.x = pt2.x - pt1.x;
+                pt1.y = pt2.y - pt1.y;
+
+                // LIMITS
+                if ui:rect.w > rect.w then
+                    if pt1.x > 0 then
+                        var int max_x  = rect.x;
+                        var int max_dx = max_x - ui:rect.x;
+                            if pt1.x > max_dx then
+                                pt1.x = max_dx;
+                            end
+                    else/if pt1.x < 0 then
+                        var int min_x  = rect.x - (ui:rect.w-rect.w);
+                        var int min_dx = min_x - ui:rect.x;
+                        if pt1.x < min_dx then
+                            pt1.x = min_dx;
+                        end
+                    end
+                else
+                    pt1.x = 0;
+                end
+
+                if ui:rect.h > rect.h then
+                    if pt1.y > 0 then
+                        var int max_y  = rect.y;
+                        var int max_dy = max_y - ui:rect.y;
+                        if pt1.y > max_dy then
+                            pt1.y = max_dy;
+                        end
+                    else/if pt1.y < 0 then
+                        var int min_y  = rect.y - (ui:rect.h-rect.h);
+                        var int min_dy = min_y - ui:rect.y;
+                        if pt1.y < min_dy then
+                            pt1.y = min_dy;
+                        end
+                    end
+                else
+                    pt1.y = 0;
+                end
+
+                if pt1.x!=0 or pt1.y!=0 then
+                    emit ui:go_move = &pt1;
+                end
+
+                //ui:rect.x = ui:rect.x + pt1.x;
+                //ui:rect.y = ui:rect.y + pt1.y;
+                //emit ui:go_redim = &ui:rect;
+
+                pt1 = pt2;
+            end
+        end
+    with
+        loop do
+            if r != null then
+                rect = *r;
+            end
+            emit ui:go_redim = r;
+            r = await go_redim;
+        end
+    with
+        loop do
+            var _SDL_Point* pt = await go_move;
+            rect.x = rect.x + pt:x;
+            rect.y = rect.y + pt:y;
+            emit ui:go_move=pt;
+        end
+    with
+        loop do
+            await go_redraw;
+            _glEnable(_GL_SCISSOR_TEST);
+            _glScissor(rect.x,global:win_rect.h-rect.y-rect.h,rect.w,rect.h);
+            emit ui:go_redraw;
+            _glDisable(_GL_SCISSOR_TEST);
+        end
+    end
+end
+
+/*}-}*/ dnl

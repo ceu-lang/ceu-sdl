@@ -1,0 +1,297 @@
+/*{-{*/
+
+// TODO:
+// * it_draws_own?
+// * remaining space from division
+
+class UIGrid with
+    interface UI;
+    event int           go_ui;
+    event int           ok_uiclicked;
+
+    var   int           clr_bg?, clr_fr?,
+                        clr_cell_bg?, clr_cell_fr?,
+                        clr_ui_bg?,   clr_ui_fr?;
+    var   _SDL_Color    clr_bg, clr_fr,
+                        clr_cell_bg, clr_cell_fr,
+                        clr_ui_bg,   clr_ui_fr;
+
+    var   _float        one_x, one_y;
+    var   _float        spc_x, spc_y;
+    var   _float        pad_x, pad_y;
+
+    var   int           lay_lins, lay_cols;
+    var   u8*           lay;
+    var   int           lay_own?;
+
+    var   UI**          uis;
+    var   u8            uis_n;
+    var   int           uis_own?;
+
+    var   UI*           ui_ptr;
+    var   int           ui_own?;        // TODO: change to fun arg
+
+    var _SDL_Rect*      cell_rects;
+    var _SDL_Rect*      ui_rects;
+do
+    // defaults
+    clr_bg?      = 0;
+    clr_fr?      = 0;
+    clr_cell_bg? = 0;
+    clr_cell_fr? = 0;
+    clr_ui_bg?   = 0;
+    clr_ui_fr?   = 0;
+
+    one_x    = 0;
+    one_y    = 0;
+    spc_x    = 0;
+    spc_y    = 0;
+    pad_x    = 0;
+    pad_y    = 0;
+
+    lay      = null;
+    lay_own? = 0;
+
+    uis      = null;
+    uis_own? = 0;
+
+    ui_own?  = 0;       // TODO: change to fun arg
+
+    cell_rects = null;
+    ui_rects   = null;
+
+    await/0 go;
+
+    // TODO: should not require := (finally below)
+    cell_rects := _malloc(uis_n * sizeof<_SDL_Rect>);
+    ui_rects   := _malloc(uis_n * sizeof<_SDL_Rect>);
+
+    var int redimed? = 0;
+
+    par do
+        // GO_MOUSEBUTTONDOWN
+        await/0 go_redim;
+        loop do
+            var _SDL_MouseButtonEvent* but = await go_mousebuttondown;
+            loop i, uis_n do
+                if uis[i] and _SDL_Rect_vs_Mouse(&ui_rects[i], but) then
+                    emit uis[i]:go_mousebuttondown = but;
+                    emit ok_uiclicked = i+1;
+                end
+            end
+        end
+    with
+        loop do
+            // TODO: problema com ui_ptr mudar 
+            var int i = await/0 go_ui;
+            if ui_ptr != null then
+                if ui_own? then     // TODO: change to fun arg
+                    free uis[i];
+                end
+                uis[i] = ui_ptr;
+            end
+            if redimed? and uis[i]!=null then
+                emit uis[i]:go_redim = &ui_rects[i];
+            end
+        end
+    with
+        // GO_REDIM
+        var _SDL_Rect* r = await/0 go_redim;
+        redimed? = 1;
+        loop do
+            if r != null then
+                rect = *r;
+            end
+//_printf("REDIM\n");
+
+            var int spc_xx = 0;
+            if spc_x != 0 then
+                spc_xx = spc_x * global:win_rect.w;
+            end
+            var int spc_yy = 0;
+            if spc_y != 0 then
+                spc_yy = spc_y * global:win_rect.h;
+            end
+
+            var int pad_xx = 0;
+            if pad_x != 0 then
+                pad_xx = pad_x * global:win_rect.w;
+            end
+            var int pad_yy = 0;
+            if pad_y != 0 then
+                pad_yy = pad_y * global:win_rect.h;
+            end
+
+            var int one_xx;
+            if one_x == 0 then
+                one_xx = (rect.w-spc_xx)/lay_cols - spc_xx - 2*pad_xx;
+            else
+                one_xx = one_x * global:win_rect.w;
+                rect.w = (spc_xx + 2*pad_xx + one_xx) * lay_cols + spc_xx;
+            end
+
+            var int one_yy = one_y;
+            if one_y == 0 then
+                one_yy = (rect.h-spc_yy)/lay_lins - spc_yy - 2*pad_yy;
+            else
+                one_yy = one_y * global:win_rect.h;
+                rect.h = (spc_yy + 2*pad_yy + one_yy) * lay_lins + spc_yy;
+            end
+
+            // adjust to calculated size
+/*
+            var int w  = (spc_xx + 2*pad_xx + one_xx) * lay_cols + spc_xx;
+            var int h  = (spc_yy + 2*pad_yy + one_yy) * lay_lins + spc_yy;
+            var int x0 = rect.x + (rect.w - w) / 2;
+            var int y0 = rect.y + (rect.h - h) / 2;
+*/
+            var int x0 = rect.x;
+            var int y0 = rect.y;
+
+            var int cur = 0;
+            var int x, y;
+
+            loop l, lay_lins do
+                x = x0 + spc_xx;     // starts from spc_xx
+                if l == 0 then
+                    y = y0 + spc_yy; // starts from spc_yy
+                else
+                    y = y + pad_yy + one_yy + pad_yy + spc_yy;
+                end
+
+                loop c, lay_cols do
+                    if c != 0 then
+                        x = x + pad_xx + one_xx + pad_xx + spc_xx;
+                    end
+
+                    var int i1  = l*lay_cols + c;
+                    var u8  lay1 = lay[i1];
+
+                    if lay1 > cur then      // always increasing items
+                        cur = lay1;
+
+                        var _SDL_Rect* cell_rect = &cell_rects[cur-1];
+                            cell_rect:x = x;
+                            cell_rect:y = y;
+                            cell_rect:w = one_xx + 2*pad_xx;
+                            cell_rect:h = one_yy + 2*pad_yy;
+
+                        var _SDL_Rect* ui_rect   = &ui_rects[cur-1];
+                            ui_rect:x = x+pad_xx;
+                            ui_rect:y = y+pad_yy;
+                            ui_rect:w = one_xx;
+                            ui_rect:h = one_yy;
+
+                        // colspan
+                        loop j, lay_cols-c-1 do
+                            var u8 lay2 = lay[i1 + j+1];
+                            if lay1 == lay2 then
+                                cell_rect:w = cell_rect:w + spc_xx + one_xx + 3*pad_xx;
+                                ui_rect:w   = ui_rect:w   + spc_xx + one_xx + 2*pad_xx;
+                            else
+                                break;
+                            end
+                        end
+
+                        // linspan
+                        loop j, lay_lins-l-1 do
+                            var u8 lay2 = lay[i1 + (j+1)*lay_cols];
+                            if lay1 == lay2 then
+                                cell_rect:h = cell_rect:h + spc_yy + one_yy + 3*pad_yy;
+                                ui_rect:h   = ui_rect:h   + spc_yy + one_yy + 2*pad_yy;
+                            else
+                                break;
+                            end
+                        end
+                        if uis and uis[cur-1] then
+                            emit uis[cur-1]:go_redim=ui_rect;
+                        end
+                    end
+                end
+            end
+
+            r = await go_redim;
+        end
+    with
+        await/0 go_redim;
+        loop do
+            var _SDL_Point* pt = await go_move;
+            rect.x = rect.x + pt:x;
+            rect.y = rect.y + pt:y;
+            loop i, uis_n do
+                cell_rects[i].x = cell_rects[i].x + pt:x;
+                cell_rects[i].y = cell_rects[i].y + pt:y;
+                ui_rects[i].x   = ui_rects[i].x + pt:x;
+                ui_rects[i].y   = ui_rects[i].y + pt:y;
+                if uis[i] then
+                    emit uis[i]:go_move=pt;
+                end
+            end
+        end
+    with
+        await/0 go_redim;
+        var _SDL_Renderer* ren = global:ren;
+        loop do
+            await go_redraw;
+            if clr_bg? then
+                _SDL_SetRenderDrawColor(ren, clr_bg.r,clr_bg.g,clr_bg.b,0);
+                _SDL_RenderFillRect(ren, &rect);
+            end
+/*
+clr_cell_fr? = 1;
+clr_cell_fr.r = 0xFF;
+clr_cell_fr.g = 0x00;
+clr_cell_fr.b = 0x00;
+clr_ui_fr? = 1;
+clr_ui_fr.r = 0xFF;
+clr_ui_fr.g = 0xFF;
+clr_ui_fr.b = 0x00;
+*/
+            loop i, uis_n do
+                if clr_cell_bg? then
+                    _SDL_SetRenderDrawColor(ren,
+                        clr_cell_bg.r,clr_cell_bg.g,clr_cell_bg.b,0);
+                    _SDL_RenderFillRect(ren, &cell_rects[i]);
+                end
+                if clr_ui_bg? then
+                    _SDL_SetRenderDrawColor(ren,
+                        clr_ui_bg.r,clr_ui_bg.g,clr_ui_bg.b,0);
+                    _SDL_RenderFillRect(ren, &ui_rects[i]);
+                end
+                if uis[i] then
+                    emit uis[i]:go_redraw;
+                end
+                if clr_cell_fr? then
+                    _SDL_SetRenderDrawColor(ren,
+                        clr_cell_fr.r,clr_cell_fr.g,clr_cell_fr.b,0);
+                    _SDL_RenderDrawRect(ren, &cell_rects[i]);
+                end
+                if clr_ui_fr? then
+                    _SDL_SetRenderDrawColor(ren,
+                        clr_ui_fr.r,clr_ui_fr.g,clr_ui_fr.b,0);
+                    _SDL_RenderDrawRect(ren, &ui_rects[i]);
+                end
+            end
+
+            if clr_fr? then
+                _SDL_SetRenderDrawColor(ren, clr_fr.r,clr_fr.g,clr_fr.b,0);
+                _SDL_RenderDrawRect(ren, &rect);
+            end
+        end
+    end
+finally
+    if lay_own? then
+        _free(lay);
+    end
+    if cell_rects then
+        _free(cell_rects);
+    end
+    if ui_rects then
+        _free(ui_rects);
+    end
+    if uis_own? then
+        _free(uis);
+    end
+end
+
+/*}-}*/ dnl
