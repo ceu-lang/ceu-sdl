@@ -40,6 +40,8 @@ end
 interface UI with
     event void                      go;
     event void                      go_redraw;
+    event void                      ok_redraw_pre;
+    event void                      ok_redraw_pos;
     event _SDL_Point*               go_move;
     event _SDL_Rect*                go_redim;
     event _SDL_MouseButtonEvent*    go_mousebuttondown;
@@ -92,7 +94,9 @@ do
     with
         loop do
             await go_redraw;
+            emit ok_redraw_pre;
             _SDL_RenderCopy(global:ren, this.tex, null, &rect);
+            emit ok_redraw_pos;
         end
     end
 finally

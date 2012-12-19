@@ -3,11 +3,14 @@
 class UIScroll with
     interface UI;
     var UI* ui;
+    var _SDL_Color scroll_clr;
 do
     this.ui = null;
 
     await/0 go;
         _assert(ui != null);
+
+    event int go_x=0, go_y=0;
 
     var _SDL_Rect* r = await/0 go_redim;
     par do
@@ -43,6 +46,7 @@ do
                             pt1.x = min_dx;
                         end
                     end
+                    emit go_x=1;
                 else
                     pt1.x = 0;
                 end
@@ -61,6 +65,7 @@ do
                             pt1.y = min_dy;
                         end
                     end
+                    emit go_y=1;
                 else
                     pt1.y = 0;
                 end
@@ -74,6 +79,30 @@ do
                 //emit ui:go_redim = &ui:rect;
 
                 pt1 = pt2;
+            end
+        end
+    with
+        par do
+            await go_x;
+            loop do
+                par/or do
+                    await 2s;
+                    go_x = 0;
+                    await FOREVER;
+                with
+                    await go_x;
+                end
+            end
+        with
+            await go_y;
+            loop do
+                par/or do
+                    await 2s;
+                    go_y = 0;
+                    await FOREVER;
+                with
+                    await go_y;
+                end
             end
         end
     with
@@ -92,12 +121,41 @@ do
             emit ui:go_move=pt;
         end
     with
+        var _SDL_Renderer* ren = global:ren;
         loop do
             await go_redraw;
             _glEnable(_GL_SCISSOR_TEST);
             _glScissor(rect.x,global:win_rect.h-rect.y-rect.h,rect.w,rect.h);
             emit ui:go_redraw;
             _glDisable(_GL_SCISSOR_TEST);
+
+            if go_x then
+                var _SDL_Rect rs;
+                    rs.x = rect.x + (rect.x-ui:rect.x) * rect.w / ui:rect.w;
+                    rs.y = rect.y + rect.h - 6;
+                    rs.w = rect.w*rect.w / ui:rect.w;
+                    rs.h = 5;
+                _SDL_SetRenderDrawBlendMode(ren, _SDL_BLENDMODE_BLEND);
+                _SDL_SetRenderDrawColor(ren, scroll_clr.r,
+                                             scroll_clr.g,
+                                             scroll_clr.b, 100);
+                _SDL_RenderFillRect(ren, &rs);
+            end
+
+            if go_y then
+                var _SDL_Rect rs;
+                    rs.x = rect.x + rect.w - 6;
+                    rs.y = rect.y + (rect.y-ui:rect.y) * rect.h / ui:rect.h;
+                    rs.w = 5;
+                    rs.h = rect.h*rect.h / ui:rect.h;
+                _SDL_SetRenderDrawBlendMode(ren, _SDL_BLENDMODE_BLEND);
+                _SDL_SetRenderDrawColor(ren, scroll_clr.r,
+                                             scroll_clr.g,
+                                             scroll_clr.b, 100);
+                _SDL_RenderFillRect(ren, &rs);
+            end
+
+            _SDL_SetRenderDrawBlendMode(ren, _SDL_BLENDMODE_NONE);
         end
     end
 end

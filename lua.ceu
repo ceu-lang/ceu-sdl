@@ -42,6 +42,7 @@ C nohold _lua_atpanic(),
          _lua_setglobal(),
          _lua_settop(),
          _lua_tonumber(),
+         _lua_topointer(),
          _lua_tostring(),
          _lua_touserdata(),
          _lua_type();

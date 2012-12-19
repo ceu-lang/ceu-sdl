@@ -1,7 +1,6 @@
 /*{-{*/
 
 // TODO:
-// * it_draws_own?
 // * remaining space from division
 
 class UIGrid with
@@ -21,11 +20,11 @@ class UIGrid with
     var   _float        pad_x, pad_y;
 
     var   int           lay_lins, lay_cols;
-    var   u8*           lay;
+    var   u32*          lay;
     var   int           lay_own?;
 
     var   UI**          uis;
-    var   u8            uis_n;
+    var   u32           uis_n;
     var   int           uis_own?;
 
     var   UI*           ui_ptr;
@@ -53,6 +52,7 @@ do
     lay_own? = 0;
 
     uis      = null;
+    uis_n    = 0;
     uis_own? = 0;
 
     ui_own?  = 0;       // TODO: change to fun arg
@@ -61,6 +61,14 @@ do
     ui_rects   = null;
 
     await/0 go;
+        //_assert(uis_n > 0);
+        _assert(uis != null);
+
+    loop i, uis_n do
+        if uis[i] != null then
+            emit uis[i]:go;
+        end
+    end
 
     // TODO: should not require := (finally below)
     cell_rects := _malloc(uis_n * sizeof<_SDL_Rect>);
@@ -82,7 +90,7 @@ do
         end
     with
         loop do
-            // TODO: problema com ui_ptr mudar 
+            // TODO: problema com ui_ptr mudar
             var int i = await/0 go_ui;
             if ui_ptr != null then
                 if ui_own? then     // TODO: change to fun arg
@@ -169,6 +177,7 @@ do
 
                     if lay1 > cur then      // always increasing items
                         cur = lay1;
+                        _assert(cur <= uis_n);
 
                         var _SDL_Rect* cell_rect = &cell_rects[cur-1];
                             cell_rect:x = x;
@@ -176,7 +185,7 @@ do
                             cell_rect:w = one_xx + 2*pad_xx;
                             cell_rect:h = one_yy + 2*pad_yy;
 
-                        var _SDL_Rect* ui_rect   = &ui_rects[cur-1];
+                        var _SDL_Rect* ui_rect = &ui_rects[cur-1];
                             ui_rect:x = x+pad_xx;
                             ui_rect:y = y+pad_yy;
                             ui_rect:w = one_xx;
@@ -203,7 +212,7 @@ do
                                 break;
                             end
                         end
-                        if uis and uis[cur-1] then
+                        if uis[cur-1] then
                             emit uis[cur-1]:go_redim=ui_rect;
                         end
                     end
