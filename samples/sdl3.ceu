@@ -1,0 +1,96 @@
+@include(sdl.ceu);
+
+input void SDL_REDRAW;
+input void SDL_QUIT;
+
+var int win_w;
+var int win_h;
+var _SDL_Window* win;
+    finalize
+        win = _SDL_CreateWindow("SDL 3",
+                            500, 1300, 800, 480, _SDL_WINDOW_SHOWN);
+    with
+        _SDL_DestroyWindow(win);
+    end
+
+_SDL_GetWindowSize(win, &win_w, &win_h);
+
+var _SDL_Renderer* ren;
+    finalize
+        ren = _SDL_CreateRenderer(win, -1,
+                            _SDL_RENDERER_ACCELERATED|_SDL_RENDERER_PRESENTVSYNC);
+    with
+        _SDL_DestroyRenderer(ren);
+    end
+
+var _SDL_Rect bg;
+    bg.w = win_w;
+    bg.h = win_h;
+    bg.x = 0;
+    bg.y = 0;
+
+var _SDL_Color bg_clr;
+    bg_clr.r = 0x00;
+    bg_clr.g = 0x00;
+    bg_clr.b = 0x00;
+
+class Rect with
+    var _SDL_Rect  rct;
+    var int        dt;
+
+    var _SDL_Renderer* ren;
+do
+    this.rct.w = 10;
+    this.rct.h = 10;
+
+    var _SDL_Color clr;
+        clr.r = 0xFF;
+        clr.g = 0xFF;
+        clr.b = 0xFF;
+
+    par/or do
+        loop do
+            await (this.dt) ms;
+            rct.x = rct.x + 10;
+            if rct.x > 500 then
+                break;
+            end
+        end
+    with
+        loop do
+            await SDL_REDRAW;
+            _SDL_SetRenderDrawColor(ren, clr.r,clr.g,clr.b,0);
+            _SDL_RenderFillRect(ren, &rct);
+        end
+    end
+end
+
+par/or do
+    await SDL_QUIT;
+with
+    loop do
+        await SDL_REDRAW;
+        _SDL_SetRenderDrawColor(ren, bg_clr.r,bg_clr.g,bg_clr.b,0);
+        _SDL_RenderFillRect(ren, &bg);
+    end
+with
+    do
+        loop do
+            await 1s;
+            C _rand();
+            spawn Rect with
+                this.dt    = 100 + _rand()%200;
+                this.rct.x = 100;
+                this.rct.y = 100 + _rand()%200;
+                this.ren = ren;
+            end;
+        end
+    end
+with
+    loop do
+        await SDL_REDRAW;
+        _SDL_RenderPresent(ren);
+    end
+end
+
+return 0;
