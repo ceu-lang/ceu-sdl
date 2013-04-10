@@ -41,8 +41,8 @@ class Rect with
 
     var _SDL_Renderer* ren;
 do
-    this.rct.w = 10;
-    this.rct.h = 10;
+    this.rct.w = 20;
+    this.rct.h = 20;
     par do
         loop do
             await (this.dt) ms;

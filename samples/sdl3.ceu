@@ -40,8 +40,8 @@ class Rect with
 
     var _SDL_Renderer* ren;
 do
-    this.rct.w = 10;
-    this.rct.h = 10;
+    this.rct.w = 20;
+    this.rct.h = 20;
 
     var _SDL_Color clr;
         clr.r = 0xFF;
@@ -81,7 +81,7 @@ with
             spawn Rect with
                 this.dt    = 100 + _rand()%200;
                 this.rct.x = 100;
-                this.rct.y = 100 + _rand()%200;
+                this.rct.y = 100 + _rand()%300;
                 this.ren = ren;
             end;
         end
