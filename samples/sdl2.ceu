@@ -30,24 +30,31 @@ var _SDL_Rect bg;
     bg.y = 0;
 
 var _SDL_Color bg_clr;
-    bg_clr.r = 0xFF;
-    bg_clr.g = 0xFF;
+    bg_clr.r = 0x00;
+    bg_clr.g = 0x00;
     bg_clr.b = 0x00;
 
 class Rect with
     var _SDL_Rect  rct;
-    var _SDL_Color clr;
     var int        dt;
 
     var _SDL_Renderer* ren;
 do
     this.rct.w = 20;
     this.rct.h = 20;
-    par do
+
+    var _SDL_Color clr;
+        clr.r = 0xFF;
+        clr.g = 0xFF;
+        clr.b = 0xFF;
+
+    par/or do
         loop do
             await (this.dt) ms;
-            rct.x = rct.x + 10;
-            //rct.y = rct.y + 10;
+            rct.x = rct.x + 1;
+            if rct.x > 500 then
+                break;
+            end
         end
     with
         loop do
@@ -58,28 +65,35 @@ do
     end
 end
 
-var Rect r1;
-    r1.dt    = 500;
-    r1.rct.x = 100;
-    r1.rct.y = 100;
-    r1.ren = ren;
-
-var Rect r2;
-    r2.dt    = 1000;
-    r2.rct.x = 100;
-    r2.rct.y = 200;
-    r2.ren = ren;
-
 par/or do
     await SDL_QUIT;
 with
     loop do
         await SDL_REDRAW;
-
         _SDL_SetRenderDrawColor(ren, bg_clr.r,bg_clr.g,bg_clr.b,0);
         _SDL_RenderFillRect(ren, &bg);
+    end
+with
+    loop do
+        var Rect r1 with
+            this.dt    =  10;
+            this.rct.x = 100;
+            this.rct.y = 100;
+            this.ren = ren;
+        end;
 
-        async do end
+        var Rect r2 with
+            this.dt    =  40;
+            this.rct.x = 100;
+            this.rct.y = 200;
+            this.ren = ren;
+        end;
+
+        await 10s;
+    end
+with
+    loop do
+        await SDL_REDRAW;
         _SDL_RenderPresent(ren);
     end
 end

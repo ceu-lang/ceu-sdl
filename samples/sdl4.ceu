@@ -9,7 +9,7 @@ var int win_w;
 var int win_h;
 var _SDL_Window* win;
     finalize
-        win = _SDL_CreateWindow("SDL 3",
+        win = _SDL_CreateWindow("SDL 4",
                             500, 1300, 800, 480, _SDL_WINDOW_SHOWN);
     with
         _SDL_DestroyWindow(win);
@@ -53,18 +53,18 @@ do
     event int go_pause;
 
     par/or do
-        //pause/if go_pause do
+        pause/if go_pause do
             loop do
                 await (this.dt) ms;
-                rct.x = rct.x + 10;
+                rct.x = rct.x + 1;
                 if rct.x > 500 then
                     break;
                 end
             end
-        //end
+        end
     with
+        var int paused? = 0;
         loop do
-            var int paused? = 0;
             var _SDL_MouseButtonEvent* but = await SDL_MOUSEBUTTONDOWN;
             if but:button == _SDL_BUTTON_LEFT then
                 if _SDL_Rect_vs_Mouse(&rct, but) then
@@ -80,7 +80,7 @@ do
             _SDL_RenderFillRect(ren, &rct);
         end
     end
-//await FOREVER;
+    //await FOREVER;    // disappears but remains on memory
 end
 
 event int go_pause_all;
@@ -94,24 +94,24 @@ with
         _SDL_RenderFillRect(ren, &bg);
     end
 with
-    var int paused? = 0;
     loop do
         par/or do
-            //pause/if go_pause_all do
+            pause/if go_pause_all do
                 do
                     loop do
                         await 1s;
                         C _rand();
                         spawn Rect with
-                            this.dt    = 100 + _rand()%200;
+                            this.dt    =  10 + _rand()%20;
                             this.rct.x = 100;
                             this.rct.y = 100 + _rand()%300;
                             this.ren = ren;
                         end;
                     end
                 end
-            //end
+            end
         with
+            var int paused? = 0;
             loop do
                 var _SDL_KeyboardEvent* key = await SDL_KEYDOWN;
                 if key:keysym.sym == _SDLK_ESCAPE then

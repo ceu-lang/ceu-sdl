@@ -51,7 +51,7 @@ do
     par/or do
         loop do
             await (this.dt) ms;
-            rct.x = rct.x + 10;
+            rct.x = rct.x + 1;
             if rct.x > 500 then
                 break;
             end
@@ -74,16 +74,24 @@ with
         _SDL_RenderFillRect(ren, &bg);
     end
 with
-    do
-        loop do
-            await 1s;
-            C _rand();
-            spawn Rect with
-                this.dt    = 100 + _rand()%200;
-                this.rct.x = 100;
-                this.rct.y = 100 + _rand()%300;
-                this.ren = ren;
-            end;
+    loop do
+        //var Rect* r;
+        par/or do
+            await 20s;
+        with
+            do
+                loop do
+                    await 1s;
+                    C _rand();
+                    //r = new Rect with
+                    spawn Rect with
+                        this.dt    = 10 + _rand()%200;
+                        this.rct.x = 100;
+                        this.rct.y = 100 + _rand()%300;
+                        this.ren = ren;
+                    end;
+                end
+            end
         end
     end
 with
