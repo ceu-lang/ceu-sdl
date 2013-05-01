@@ -8,7 +8,7 @@ var int win_w;
 var int win_h;
 var _SDL_Window* win;
     finalize
-        win = _SDL_CreateWindow("UI 1",
+        win = _SDL_CreateWindow("UI 1 - Texture",
                             500, 1300, 800, 480, _SDL_WINDOW_SHOWN);
     with
         _SDL_DestroyWindow(win);
@@ -33,12 +33,11 @@ var _SDL_Texture* tex;
 finalize
     tex = _IMG_LoadTexture(ren, "samples/img.png");
 with
-    nothing; // tex_own?=1
+    _SDL_DestroyTexture(tex);
 end
 
 var UITexture ui with
-    this.tex_own? = 1;
-    this.tex      = tex;
+    this.tex = tex;
 end;
 
 var _SDL_Rect r;
@@ -48,46 +47,66 @@ par/or do
 with
     await START;
 
-    loop do
-        ui.align_x = _UI_ALIGN_CENTER;
-        ui.align_y = _UI_ALIGN_MIDDLE;
-
+    par do
         r.x = 10;
         r.y = 10;
         r.w = 100;
         r.h = 100;
-        emit ui.go_redim = &r;
-        await 1s;
 
-        loop i, 500 do
-            r.x = r.x + 1;
-            emit ui.go_redim = &r;
-            await 5ms;
+        loop do
+            C _rand();
+            loop i, 500 do
+                r.x = r.x + 1;
+                r.w = r.w + _rand() % 3 - 1;
+                if r.w < 5 then r.w = 5; end
+                r.h = r.h + _rand() % 3 - 1;
+                if r.h < 5 then r.h = 5; end
+                emit ui.go_redim = &r;
+                await 5ms;
+            end
+
+            loop i, 300 do
+                r.y = r.y + 1;
+                r.w = r.w + _rand() % 3 - 1;
+                if r.w < 5 then r.w = 5; end
+                r.h = r.h + _rand() % 3 - 1;
+                if r.h < 5 then r.h = 5; end
+                emit ui.go_redim = &r;
+                await 5ms;
+            end
+
+            loop i, 500 do
+                r.x = r.x - 1;
+                r.w = r.w + _rand() % 3 - 1;
+                if r.w < 5 then r.w = 5; end
+                r.h = r.h + _rand() % 3 - 1;
+                if r.h < 5 then r.h = 5; end
+                emit ui.go_redim = &r;
+                await 5ms;
+            end
+
+            loop i, 300 do
+                r.y = r.y - 1;
+                r.w = r.w + _rand() % 3 - 1;
+                if r.w < 5 then r.w = 5; end
+                r.h = r.h + _rand() % 3 - 1;
+                if r.h < 5 then r.h = 5; end
+                emit ui.go_redim = &r;
+                await 5ms;
+            end
         end
-
-        loop i, 300 do
-            r.y = r.y + 1;
-            emit ui.go_redim = &r;
-            await 5ms;
+    with
+        loop do
+            loop i, 3 do
+                loop j, 3 do
+                    ui.align_x = i;
+                    ui.align_y = j;
+                    emit ui.go_redim = null;
+                    await 1s;
+                end
+            end
         end
-
-        ui.align_x = _UI_ALIGN_LEFT;
-        emit ui.go_redim = null;
-        await 1s;
-
-        ui.align_x = _UI_ALIGN_RIGHT;
-        emit ui.go_redim = null;
-        await 1s;
-
-        ui.align_y = _UI_ALIGN_TOP;
-        emit ui.go_redim = null;
-        await 1s;
-
-        ui.align_y = _UI_ALIGN_BOTTOM;
-        emit ui.go_redim = null;
-        await 1s;
     end
-
 with
     loop do
         await SDL_REDRAW;
