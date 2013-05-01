@@ -2,7 +2,7 @@
 
 C constant _UI_ALIGN_LEFT, _UI_ALIGN_CENTER, _UI_ALIGN_RIGHT,
            _UI_ALIGN_TOP,  _UI_ALIGN_MIDDLE, _UI_ALIGN_BOTTOM;
-C _UI_align();
+C pure _UI_align();
 C do
     enum {
         UI_ALIGN_LEFT = 0,
@@ -39,7 +39,7 @@ end
 
 interface UI with
     event void                      go;
-    event void                      go_redraw;
+    event _SDL_Renderer*            go_redraw;
     event void                      ok_redraw_pre;
     event void                      ok_redraw_pos;
     event _SDL_Point*               go_move;
@@ -53,16 +53,17 @@ end
 
 class UITexture with
     interface UI;
-    var   _SDL_Texture* tex;
-    var   int           tex_own?;
+    var   _SDL_Texture* tex      = null;
+    var   int           tex_own? = 0;
+    var   int           align_x  = _UI_ALIGN_CENTER;
+    var   int           align_y  = _UI_ALIGN_MIDDLE;
 do
-    this.tex      = null;
-    this.tex_own? = 0;
-    this.align_x  = _UI_ALIGN_CENTER;
-    this.align_y  = _UI_ALIGN_MIDDLE;
-
-    await/0 go;
-        _assert(tex != null);
+    _assert(this.tex != null);
+        finalize with
+            if this.tex_own? then
+                _SDL_DestroyTexture(tex);
+            end
+        end;
 
     // TODO: check result
     var int w, h;
@@ -70,7 +71,7 @@ do
 
     var _SDL_Rect rect_out;
 
-    var _SDL_Rect* r = await/0 go_redim;
+    var _SDL_Rect* r = await go_redim;
     par do
         loop do
             if r != null then
@@ -93,15 +94,11 @@ do
         end
     with
         loop do
-            await go_redraw;
+            var _SDL_Renderer* ren = await go_redraw;
             emit ok_redraw_pre;
-            _SDL_RenderCopy(global:ren, this.tex, null, &rect);
+            _SDL_RenderCopy(ren, this.tex, null, &rect);
             emit ok_redraw_pos;
         end
-    end
-finally
-    if tex_own? then
-        _SDL_DestroyTexture(this.tex);
     end
 end
 

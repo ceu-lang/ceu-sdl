@@ -1,0 +1,106 @@
+@include(sdl.ceu);
+
+input void START;
+input void SDL_REDRAW;
+input void SDL_QUIT;
+
+var int win_w;
+var int win_h;
+var _SDL_Window* win;
+    finalize
+        win = _SDL_CreateWindow("UI 1",
+                            500, 1300, 800, 480, _SDL_WINDOW_SHOWN);
+    with
+        _SDL_DestroyWindow(win);
+    end
+
+_SDL_GetWindowSize(win, &win_w, &win_h);
+var _SDL_Rect win_r;
+    win_r.w = win_w;
+    win_r.h = win_h;
+
+var _SDL_Renderer* ren;
+    finalize
+        ren = _SDL_CreateRenderer(win, -1,
+                            _SDL_RENDERER_ACCELERATED|_SDL_RENDERER_PRESENTVSYNC);
+    with
+        _SDL_DestroyRenderer(ren);
+    end
+
+@include(ui.ceu);
+
+var _SDL_Texture* tex;
+finalize
+    tex = _IMG_LoadTexture(ren, "samples/img.png");
+with
+    nothing; // tex_own?=1
+end
+
+var UITexture ui with
+    this.tex_own? = 1;
+    this.tex      = tex;
+end;
+
+var _SDL_Rect r;
+
+par/or do
+    await SDL_QUIT;
+with
+    await START;
+
+    loop do
+        ui.align_x = _UI_ALIGN_CENTER;
+        ui.align_y = _UI_ALIGN_MIDDLE;
+
+        r.x = 10;
+        r.y = 10;
+        r.w = 100;
+        r.h = 100;
+        emit ui.go_redim = &r;
+        await 1s;
+
+        loop i, 500 do
+            r.x = r.x + 1;
+            emit ui.go_redim = &r;
+            await 5ms;
+        end
+
+        loop i, 300 do
+            r.y = r.y + 1;
+            emit ui.go_redim = &r;
+            await 5ms;
+        end
+
+        ui.align_x = _UI_ALIGN_LEFT;
+        emit ui.go_redim = null;
+        await 1s;
+
+        ui.align_x = _UI_ALIGN_RIGHT;
+        emit ui.go_redim = null;
+        await 1s;
+
+        ui.align_y = _UI_ALIGN_TOP;
+        emit ui.go_redim = null;
+        await 1s;
+
+        ui.align_y = _UI_ALIGN_BOTTOM;
+        emit ui.go_redim = null;
+        await 1s;
+    end
+
+with
+    loop do
+        await SDL_REDRAW;
+
+        _SDL_SetRenderDrawColor(ren, 0x00,0x00,0x00, 0);
+        _SDL_RenderFillRect(ren, &win_r);
+
+        _SDL_SetRenderDrawColor(ren, 0xFF,0xFF,0xFF, 0);
+        _SDL_RenderFillRect(ren, &r);
+
+        emit ui.go_redraw=ren;
+        _SDL_RenderPresent(ren);
+    end
+end
+
+return 0;
