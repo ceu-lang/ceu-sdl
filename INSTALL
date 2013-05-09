@@ -1,0 +1,34 @@
+# INSTALATION
+
+> git clone https://github.com/fsantanna/ceu-sdl
+> cd ceu-sdl
+> make CEUFILE=samples/<example>
+> ./samples/<example>
+
+#######################################################
+# INSTALATION of SDL 2.0 (http://www.libsdl.org/hg.php)
+#######################################################
+
+# Install required packages:
+> sudo apt-get install mercurial autoconf libxext-dev libtool libX11-dev 
+> libgpng-dev libjpeg-dev
+
+# Compile from HG repository:
+
+# SDL:
+> hg clone http://hg.libsdl.org/SDL
+> mkdir SDL/build
+> cd SDL/build
+> ../configure
+> make
+> sudo make install
+> sudo ldconfig
+
+# SDL_image:
+> hg clone http://hg.libsdl.org/SDL_image
+> mkdir SDL_image/build
+> cd SDL_image/build
+> ../configure
+> make
+> sudo make install
+> sudo ldconfig
