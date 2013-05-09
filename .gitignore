@@ -2,6 +2,7 @@
 .*.swo
 _ceu_*
 *.ceu_m4
+*.exe
 chess_clock/
 fnts/
 gol/
