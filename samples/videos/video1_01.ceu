@@ -1,0 +1,6 @@
+C _printf();
+
+loop do
+    await 1s;
+    _printf("Hello world!\n");
+end

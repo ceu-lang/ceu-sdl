@@ -1,0 +1,13 @@
+C _printf();
+
+par/or do
+    loop do
+        await 1s;
+        _printf("Hello world!\n");
+    end
+with
+    await 5s;
+    _printf("END!!!\n");
+end
+
+return 0;

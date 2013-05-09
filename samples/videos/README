@@ -1,0 +1,21 @@
+Source code for the videos:
+
+[1] Céu basics:
+(https://www.youtube.com/watch?v=W3Bl9hsoc3s&hd=1)
+--------------------------------------------------
+- [00:00] video1_01.ceu (first "Hello world!")
+- [02:10] video1_02.ceu (using `par/and´)
+- [07:20] video1_03.ceu (using `loop´ with `await´)
+- [08:30] video1_04.ceu (using `event´)
+- [12:45] video1_05.ceu (using `par/or´)
+- [14:05] video1_06.ceu (using `par/or´ to terminate)
+
+[2] Céu with SDL:
+(https://www.youtube.com/watch?v=14OyF1lhlRI&hd=1)
+--------------------------------------------------
+- [00:00] video2_01.ceu (`SDL_QUIT´ and `finalize´)
+- [07:15] video2_02.ceu (draw an `_SDL_Rect´)
+- [12:00] video2_03.ceu (animating the rectangle)
+- [14:40] video2_04.ceu (bouncing rectangle)
+- [16:20] video2_05.ceu (stopping rectangle)
+- [17:25] video2_06.ceu (two stopping rectangles)

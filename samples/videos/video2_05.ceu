@@ -1,0 +1,51 @@
+@include(sdl.ceu);
+
+input void SDL_QUIT;
+input void SDL_REDRAW;
+
+var _SDL_Window* win;
+finalize
+    win = _SDL_CreateWindow("SDL APP", 200,200, 640,480, 0);
+with
+    _SDL_DestroyWindow(win);
+end
+
+var _SDL_Renderer* ren;
+finalize
+    ren = _SDL_CreateRenderer(win, -1, 0);
+with
+    _SDL_DestroyRenderer(ren);
+end
+
+var _SDL_Rect bg;
+bg.w = 640;
+bg.h = 480;
+bg.x = 0;
+bg.y = 0;
+
+var _SDL_Rect r;
+r.w = 100;
+r.h = 100;
+r.x = 20;
+r.y = 100;
+
+par/or do
+    loop i, 500 do
+        await 10ms;
+        r.x = r.x + 1;
+    end
+    await FOREVER;
+with
+    loop do
+        await SDL_REDRAW;
+        _SDL_SetRenderDrawColor(ren, 0x00,0x00,0x00, 0);
+        _SDL_RenderFillRect(ren, &bg);
+        _SDL_SetRenderDrawColor(ren, 0xFF,0xFF,0xFF, 0);
+        _SDL_RenderFillRect(ren, &r);
+        _SDL_RenderPresent(ren);
+    end
+with
+    await SDL_QUIT;
+end
+
+return 0;

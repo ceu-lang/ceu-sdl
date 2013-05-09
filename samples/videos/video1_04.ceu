@@ -1,0 +1,14 @@
+C _printf();
+
+event void e;
+
+loop do
+    par/and do
+        await 1s;
+        _printf("Hello\n");
+        emit e;
+    with
+        await e;
+        _printf("world!\n\n");
+    end
+end
