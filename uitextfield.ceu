@@ -13,6 +13,7 @@ class UITextField with
     var _SDL_Color      clr_bg, clr_fg;
     event int           go_keyboard;
     event _char*        ok_keyboard;
+    event _char*        ok_char;
     var _TTF_Font*      font;
     var int             font_own?;
 do
@@ -28,7 +29,12 @@ do
     var int cursor? = 0;
 
     await/0 go;
-        _assert(font != null);
+
+    _assert(font != null);
+        finalize with
+            if font_own? then
+                _TTF_CloseFont(font);
+            end;
 
     var _SDL_Rect* r = await/0 go_redim;
     par do
@@ -68,6 +74,7 @@ do
                             txt[txt_len] = '\0';
                         end
                         emit go_redim=null;
+                        emit ok_char = txt;
                     else/if key:keysym.sym == _SDLK_RETURN then
                         emit ok_keyboard = txt;
                     end
@@ -86,6 +93,7 @@ do
                         txt_len = txt_len + 1;
                     end
                     emit go_redim=null;
+                    emit ok_char = txt;
                 end
             end
         end
@@ -104,10 +112,15 @@ do
             tex = new UITexture;
             tex:align_x = _UI_ALIGN_LEFT;
             tex:tex_own? = 1;
-            var _SDL_Surface* sfc :=
-                _TTF_RenderText_Shaded(font, s, clr_fg, clr_bg);
-            tex:tex = _SDL_CreateTextureFromSurface(global:ren, sfc);
-            _SDL_FreeSurface(sfc);
+            var _SDL_Surface* sfc;
+                finalize
+                    sfc = _TTF_RenderText_Shaded(font, s, clr_fg, clr_bg);
+                with
+                    _SDL_FreeSurface(sfc);
+            finalize
+                tex:tex = _SDL_CreateTextureFromSurface(global:ren, sfc);
+            with
+                nothing;    // owned by UI
             emit tex:go;
             emit tex:go_redim=&rect;
 
@@ -140,10 +153,6 @@ do
                 _SDL_RenderDrawRect(ren, &rc);      // TODO: leak (???)
             end
         end
-    end
-finally
-    if font_own? then
-        _TTF_CloseFont(font);
     end
 end
 

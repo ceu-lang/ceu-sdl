@@ -86,7 +86,7 @@ do
             await go_x;
             loop do
                 par/or do
-                    await 2s;
+                    await 1s;
                     go_x = 0;
                     await FOREVER;
                 with
@@ -97,7 +97,7 @@ do
             await go_y;
             loop do
                 par/or do
-                    await 2s;
+                    await 1s;
                     go_y = 0;
                     await FOREVER;
                 with

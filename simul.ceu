@@ -17,17 +17,17 @@ par/or do
 /*
 */
     await 30min;
-    //_printf("%d %d\n", n1, n2);
+    _printf("%d %d\n", n1, n2);
     await 30min;
-    //_printf("%d %d\n", n1, n2);
+    _printf("%d %d\n", n1, n2);
     await 30min;
-    //_printf("%d %d\n", n1, n2);
+    _printf("%d %d\n", n1, n2);
     await 30min;
-    //_printf("%d %d\n", n1, n2);
+    _printf("%d %d\n", n1, n2);
     await 30min;
-    //_printf("%d %d\n", n1, n2);
+    _printf("%d %d\n", n1, n2);
     await 30min;
-    //_printf("%d %d\n", n1, n2);
+    _printf("%d %d\n", n1, n2);
 with
     loop do
         n1 = n1 + 1;

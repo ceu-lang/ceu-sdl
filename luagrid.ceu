@@ -1,6 +1,9 @@
+// TODO: under maintenance!
+
 /*{-{*/
 
-C nohold _LuaGrid_res_load(), _LuaGrid_res_unload();
+C _LuaGrid_res_load();
+C nohold _LuaGrid_res_unload();
 C nohold _LuaGrid_clr(), _LuaGrid_is(), _LuaGrid_num();
 C do
     /******/
@@ -114,7 +117,7 @@ do
     var _lua_State* lua = global:lua;
     ref = _LUA_NOREF;
 
-    await/0 go;
+    //await/0 go;
         _assert(ref != _LUA_NOREF);
 
     var int idx = _lua_gettop(lua);
@@ -125,10 +128,6 @@ do
 
     _lua_rawgeti(lua, _LUA_REGISTRYINDEX, ref);     // [ grid ]
     _luaL_unref(lua, _LUA_REGISTRYINDEX, ref);
-
-    // own?
-        grid.uis_own? = 1;
-        grid.lay_own? = 1;
 
     // clrs
         grid.clr_bg?      = _LuaGrid_clr(lua, "clr_bg", &grid.clr_bg);
@@ -155,7 +154,12 @@ do
 
         grid.lay_lins = _lua_tonumber(lua, -2);
         grid.lay_cols = _lua_tonumber(lua, -1);
-        grid.lay     := _malloc(grid.lay_lins*grid.lay_cols*sizeof<UI*>);   // grid.lay_own?
+        grid.lay_own? = 1;
+        finalize
+            grid.lay = _malloc(grid.lay_lins*grid.lay_cols*sizeof<UI*>);
+        with
+            nothing;    // grid.uis_own?
+        end
         _lua_pop(lua, 2);                       // [ grid | lay ]
 
         loop lin, grid.lay_lins do
@@ -172,7 +176,12 @@ do
 
     _lua_getfield(lua, -1, "uis");          // [ grid | uis ]
     grid.uis_n = _lua_objlen(lua, -1);
-    grid.uis  := _malloc(grid.uis_n*sizeof<UI*>);   // grid.uis_own?
+    grid.uis_own? = 1;
+    finalize
+        grid.uis = _malloc(grid.uis_n*sizeof<UI*>);
+    with
+        nothing;    // grid.uis_own?
+    end
 
     // owns all uis
     var UI* d;   // to be set in all cases below
@@ -214,55 +223,85 @@ do
             if res then
                 _lua_rawgeti(lua, idx+2, res);  // [ ... | font | t_res ]
                 _lua_getfield(lua, -1, "fnt");  // [ ... | font | t_res | fnt ]
-                fnt := _lua_touserdata(lua, -1);
+                finalize
+                    fnt = _lua_touserdata(lua, -1);
+                with
+                    nothing;    // released by res_unload()
+                end
                 _lua_pop(lua, 3);               // [ grid | uis | i ]
             else
                 _lua_getfield(lua, -1, "file"); // [ ... | font | file ]
                 _lua_getfield(lua, -2, "size"); // [ ... | font | file | size ]
-                fnt := _TTF_OpenFont(_lua_tostring(lua,-2),
-                                                _lua_tonumber(lua,-1)*global:win_rect.h);
+                finalize
+                    fnt = _TTF_OpenFont(_lua_tostring(lua,-2),
+                                    _lua_tonumber(lua,-1)*global:win_rect.h);
+                with
+                    _TTF_CloseFont(fnt);
+                end
                 _lua_pop(lua, 3);               // [ grid | uis | i ]
             end
 
             // texture
-            var _SDL_Surface* sfc :=
-                _TTF_RenderText_Blended(fnt, str, clr);
-            var _SDL_Texture* tex := _SDL_CreateTextureFromSurface(global:ren, sfc);
-            _SDL_FreeSurface(sfc);
+            var _SDL_Surface* sfc;
+                if grid.clr_ui_bg? then
+                    finalize
+                        sfc = _TTF_RenderText_Shaded(fnt, str, clr, grid.clr_ui_bg);
+                    with
+                        _SDL_FreeSurface(sfc);
+                    end
+                else
+                    finalize
+                        sfc = _TTF_RenderText_Blended(fnt, str, clr);
+                    with
+                        _SDL_FreeSurface(sfc);
+                    end
+                end
 
-            if res == 0 then
-                _TTF_CloseFont(fnt);
-            end
+            var _SDL_Texture* tex;
+                finalize
+                    tex = _SDL_CreateTextureFromSurface(global:ren, sfc);
+                with
+                    nothing;    // owned by UI
+                end
 
             // uitexture
-            var UITexture* ui = new UITexture;
-                ui:tex      = tex;
-                ui:tex_own? = 1;
-                emit ui:go;
-            d ::= ui;
+            d = new UITexture with
+                this.tex      = tex;
+                this.tex_own? = 1;
+                //emit ui:go;
+            end;
 
         else/if _LuaGrid_is(lua, "img") then    // [ grid | uis | i | img ]
             var UITexture* ui = new UITexture;
             var _SDL_Texture* tex;
 
             if _lua_type(lua,-1) == _LUA_TSTRING then
-                tex := _IMG_LoadTexture(global:ren, _lua_tostring(lua,-1));
+                finalize
+                    tex = _IMG_LoadTexture(global:ren, _lua_tostring(lua,-1));
+                with
+                    nothing;    // owned by UI
+                end
                 ui:tex_own? = 1;
             else
                 _lua_rawgeti(lua, idx+3, _lua_tonumber(lua,-1)); // +3=imgs
                 _lua_getfield(lua, -1, "tex");      // [ img | tex ]
-                tex := _lua_touserdata(lua, -1);
+                finalize
+                    tex = _lua_touserdata(lua, -1);
+                with
+                    nothing;    // released by res_unload()
+                end
                 _lua_pop(lua, 2);                   // [ ]
             end
             _lua_pop(lua, 1);                   // [ grid | uis | i ]
 
             ui:tex = tex;
             emit ui:go;
-            d ::= ui;
+            d := ui;
 
 /*
         else/if _LuaGrid_is(lua, "ui") then     // [ grid | uis | i | ui ]
             // does not own it
+// TODO :=
             d := _lua_touserdata(lua, -1);  // e2 must have higher scope
             _lua_pop(lua, 1);                   // [ grid | uis | i ]
 */

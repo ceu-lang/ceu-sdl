@@ -35,8 +35,8 @@ class UIGrid with
     var   u32           uis_n    = 0;
     var   int           uis_own? = 0;
 
-    var   UI*           ui_ptr;
-    var   int           ui_own? = 0;        // TODO: change to fun arg
+    //var   UI*           ui_ptr;
+    //var   int           ui_own? = 0;        // TODO: change to fun arg
 
     var _SDL_Rect*      cell_rects = null;
     var _SDL_Rect*      ui_rects   = null;
@@ -86,6 +86,7 @@ do
                 end
             end
         end
+/*
     with
         loop do
             // TODO: problema com ui_ptr mudar
@@ -100,6 +101,7 @@ do
                 emit uis[i]:go_redim = &ui_rects[i];
             end
         end
+*/
     with
         // GO_REDIM
         loop do
