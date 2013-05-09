@@ -19,8 +19,7 @@ _SDL_GetWindowSize(win, &win_w, &win_h);
 
 var _SDL_Renderer* ren;
     finalize
-        ren = _SDL_CreateRenderer(win, -1,
-                            _SDL_RENDERER_ACCELERATED|_SDL_RENDERER_PRESENTVSYNC);
+        ren = _SDL_CreateRenderer(win, -1, 0);
     with
         _SDL_DestroyRenderer(ren);
     end
