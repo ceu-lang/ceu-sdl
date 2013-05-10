@@ -6,6 +6,8 @@ all:
 		-o $(basename $(CEUFILE)).exe
 
 clean:
-	rm -f a.out *.exe _ceu_
+	find . -name "*.exe"  | xargs rm -f
+	find . -name "*_m4"   | xargs rm -f
+	find . -name "_ceu_*" | xargs rm -f
 
 .PHONY: all clean
