@@ -35,7 +35,7 @@ int ret_val;
 
 s32 WCLOCK_nxt;
 
-#ifndef IN_SDL_DT
+#ifndef CEU_IN_SDL_DT
 #define ceu_out_wclock(us) WCLOCK_nxt = us;
 #endif
 
@@ -54,7 +54,7 @@ int main (int argc, char *argv[])
 {
     SDL_Init(SDL_INIT_EVERYTHING);
 
-#ifdef IN_SDL_DT
+#ifdef CEU_IN_SDL_DT
     WCLOCK_nxt = 20000;
 #else
     WCLOCK_nxt = CEU_WCLOCK_INACTIVE;
@@ -68,12 +68,12 @@ int main (int argc, char *argv[])
     if (ret) goto END;
 
 // TODO: push START into queue
-#ifdef IN_START
-    ceu_go_event(IN_START, NULL);
+#ifdef CEU_IN_START
+    ceu_go_event(CEU_IN_START, NULL);
     if (ret) goto END;
 #endif
-#ifdef IN_SDL_REDRAW
-    ceu_go_event(IN_SDL_REDRAW, NULL);
+#ifdef CEU_IN_SDL_REDRAW
+    ceu_go_event(CEU_IN_SDL_REDRAW, NULL);
     if (ret) goto END;
 #endif
 
@@ -109,8 +109,8 @@ int main (int argc, char *argv[])
         }
 #endif
 
-#ifdef IN_SDL_DT
-        ceu_go_event(IN_SDL_DT, &dt);
+#ifdef CEU_IN_SDL_DT
+        ceu_go_event(CEU_IN_SDL_DT, &dt);
         if (ret) goto END;
 #endif
 
@@ -119,67 +119,67 @@ int main (int argc, char *argv[])
         {
 //printf("EVT: %x\n", evt.type);
             switch (evt.type) {
-#ifdef IN_SDL_QUIT
+#ifdef CEU_IN_SDL_QUIT
                 case SDL_QUIT:
-                    ceu_go_event(IN_SDL_QUIT, NULL);
+                    ceu_go_event(CEU_IN_SDL_QUIT, NULL);
                     break;
 #endif
-#ifdef IN_SDL_WINDOWEVENT
+#ifdef CEU_IN_SDL_WINDOWEVENT
                 case SDL_WINDOWEVENT:
-                    ceu_go_event(IN_SDL_WINDOWEVENT, &evt);
+                    ceu_go_event(CEU_IN_SDL_WINDOWEVENT, &evt);
                     break;
 #endif
-#ifdef IN_SDL_KEYDOWN
+#ifdef CEU_IN_SDL_KEYDOWN
                 case SDL_KEYDOWN:
-                    ceu_go_event(IN_SDL_KEYDOWN, &evt);
+                    ceu_go_event(CEU_IN_SDL_KEYDOWN, &evt);
                     break;
 #endif
-#ifdef IN_SDL_KEYUP
+#ifdef CEU_IN_SDL_KEYUP
                 case SDL_KEYUP:
-                    ceu_go_event(IN_SDL_KEYUP, &evt);
+                    ceu_go_event(CEU_IN_SDL_KEYUP, &evt);
                     break;
 #endif
-#ifdef IN_SDL_TEXTINPUT
+#ifdef CEU_IN_SDL_TEXTINPUT
                 case SDL_TEXTINPUT:
-                    ceu_go_event(IN_SDL_TEXTINPUT, &evt);
+                    ceu_go_event(CEU_IN_SDL_TEXTINPUT, &evt);
                     break;
 #endif
-#ifdef IN_SDL_TEXTEDITING
+#ifdef CEU_IN_SDL_TEXTEDITING
                 case SDL_TEXTEDITING:
-                    ceu_go_event(IN_SDL_TEXTEDITING, &evt);
+                    ceu_go_event(CEU_IN_SDL_TEXTEDITING, &evt);
                     break;
 #endif
-#ifdef IN_SDL_MOUSEMOTION
+#ifdef CEU_IN_SDL_MOUSEMOTION
                 case SDL_MOUSEMOTION:
-                    ceu_go_event(IN_SDL_MOUSEMOTION, &evt);
+                    ceu_go_event(CEU_IN_SDL_MOUSEMOTION, &evt);
                     break;
 #endif
-#ifdef IN_SDL_MOUSEBUTTONDOWN
+#ifdef CEU_IN_SDL_MOUSEBUTTONDOWN
                 case SDL_MOUSEBUTTONDOWN:
-                    ceu_go_event(IN_SDL_MOUSEBUTTONDOWN, &evt);
+                    ceu_go_event(CEU_IN_SDL_MOUSEBUTTONDOWN, &evt);
                     break;
 #endif
-#ifdef IN_SDL_MOUSEBUTTONUP
+#ifdef CEU_IN_SDL_MOUSEBUTTONUP
                 case SDL_MOUSEBUTTONUP:
-                    ceu_go_event(IN_SDL_MOUSEBUTTONUP, &evt);
+                    ceu_go_event(CEU_IN_SDL_MOUSEBUTTONUP, &evt);
                     break;
 #endif
-#ifdef IN_SDL_FINGERDOWN
+#ifdef CEU_IN_SDL_FINGERDOWN
                 case SDL_FINGERDOWN:
-                    ceu_go_event(IN_SDL_FINGERDOWN, &evt);
+                    ceu_go_event(CEU_IN_SDL_FINGERDOWN, &evt);
                     break;
 #endif
-#ifdef IN_SDL_FINGERUP
+#ifdef CEU_IN_SDL_FINGERUP
                 case SDL_FINGERUP:
-                    ceu_go_event(IN_SDL_FINGERUP, &evt);
+                    ceu_go_event(CEU_IN_SDL_FINGERUP, &evt);
                     break;
 #endif
             }
             if (ret) goto END;
         }
 
-#ifdef IN_SDL_REDRAW
-        ceu_go_event(IN_SDL_REDRAW, NULL);
+#ifdef CEU_IN_SDL_REDRAW
+        ceu_go_event(CEU_IN_SDL_REDRAW, NULL);
         if (ret) goto END;
 #endif
 
