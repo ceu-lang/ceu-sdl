@@ -3,11 +3,11 @@
 // TODO
 // - test scrolling
 
-C do
+native do
     #define SDL_SIMUL
 end
 
-C _rand(), _srand(), _time();
+native _rand(), _srand(), _time();
 
 _srand(_time(null));
 

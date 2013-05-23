@@ -81,7 +81,7 @@ with
             do
                 loop do
                     await 1s;
-                    C _rand();
+                    native _rand();
                     //r = new Rect with
                     spawn Rect with
                         this.dt    = 10 + _rand()%200;

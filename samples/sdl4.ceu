@@ -99,7 +99,7 @@ with
                 do
                     loop do
                         await 1s;
-                        C _rand();
+                        native _rand();
                         spawn Rect with
                             this.dt    =  10 + _rand()%20;
                             this.rct.x = 100;

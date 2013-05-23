@@ -34,8 +34,8 @@ var _SDL_Rect win_rect = win_r;
 @include(ui.ceu);
 @include(uigrid.ceu);
 
-C _lay1, _lay2;
-C do
+native _lay1, _lay2;
+native do
     int lay1[16] = {
         1, 0, 0, 0,
         0, 2, 2, 0,
@@ -146,7 +146,7 @@ with
     end
 with
     await 3s;
-    C _rand();
+    native _rand();
     loop do
         r.w = r.w + _rand() % 3 - 1;
         if r.w < 100 then r.w = 100; end

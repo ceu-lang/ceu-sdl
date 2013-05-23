@@ -53,7 +53,7 @@ with
         r.h = 100;
 
         loop do
-            C _rand();
+            native _rand();
             loop i, 500 do
                 r.x = r.x + 1;
                 r.w = r.w + _rand() % 3 - 1;
