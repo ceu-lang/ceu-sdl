@@ -28,7 +28,6 @@ var _SDL_Renderer* ren;
 
 @include(ui.ceu);
 @include(uigrid.ceu);
-@include(luagrid.ceu);
 
 var _SDL_Texture* tex;
 finalize

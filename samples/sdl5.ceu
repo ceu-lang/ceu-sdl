@@ -7,7 +7,7 @@ input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
 
 var _SDL_Window* win;
     finalize
-        win = _SDL_CreateWindow("SDL 4",
+        win = _SDL_CreateWindow("SDL 5",
                             500, 1300, 640, 480, _SDL_WINDOW_SHOWN);
     with
         _SDL_DestroyWindow(win);
