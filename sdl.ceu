@@ -1,103 +1,103 @@
 /*{-{*/
 
-C _char  = 1,
-  _float = 4;
+native _char  = 1,
+       _float = 4;
 
-C constant _stderr;
-C _assert();
-C nohold _sprintf(), _fprintf(), _printf();
-C nohold _free();
-C _malloc();
+native constant _stderr;
+native _assert();
+native nohold _sprintf(), _fprintf(), _printf();
+native nohold _free();
+native _malloc();
 
-C constant _GL_SCISSOR_TEST, _GL_TEXTURE_2D;
-C _glEnable(), _glDisable(), _glScissor();
+native constant _GL_SCISSOR_TEST, _GL_TEXTURE_2D;
+native _glEnable(), _glDisable(), _glScissor();
 
-C _SDL_Rect  = 16,
-  _SDL_Point =  8,
-  _SDL_Color = 16,
-  _SDL_Event = 56,
-  _SDL_MouseButtonEvent = 24,
-  _SDL_MouseMotionEvent = 56,   // TODO: ?
-  _SDL_KeyboardEvent = 32,
-  _SDL_TextInputEvent = 56,     // TODO: ?
-  _SDL_WindowEvent = 20,
-  _SDL_Surface  = 0,
-  _SDL_Renderer = 0,
-  _SDL_Window   = 0,
-  _SDL_Texture  = 0,
-  _TTF_Font     = 0,
-  _Mix_Chunk    = 0;
+native _SDL_Rect  = 16,
+       _SDL_Point =  8,
+       _SDL_Color = 16,
+       _SDL_Event = 56,
+       _SDL_MouseButtonEvent = 24,
+       _SDL_MouseMotionEvent = 56,   // TODO: ?
+       _SDL_KeyboardEvent = 32,
+       _SDL_TextInputEvent = 56,     // TODO: ?
+       _SDL_WindowEvent = 20,
+       _SDL_Surface  = 0,
+       _SDL_Renderer = 0,
+       _SDL_Window   = 0,
+       _SDL_Texture  = 0,
+       _TTF_Font     = 0,
+       _Mix_Chunk    = 0;
 
-C constant _SDL_TRUE, _SDL_FALSE,
-           _SDL_BLENDMODE_NONE, _SDL_BLENDMODE_BLEND,
-           _SDL_BUTTON_LEFT,
-           _SDL_BUTTON_RIGHT,
-           _SDL_KEYDOWN,
-           _SDL_MOUSEBUTTONDOWN,
-           _SDL_PIXELFORMAT_UNKNOWN,
-           _SDL_SCANCODE_AC_BACK,
-           _SDL_RENDERER_ACCELERATED,
-           _SDL_RENDERER_PRESENTVSYNC,
-           _SDL_TEXTINPUT,
-           _SDL_TEXTUREACCESS_STATIC,
-           _SDL_TEXTUREACCESS_TARGET,
-           _SDL_WINDOW_SHOWN,
-           _SDL_WINDOW_RESIZABLE,
-           _SDL_WINDOWEVENT_RESIZED,
-           _AUDIO_S16SYS;
+native constant _SDL_TRUE, _SDL_FALSE,
+                _SDL_BLENDMODE_NONE, _SDL_BLENDMODE_BLEND,
+                _SDL_BUTTON_LEFT,
+                _SDL_BUTTON_RIGHT,
+                _SDL_KEYDOWN,
+                _SDL_MOUSEBUTTONDOWN,
+                _SDL_PIXELFORMAT_UNKNOWN,
+                _SDL_SCANCODE_AC_BACK,
+                _SDL_RENDERER_ACCELERATED,
+                _SDL_RENDERER_PRESENTVSYNC,
+                _SDL_TEXTINPUT,
+                _SDL_TEXTUREACCESS_STATIC,
+                _SDL_TEXTUREACCESS_TARGET,
+                _SDL_WINDOW_SHOWN,
+                _SDL_WINDOW_RESIZABLE,
+                _SDL_WINDOWEVENT_RESIZED,
+                _AUDIO_S16SYS;
 
-C constant _SDLK_ESCAPE,
-           _SDLK_BACKSPACE,
-           _SDLK_RETURN,
-           _SDLK_p;
+native constant _SDLK_ESCAPE,
+                _SDLK_BACKSPACE,
+                _SDLK_RETURN,
+                _SDLK_p;
 
-C nohold _SDL_GL_BindTexture(),
-         _SDL_CreateWindow(),
-         _SDL_CreateRenderer(),
-         _SDL_CreateTexture(),
-         _SDL_CreateTextureFromSurface(),
-         _SDL_GetMouseState(),
-         _SDL_GetWindowSize(),
-         _SDL_SetWindowFullscreen(),
-         _SDL_SetRenderDrawColor(),
-         _SDL_RenderClear(),
-         _SDL_RenderDrawRect(),
-         _SDL_RenderFillRect(),
-         _SDL_RenderCopy(),
-         _SDL_RenderPresent(),
-         _SDL_DestroyRenderer(),
-         _SDL_DestroyWindow(),
-         _SDL_DestroyTexture(),
-         _SDL_FreeSurface(),
-         _SDL_QueryTexture(),
-         _SDL_Quit(),
-         _SDL_Delay(),
-         _SDL_SetEventFilter(),
-         _SDL_SetRenderDrawBlendMode(),
-         _SDL_SetRenderTarget(),
-         _SDL_SetTextInputRect(),
-         _SDL_SetWindowDisplayMode(),
-         _SDL_StartTextInput(),
-         _SDL_StopTextInput(),
-         _IMG_LoadTexture(),
-         _TTF_CloseFont(),
-         _TTF_Init(),
-         _TTF_OpenFont(),
-         _TTF_Quit(),
-         _TTF_RenderText_Blended(),
-         _TTF_RenderText_Shaded(),
-         _TTF_RenderText_Solid(),
-         _TTF_SizeText(),
-         _Mix_LoadWAV(),
-         _Mix_FreeChunk(),
-         _Mix_PlayChannel(),
-         _Mix_Playing(),
-         _Mix_CloseAudio(),
-         _Mix_OpenAudio();
+native nohold _SDL_GL_BindTexture(),
+              _SDL_CreateWindow(),
+              _SDL_CreateRenderer(),
+              _SDL_CreateTexture(),
+              _SDL_CreateTextureFromSurface(),
+              _SDL_GetMouseState(),
+              _SDL_GetWindowSize(),
+              _SDL_SetWindowFullscreen(),
+              _SDL_SetRenderDrawColor(),
+              _SDL_RenderClear(),
+              _SDL_RenderDrawRect(),
+              _SDL_RenderFillRect(),
+              _SDL_RenderCopy(),
+              _SDL_RenderPresent(),
+              _SDL_DestroyRenderer(),
+              _SDL_DestroyWindow(),
+              _SDL_DestroyTexture(),
+              _SDL_FreeSurface(),
+              _SDL_QueryTexture(),
+              _SDL_Quit(),
+              _SDL_Delay(),
+              _SDL_SetEventFilter(),
+              _SDL_SetRenderDrawBlendMode(),
+              _SDL_SetRenderTarget(),
+              _SDL_SetTextInputRect(),
+              _SDL_SetWindowDisplayMode(),
+              _SDL_StartTextInput(),
+              _SDL_StopTextInput(),
+              _IMG_LoadTexture(),
+              _TTF_CloseFont(),
+              _TTF_Init(),
+              _TTF_OpenFont(),
+              _TTF_Quit(),
+              _TTF_RenderText_Blended(),
+              _TTF_RenderText_Shaded(),
+              _TTF_RenderText_Solid(),
+              _TTF_SizeText(),
+              _Mix_LoadWAV(),
+              _Mix_FreeChunk(),
+              _Mix_PlayChannel(),
+              _Mix_Playing(),
+              _Mix_CloseAudio(),
+              _Mix_OpenAudio();
 
-C nohold _SDL_Rect_vs_Mouse();
+native nohold _SDL_Rect_vs_Mouse();
 
-C do
+native do
     int SDL_Rect_vs_Mouse (SDL_Rect* r, SDL_MouseButtonEvent* but) {
         return (but->x >= r->x) && (but->x <= r->x+r->w)
             && (but->y >= r->y) && (but->y <= r->y+r->h);
