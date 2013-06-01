@@ -68,14 +68,14 @@ do
             if but:button == _SDL_BUTTON_LEFT then
                 if _SDL_Rect_vs_Mouse(&rct, but) then
                     paused? = not paused?;
-                    emit go_pause = paused?;
+                    emit go_pause => paused?;
                 end
             end
         end
     with
         loop do
             await SDL_REDRAW;
-            _SDL_SetRenderDrawColor(ren, clr.r,clr.g,clr.b,0);
+            _SDL_SetRenderDrawColor(ren, clr.r,clr.g,clr.b,0xFF);
             _SDL_RenderFillRect(ren, &rct);
         end
     end
@@ -89,7 +89,7 @@ par/or do
 with
     loop do
         await SDL_REDRAW;
-        _SDL_SetRenderDrawColor(ren, bg_clr.r,bg_clr.g,bg_clr.b,0);
+        _SDL_SetRenderDrawColor(ren, bg_clr.r,bg_clr.g,bg_clr.b,0xFF);
         _SDL_RenderFillRect(ren, &bg);
     end
 with
@@ -117,7 +117,7 @@ with
                     break;
                 else/if key:keysym.sym == _SDLK_p then
                     paused? = not paused?;
-                    emit go_pause_all = paused?;
+                    emit go_pause_all => paused?;
                 end
             end
         end

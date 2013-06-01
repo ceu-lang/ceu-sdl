@@ -82,7 +82,7 @@ do
             var _SDL_Point* pt = await go_move;
             rect.x = rect.x + pt:x;
             rect.y = rect.y + pt:y;
-            emit go_redim=&rect;
+            emit go_redim => &rect;
         end
     with
         await go_redim; // requires 1st redim

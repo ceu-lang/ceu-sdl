@@ -45,7 +45,6 @@ par/or do
     await SDL_QUIT;
 with
     await START;
-
     par do
         r.x = 10;
         r.y = 10;
@@ -60,7 +59,7 @@ with
                 if r.w < 5 then r.w = 5; end
                 r.h = r.h + _rand() % 3 - 1;
                 if r.h < 5 then r.h = 5; end
-                emit ui.go_redim = &r;
+                emit ui.go_redim => &r;
                 await 5ms;
             end
 
@@ -70,7 +69,7 @@ with
                 if r.w < 5 then r.w = 5; end
                 r.h = r.h + _rand() % 3 - 1;
                 if r.h < 5 then r.h = 5; end
-                emit ui.go_redim = &r;
+                emit ui.go_redim => &r;
                 await 5ms;
             end
 
@@ -80,7 +79,7 @@ with
                 if r.w < 5 then r.w = 5; end
                 r.h = r.h + _rand() % 3 - 1;
                 if r.h < 5 then r.h = 5; end
-                emit ui.go_redim = &r;
+                emit ui.go_redim => &r;
                 await 5ms;
             end
 
@@ -90,7 +89,7 @@ with
                 if r.w < 5 then r.w = 5; end
                 r.h = r.h + _rand() % 3 - 1;
                 if r.h < 5 then r.h = 5; end
-                emit ui.go_redim = &r;
+                emit ui.go_redim => &r;
                 await 5ms;
             end
         end
@@ -100,7 +99,7 @@ with
                 loop j, 3 do
                     ui.align_x = i;
                     ui.align_y = j;
-                    emit ui.go_redim = null;
+                    emit ui.go_redim => null;
                     await 1s;
                 end
             end
@@ -116,7 +115,7 @@ with
         _SDL_SetRenderDrawColor(ren, 0xFF,0xFF,0xFF, 0);
         _SDL_RenderFillRect(ren, &r);
 
-        emit ui.go_redraw=ren;
+        emit ui.go_redraw => ren;
         _SDL_RenderPresent(ren);
     end
 end

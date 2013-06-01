@@ -2,8 +2,6 @@
 
 input void SDL_REDRAW;
 input void SDL_QUIT;
-input _SDL_KeyboardEvent*    SDL_KEYDOWN;
-input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
 
 var _SDL_Window* win;
     finalize

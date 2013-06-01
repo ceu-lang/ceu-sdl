@@ -125,24 +125,25 @@ var UIGrid g1 with
 end;
 
 await START;
+
 var _SDL_Rect r;
     r.w = win_w/2;
     r.h = win_h/2;
     r.x = (win_w-r.w) / 2;
     r.y = (win_h-r.h) / 2;
-emit g1.go_redim = &r;
+emit g1.go_redim => &r;
 
 par/or do
     await SDL_QUIT;
 with
     loop do
         var int opt = await g1.ok_uiclicked;
-        _printf("G1: %d\n", opt);
+        _fprintf(_stderr, "G1: %d\n", opt);
     end
 with
     loop do
         var int opt = await g2.ok_uiclicked;
-        _printf("G2: %d\n", opt);
+        _fprintf(_stderr, "G2: %d\n", opt);
     end
 with
     await 3s;
@@ -166,13 +167,13 @@ with
         g2.pad_y = g2.pad_y + _rand() % 3 - 1;
         if g2.pad_y < 0 then g2.pad_y = 0; end
 
-        emit g1.go_redim = &r;
+        emit g1.go_redim => &r;
         await 100ms;
     end
 with
     loop do
         await SDL_REDRAW;
-        emit g1.go_redraw=ren;
+        emit g1.go_redraw => ren;
         _SDL_RenderPresent(ren);
     end
 end

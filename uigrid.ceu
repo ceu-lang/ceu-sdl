@@ -62,13 +62,13 @@ do
     end
 
     finalize
-        cell_rects = _malloc(uis_n * sizeof<_SDL_Rect>);
+        cell_rects = _malloc(uis_n * sizeof(_SDL_Rect));
     with
         _free(cell_rects);
     end
 
     finalize
-        ui_rects = _malloc(uis_n * sizeof<_SDL_Rect>);
+        ui_rects = _malloc(uis_n * sizeof(_SDL_Rect));
     with
         _free(ui_rects);
     end
@@ -82,7 +82,7 @@ do
             var _SDL_MouseButtonEvent* but = await SDL_MOUSEBUTTONDOWN;
             loop i, uis_n do
                 if _SDL_Rect_vs_Mouse(&ui_rects[i], but) then
-                    emit ok_uiclicked = i+1;    // 0 are blank spaces
+                    emit ok_uiclicked => i+1;    // 0 are blank spaces
                 end
             end
         end
@@ -98,7 +98,7 @@ do
                 uis[i] = ui_ptr;
             end
             if redimed? and uis[i]!=null then
-                emit uis[i]:go_redim = &ui_rects[i];
+                emit uis[i]:go_redim => &ui_rects[i];
             end
         end
 */
@@ -178,7 +178,7 @@ do
                             end
                         end
                         if uis[cur-1] then
-                            emit uis[cur-1]:go_redim=ui_rect;
+                            emit uis[cur-1]:go_redim => ui_rect;
                         end
                     end
                 end
@@ -196,7 +196,7 @@ do
                 ui_rects[i].x   = ui_rects[i].x + pt:x;
                 ui_rects[i].y   = ui_rects[i].y + pt:y;
                 if uis[i] then
-                    emit uis[i]:go_move=pt;
+                    emit uis[i]:go_move => pt;
                 end
             end
         end
@@ -230,7 +230,7 @@ clr_ui_fr.b = 0x00;
                     _SDL_RenderFillRect(ren, &ui_rects[i]);
                 end
                 if uis[i] then
-                    emit uis[i]:go_redraw=ren;
+                    emit uis[i]:go_redraw => ren;
                 end
                 if clr_cell_fr? then
                     _SDL_SetRenderDrawColor(ren,
