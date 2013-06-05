@@ -1,8 +1,10 @@
-CFLAGS = -DCEU_RUNTESTS -DCEU_DEBUG #-DCEU_DEBUG_TRAILS
+#CFLAGS = -DCEU_RUNTESTS -DCEU_DEBUG #-DCEU_DEBUG_TRAILS
 
 all:
 	ceu $(CEUFILE) --m4 --tp-word 4
-	gcc -g -Os main.c $(CFLAGS) -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf \
+	#gcc -g -Os main.c $(CFLAGS) -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf 
+	#	-o $(basename $(CEUFILE)).exe
+	gcc main.c $(CFLAGS) -lSDL2 \
 		-o $(basename $(CEUFILE)).exe
 
 clean:

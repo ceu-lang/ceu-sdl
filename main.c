@@ -60,7 +60,7 @@ int main (int argc, char *argv[])
     WCLOCK_nxt = CEU_WCLOCK_INACTIVE;
 #endif
 
-#ifdef CEU_WCLOCKS
+#if defined(CEU_WCLOCKS) || defined(CEU_IN_SDL_DT)
     u32 old = SDL_GetTicks();
 #endif
 
@@ -82,6 +82,9 @@ int main (int argc, char *argv[])
     {
 #ifndef SDL_SIMUL
 
+#ifdef CEU_IN_SDL_DT
+        s32 tm = 0;
+#else
         s32 tm = -1;
 #ifdef CEU_WCLOCKS
         if (WCLOCK_nxt != CEU_WCLOCK_INACTIVE)
@@ -91,14 +94,17 @@ int main (int argc, char *argv[])
         if (ASYNC_nxt)
             tm = 0;
 #endif
+#endif  // CEU_IN_SDL_DT
 
         int has = SDL_WaitEventTimeout(&evt, tm);
 
-#ifdef CEU_WCLOCKS
+#if defined(CEU_WCLOCKS) || defined(CEU_IN_SDL_DT)
         u32 now = SDL_GetTicks();
         s32 dt = now - old;
         old = now;
+#endif
 
+#ifdef CEU_WCLOCKS
         if (WCLOCK_nxt != CEU_WCLOCK_INACTIVE) {
             ceu_go_wclock(1000*dt);
             if (ret) goto END;
