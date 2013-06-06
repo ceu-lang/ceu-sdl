@@ -116,7 +116,7 @@ int main (int argc, char *argv[])
 #endif
 
 #ifdef CEU_IN_SDL_DT
-        ceu_go_event(CEU_IN_SDL_DT, &dt);
+        ceu_go_event(CEU_IN_SDL_DT, (void*)dt);
         if (ret) goto END;
 #endif
 
