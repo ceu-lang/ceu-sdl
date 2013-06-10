@@ -38,7 +38,7 @@ var _SDL_Rect bg;
 
 /* Maximum of 10k Rectangles on a dedicated memory pool */
 
-class Rect(10000) with
+class [10000] Rect with
     var _SDL_Rect  rct;         // My initial values
     var int        vel;         // I have a speed set from outside
     var _SDL_Renderer* ren;     // I redraw myself
