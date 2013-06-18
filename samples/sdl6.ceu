@@ -1,4 +1,4 @@
-@include(sdl.ceu);
+include sdl.ceu;
 
 native do
     int ORGS = 0;       // count the number of alive rectangles

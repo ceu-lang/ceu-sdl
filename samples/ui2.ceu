@@ -1,4 +1,4 @@
-@include(sdl.ceu);
+include sdl.ceu;
 
 input void START;
 input void SDL_REDRAW;
@@ -31,8 +31,8 @@ interface Global with
 end
 var _SDL_Rect win_rect = win_r;
 
-@include(ui.ceu);
-@include(uigrid.ceu);
+include ui.ceu;
+include uigrid.ceu;
 
 native _lay1, _lay2;
 native do

@@ -1,5 +1,3 @@
-/*{-{*/
-
 native _char  = 1,
        _float = 4;
 
@@ -103,5 +101,3 @@ native do
             && (but->y >= r->y) && (but->y <= r->y+r->h);
     }
 end
-
-/*}-}*/ dnl

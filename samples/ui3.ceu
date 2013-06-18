@@ -1,4 +1,4 @@
-@include(sdl.ceu);
+include sdl.ceu;
 
 input void START;
 input void SDL_REDRAW;
@@ -26,8 +26,8 @@ var _SDL_Renderer* ren;
         _SDL_DestroyRenderer(ren);
     end
 
-@include(ui.ceu);
-@include(uigrid.ceu);
+include ui.ceu;
+include uigrid.ceu;
 
 var _SDL_Texture* tex;
 finalize

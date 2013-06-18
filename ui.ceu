@@ -1,5 +1,3 @@
-/*{-{*/
-
 native constant _UI_ALIGN_LEFT, _UI_ALIGN_CENTER, _UI_ALIGN_RIGHT,
                 _UI_ALIGN_TOP,  _UI_ALIGN_MIDDLE, _UI_ALIGN_BOTTOM;
 native pure _UI_align();
@@ -94,5 +92,3 @@ do
         end
     end
 end
-
-/*}-}*/ dnl

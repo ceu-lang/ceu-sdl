@@ -1,5 +1,3 @@
-/*{-{*/
-
 // TODO:
 // * remaining space from division
 
@@ -251,5 +249,3 @@ clr_ui_fr.b = 0x00;
         end
     end
 end
-
-/*}-}*/ dnl
