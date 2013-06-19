@@ -1,6 +1,7 @@
 // TODO:
 // * remaining space from division
 
+input void SDL_REDRAW;
 input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
 
 class UIGrid with
@@ -53,12 +54,6 @@ do
             end;
         end
 
-    loop i, uis_n do
-        if uis[i] != null then
-            emit uis[i]:go;
-        end
-    end
-
     finalize
         cell_rects = _malloc(uis_n * sizeof(_SDL_Rect));
     with
@@ -102,8 +97,8 @@ do
 */
     with
         // GO_REDIM
+        var _SDL_Rect* r = await go_redim;
         loop do
-            var _SDL_Rect* r = await go_redim;
             redimed? = 1;
             if r != null then
                 rect = *r;
@@ -181,6 +176,7 @@ do
                     end
                 end
             end
+            r = await go_redim;
         end
     with
         await go_redim; // requires 1st redim
@@ -200,10 +196,9 @@ do
         end
     with
         await go_redim; // requires 1st redim
-        loop do
-            var _SDL_Renderer* ren = await go_redraw;
+        every SDL_REDRAW do
             if clr_bg? then
-                _SDL_SetRenderDrawColor(ren, clr_bg.r,clr_bg.g,clr_bg.b,0);
+                _SDL_SetRenderDrawColor(ren, clr_bg.r,clr_bg.g,clr_bg.b,0xFF);
                 _SDL_RenderFillRect(ren, &rect);
             end
 /*
@@ -219,7 +214,7 @@ clr_ui_fr.b = 0x00;
             loop i, uis_n do
                 if clr_cell_bg? then
                     _SDL_SetRenderDrawColor(ren,
-                        clr_cell_bg.r,clr_cell_bg.g,clr_cell_bg.b,0);
+                        clr_cell_bg.r,clr_cell_bg.g,clr_cell_bg.b,0xFF);
                     _SDL_RenderFillRect(ren, &cell_rects[i]);
                 end
                 if clr_ui_bg? then
@@ -227,12 +222,9 @@ clr_ui_fr.b = 0x00;
                         clr_ui_bg.r,clr_ui_bg.g,clr_ui_bg.b,0);
                     _SDL_RenderFillRect(ren, &ui_rects[i]);
                 end
-                if uis[i] then
-                    emit uis[i]:go_redraw => ren;
-                end
                 if clr_cell_fr? then
                     _SDL_SetRenderDrawColor(ren,
-                        clr_cell_fr.r,clr_cell_fr.g,clr_cell_fr.b,0);
+                        clr_cell_fr.r,clr_cell_fr.g,clr_cell_fr.b,0xFF);
                     _SDL_RenderDrawRect(ren, &cell_rects[i]);
                 end
                 if clr_ui_fr? then
@@ -243,7 +235,7 @@ clr_ui_fr.b = 0x00;
             end
 
             if clr_fr? then
-                _SDL_SetRenderDrawColor(ren, clr_fr.r,clr_fr.g,clr_fr.b,0);
+                _SDL_SetRenderDrawColor(ren, clr_fr.r,clr_fr.g,clr_fr.b,0xFF);
                 _SDL_RenderDrawRect(ren, &rect);
             end
         end

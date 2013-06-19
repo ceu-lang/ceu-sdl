@@ -1,6 +1,5 @@
-include sdl.ceu;
+import sdl.ceu;
 
-input void START;
 input void SDL_REDRAW;
 input void SDL_QUIT;
 
@@ -26,7 +25,7 @@ var _SDL_Renderer* ren;
         _SDL_DestroyRenderer(ren);
     end
 
-include ui.ceu;
+import ui.ceu;
 
 var _SDL_Texture* tex;
 finalize
@@ -35,16 +34,24 @@ with
     _SDL_DestroyTexture(tex);
 end
 
-var UITexture ui with
-    this.tex = tex;
-end;
-
 var _SDL_Rect r;
 
 par/or do
     await SDL_QUIT;
 with
-    await START;
+    every SDL_REDRAW do
+
+        _SDL_SetRenderDrawColor(ren, 0x00,0x00,0x00, 0);
+        _SDL_RenderFillRect(ren, &win_r);
+
+        _SDL_SetRenderDrawColor(ren, 0xFF,0xFF,0xFF, 0);
+        _SDL_RenderFillRect(ren, &r);
+    end
+with
+    var UITexture ui with
+        this.tex = tex;
+    end;
+
     par do
         r.x = 10;
         r.y = 10;
@@ -106,16 +113,7 @@ with
         end
     end
 with
-    loop do
-        await SDL_REDRAW;
-
-        _SDL_SetRenderDrawColor(ren, 0x00,0x00,0x00, 0);
-        _SDL_RenderFillRect(ren, &win_r);
-
-        _SDL_SetRenderDrawColor(ren, 0xFF,0xFF,0xFF, 0);
-        _SDL_RenderFillRect(ren, &r);
-
-        emit ui.go_redraw => ren;
+    every SDL_REDRAW do
         _SDL_RenderPresent(ren);
     end
 end

@@ -36,17 +36,18 @@ end
 // macro p/ verificar que go_redim<-draw/move/etc
 
 interface UI with
-    event void                      go;
-    event _SDL_Renderer*            go_redraw;
     event void                      ok_redraw_pre;
     event void                      ok_redraw_pos;
     event _SDL_Point*               go_move;
     event _SDL_Rect*                go_redim;
 
+    var   _SDL_Renderer*            ren;
     var   _SDL_Rect                 rect;
     var   int                       align_x;
     var   int                       align_y;
 end
+
+input void SDL_REDRAW;
 
 class UITexture with
     interface UI;
@@ -63,8 +64,8 @@ do
     var _SDL_Rect rect_out;
 
     par do
+        var _SDL_Rect* r = await go_redim;
         loop do
-            var _SDL_Rect* r = await go_redim;
             if r != null then
                 rect_out = *r;
             end
@@ -73,6 +74,7 @@ do
             rect.h = h;
             rect.x = _UI_align(rect_out.x, rect_out.w, rect.w, align_x);
             rect.y = _UI_align(rect_out.y, rect_out.h, rect.h, align_y);
+            r = await go_redim;
         end
     with
         await go_redim; // requires 1st redim
@@ -84,10 +86,9 @@ do
         end
     with
         await go_redim; // requires 1st redim
-        loop do
-            var _SDL_Renderer* ren = await go_redraw;
+        every SDL_REDRAW do
             emit ok_redraw_pre;
-            _SDL_RenderCopy(ren, this.tex, null, &rect);
+            _SDL_RenderCopy(this.ren, this.tex, null, &rect);
             emit ok_redraw_pos;
         end
     end

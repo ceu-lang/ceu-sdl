@@ -1,11 +1,10 @@
-include sdl.ceu;
+import sdl.ceu;
+import ui.ceu;
+import uigrid.ceu;
 
-input void START;
 input void SDL_REDRAW;
 input void SDL_QUIT;
 
-var int win_w;
-var int win_h;
 var _SDL_Window* win;
     finalize
         win = _SDL_CreateWindow("UI 2 - Grid",
@@ -13,11 +12,9 @@ var _SDL_Window* win;
     with
         _SDL_DestroyWindow(win);
     end
-
-_SDL_GetWindowSize(win, &win_w, &win_h);
-var _SDL_Rect win_r;
-    win_r.w = win_w;
-    win_r.h = win_h;
+var int win_w;
+var int win_h;
+    _SDL_GetWindowSize(win, &win_w, &win_h);
 
 var _SDL_Renderer* ren;
     finalize
@@ -25,14 +22,6 @@ var _SDL_Renderer* ren;
     with
         _SDL_DestroyRenderer(ren);
     end
-
-interface Global with
-    var _SDL_Rect        win_rect;
-end
-var _SDL_Rect win_rect = win_r;
-
-include ui.ceu;
-include uigrid.ceu;
 
 native _lay1, _lay2;
 native do
@@ -46,41 +35,6 @@ native do
         1, 2, 3
     };
 end
-
-var _SDL_Color clr_cell_fr;
-    clr_cell_fr.r = 0x00;
-    clr_cell_fr.g = 0x00;
-    clr_cell_fr.b = 0x00;
-
-var _SDL_Color clr_ui_bg;
-    clr_ui_bg.r = 0xFF;
-    clr_ui_bg.g = 0xFF;
-    clr_ui_bg.b = 0x00;
-
-var _SDL_Color clr_ui_fr;
-    clr_ui_fr.r = 0xFF;
-    clr_ui_fr.g = 0x00;
-    clr_ui_fr.b = 0x00;
-
-var UI*[3] uis;
-var UIGrid g2 with
-    this.clr_cell_fr? = 1;
-    this.clr_cell_fr  = clr_cell_fr;
-    this.clr_ui_bg?   = 1;
-    this.clr_ui_bg    = clr_ui_bg;
-    this.clr_ui_fr?   = 1;
-    this.clr_ui_fr    = clr_ui_fr;
-    this.pad_x        = 5;
-    this.pad_y        = 5;
-    this.lay_lins     = 1;
-    this.lay_cols     = 3;
-    this.lay          = _lay2;
-    this.uis_n        = 3;
-    this.uis          = uis;
-        this.uis[0] = null;
-        this.uis[1] = null;
-        this.uis[2] = null;
-end;
 
 var _SDL_Color clr_bg;
     clr_bg.r = 0x77;
@@ -102,83 +56,113 @@ var _SDL_Color clr_cell_fr;
     clr_cell_fr.g = 0x00;
     clr_cell_fr.b = 0x00;
 
-var UI*[3] uis;
-var UIGrid g1 with
-    this.clr_bg?      = 1;
-    this.clr_bg       = clr_bg;
-    this.clr_fr?      = 1;
-    this.clr_fr       = clr_fr;
-    this.clr_cell_bg? = 1;
-    this.clr_cell_bg  = clr_cell_bg;
-    this.clr_cell_fr? = 1;
-    this.clr_cell_fr  = clr_cell_fr;
-    this.spc_x        = 10;
-    this.spc_y        = 10;
-    this.lay_lins     = 4;
-    this.lay_cols     = 4;
-    this.lay          = _lay1;
-    this.uis_n        = 3;
-    this.uis          = uis;
-        this.uis[0] = null;
-        this.uis[1] = &g2;
-        this.uis[2] = null;
-end;
+var _SDL_Color clr_cell_fr;
+    clr_cell_fr.r = 0x00;
+    clr_cell_fr.g = 0x00;
+    clr_cell_fr.b = 0x00;
 
-await START;
+var _SDL_Color clr_ui_bg;
+    clr_ui_bg.r = 0xFF;
+    clr_ui_bg.g = 0xFF;
+    clr_ui_bg.b = 0x00;
 
-var _SDL_Rect r;
-    r.w = win_w/2;
-    r.h = win_h/2;
-    r.x = (win_w-r.w) / 2;
-    r.y = (win_h-r.h) / 2;
-emit g1.go_redim => &r;
+var _SDL_Color clr_ui_fr;
+    clr_ui_fr.r = 0xFF;
+    clr_ui_fr.g = 0x00;
+    clr_ui_fr.b = 0x00;
 
 par/or do
     await SDL_QUIT;
 with
-    loop do
-        var int opt = await g1.ok_uiclicked;
-        _fprintf(_stderr, "G1: %d\n", opt);
+    var UI*[3] uis;
+    var UIGrid g1 with
+        this.ren          = ren;
+        this.clr_bg?      = 1;
+        this.clr_bg       = clr_bg;
+        this.clr_fr?      = 1;
+        this.clr_fr       = clr_fr;
+        this.clr_cell_bg? = 1;
+        this.clr_cell_bg  = clr_cell_bg;
+        this.clr_cell_fr? = 1;
+        this.clr_cell_fr  = clr_cell_fr;
+        this.spc_x        = 10;
+        this.spc_y        = 10;
+        this.lay_lins     = 4;
+        this.lay_cols     = 4;
+        this.lay          = _lay1;
+        this.uis_n        = 3;
+        this.uis          = uis;
+            this.uis[0] = null;
+            this.uis[2] = null;
+    end;
+
+    var UI*[3] uis;
+    var UIGrid g2 with
+        this.ren          = ren;
+        this.clr_cell_fr? = 1;
+        this.clr_cell_fr  = clr_cell_fr;
+        this.clr_ui_bg?   = 1;
+        this.clr_ui_bg    = clr_ui_bg;
+        this.clr_ui_fr?   = 1;
+        this.clr_ui_fr    = clr_ui_fr;
+        this.pad_x        = 5;
+        this.pad_y        = 5;
+        this.lay_lins     = 1;
+        this.lay_cols     = 3;
+        this.lay          = _lay2;
+        this.uis_n        = 3;
+        this.uis          = uis;
+            this.uis[0] = null;
+            this.uis[1] = null;
+            this.uis[2] = null;
+    end;
+    g1.uis[1] = &g2;
+
+    var _SDL_Rect r;
+        r.w = win_w/2;
+        r.h = win_h/2;
+        r.x = (win_w-r.w) / 2;
+        r.y = (win_h-r.h) / 2;
+    emit g1.go_redim => &r;
+
+    var int opt;
+    par do
+        every opt=g1.ok_uiclicked do
+            _fprintf(_stderr, "G1: %d\n", opt);
+        end
+    with
+        every opt=g2.ok_uiclicked do
+            _fprintf(_stderr, "G2: %d\n", opt);
+        end
+    with
+        await 3s;
+        native _rand();
+        every 100ms do
+            r.w = r.w + _rand() % 3 - 1;
+            if r.w < 100 then r.w = 100; end
+
+            r.h = r.h + _rand() % 3 - 1;
+            if r.h < 100 then r.h = 100; end
+
+            g1.spc_x = g1.spc_x + _rand() % 3 - 1;
+            if g1.spc_x < 0 then g1.spc_x = 0; end
+
+            g1.spc_y = g1.spc_y + _rand() % 3 - 1;
+            if g1.spc_y < 0 then g1.spc_y = 0; end
+
+            g2.pad_x = g2.pad_x + _rand() % 3 - 1;
+            if g2.pad_x < 0 then g2.pad_x = 0; end
+
+            g2.pad_y = g2.pad_y + _rand() % 3 - 1;
+            if g2.pad_y < 0 then g2.pad_y = 0; end
+
+            emit g1.go_redim => &r;
+        end
     end
 with
-    loop do
-        var int opt = await g2.ok_uiclicked;
-        _fprintf(_stderr, "G2: %d\n", opt);
-    end
-with
-    await 3s;
-    native _rand();
-    loop do
-        r.w = r.w + _rand() % 3 - 1;
-        if r.w < 100 then r.w = 100; end
-
-        r.h = r.h + _rand() % 3 - 1;
-        if r.h < 100 then r.h = 100; end
-
-        g1.spc_x = g1.spc_x + _rand() % 3 - 1;
-        if g1.spc_x < 0 then g1.spc_x = 0; end
-
-        g1.spc_y = g1.spc_y + _rand() % 3 - 1;
-        if g1.spc_y < 0 then g1.spc_y = 0; end
-
-        g2.pad_x = g2.pad_x + _rand() % 3 - 1;
-        if g2.pad_x < 0 then g2.pad_x = 0; end
-
-        g2.pad_y = g2.pad_y + _rand() % 3 - 1;
-        if g2.pad_y < 0 then g2.pad_y = 0; end
-
-        emit g1.go_redim => &r;
-        await 100ms;
-    end
-with
-    loop do
-        await SDL_REDRAW;
-        emit g1.go_redraw => ren;
+    every SDL_REDRAW do
         _SDL_RenderPresent(ren);
     end
 end
-
-_SDL_DestroyRenderer(ren);
-_SDL_DestroyWindow(win);
 
 return 0;
