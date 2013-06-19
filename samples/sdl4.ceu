@@ -1,4 +1,4 @@
-include sdl.ceu;
+import sdl.ceu;
 
 input void SDL_REDRAW;
 input void SDL_QUIT;

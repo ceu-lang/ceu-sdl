@@ -4,9 +4,11 @@
 input void SDL_REDRAW;
 input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
 
+import ui.ceu;
+
 class UIGrid with
     interface UI;
-    event int           go_ui;
+    event (int,UI*)     go_ui;
     event int           ok_uiclicked;
 
     var   int           clr_bg? = 0;        // whole UI background
@@ -40,6 +42,8 @@ class UIGrid with
     var _SDL_Rect*      cell_rects = null;
     var _SDL_Rect*      ui_rects   = null;
 do
+    var _SDL_Rect* r = await go_redim;
+
     _assert(this.lay != null);
         finalize with
             if this.lay_own? then
@@ -66,11 +70,8 @@ do
         _free(ui_rects);
     end
 
-    var int redimed? = 0;
-
     par do
         // GO_MOUSEBUTTONDOWN
-        await go_redim;
         loop do
             var _SDL_MouseButtonEvent* but = await SDL_MOUSEBUTTONDOWN;
             loop i, uis_n do
@@ -79,27 +80,21 @@ do
                 end
             end
         end
-/*
     with
+        // GO_UI
         loop do
-            // TODO: problema com ui_ptr mudar
-            var int i = await go_ui;
-            if ui_ptr != null then
-                if ui_own? then     // TODO: change to fun arg
-                    free uis[i];
-                end
-                uis[i] = ui_ptr;
-            end
-            if redimed? and uis[i]!=null then
-                emit uis[i]:go_redim => &ui_rects[i];
+            var int i;
+            var UI* ui;
+            (i,ui) = await go_ui;
+            uis[i] := ui;
+                   // emitter knows that I hold it
+            if ui != null then
+                emit ui:go_redim => &this.ui_rects[i];
             end
         end
-*/
     with
         // GO_REDIM
-        var _SDL_Rect* r = await go_redim;
         loop do
-            redimed? = 1;
             if r != null then
                 rect = *r;
             end
@@ -179,7 +174,6 @@ do
             r = await go_redim;
         end
     with
-        await go_redim; // requires 1st redim
         loop do
             var _SDL_Point* pt = await go_move;
             rect.x = rect.x + pt:x;
@@ -195,7 +189,6 @@ do
             end
         end
     with
-        await go_redim; // requires 1st redim
         every SDL_REDRAW do
             if clr_bg? then
                 _SDL_SetRenderDrawColor(ren, clr_bg.r,clr_bg.g,clr_bg.b,0xFF);

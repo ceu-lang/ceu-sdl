@@ -55,6 +55,8 @@ class UITexture with
     var   int           align_x = _UI_ALIGN_CENTER;
     var   int           align_y = _UI_ALIGN_MIDDLE;
 do
+    var _SDL_Rect* r = await go_redim;
+
     _assert(this.tex != null);
 
     // TODO: check result
@@ -64,7 +66,6 @@ do
     var _SDL_Rect rect_out;
 
     par do
-        var _SDL_Rect* r = await go_redim;
         loop do
             if r != null then
                 rect_out = *r;
@@ -77,7 +78,6 @@ do
             r = await go_redim;
         end
     with
-        await go_redim; // requires 1st redim
         loop do
             var _SDL_Point* pt = await go_move;
             rect.x = rect.x + pt:x;
@@ -85,7 +85,6 @@ do
             emit go_redim => &rect;
         end
     with
-        await go_redim; // requires 1st redim
         every SDL_REDRAW do
             emit ok_redraw_pre;
             _SDL_RenderCopy(this.ren, this.tex, null, &rect);

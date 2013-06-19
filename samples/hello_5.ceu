@@ -1,0 +1,23 @@
+class HelloWorld with
+    var int id;
+do
+    every 1s do
+        _printf("[%d] Hello world!\n", this.id);
+    end
+end
+
+loop do
+    par/or do
+        await 5s;
+    with
+        do
+            var int i = 1;
+            every 1s do
+                spawn HelloWorld with
+                    this.id = i;
+                end;
+                i = i + 1;
+            end
+        end
+    end
+end

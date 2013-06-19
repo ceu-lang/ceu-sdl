@@ -1,0 +1,18 @@
+native _printf();
+
+class HelloWorld with
+    var int id;
+do
+    every 1s do
+        _printf("[%d] Hello world!\n", this.id);
+    end
+end
+
+var HelloWorld hello1;
+hello1.id = 1;
+do
+    var HelloWorld hello2;
+    hello2.id = 2;
+    await 5s;
+end
+await FOREVER;
