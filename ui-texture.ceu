@@ -7,7 +7,7 @@ class UITexture with
     var   _SDL_Texture*  tex     = null;
     var   int            align_x = _UI_ALIGN_CENTER;
     var   int            align_y = _UI_ALIGN_MIDDLE;
-    var   int            clr_bg? = 0;
+    var   _SDL_Color*    clr_bg  = null;
 do
     var _SDL_Rect* r = await go_redim;
 
@@ -51,9 +51,9 @@ do
     with
         _assert(this.ren != null);
         every SDL_REDRAW do
-            if clr_bg? then
+            if clr_bg != null then
                 _SDL_SetRenderDrawColor(ren,
-                    clr_bg.r,clr_bg.g,clr_bg.b,clr_bg.a);
+                    clr_bg:r,clr_bg:g,clr_bg:b,clr_bg:a);
                 _SDL_RenderFillRect(ren, &rect_out);
             end
             emit ok_redraw_pre;
@@ -85,6 +85,7 @@ native do
     }
 end
 
+import colors.ceu;
 input void SDL_QUIT;
 
 var int win_w;
@@ -124,18 +125,10 @@ _assert(font != null);
 
 var _SDL_Texture* txt;
 
-var _SDL_Color bg;
-    bg.r = 0xFF;
-    bg.g = 0xFF;
-    bg.b = 0xFF;
-var _SDL_Color fg;
-    fg.r = 0x00;
-    fg.g = 0x00;
-    fg.b = 0x00;
-
 var _SDL_Texture* tex_txt;
 finalize
-    tex_txt = _SDL_text2texture(ren, font, "ola mundo!", &fg, &bg);
+    tex_txt = _SDL_text2texture(ren, font, "ola mundo!",
+                                &_colors.black, &_colors.white);
 with
     _SDL_DestroyTexture(tex_txt);
 end

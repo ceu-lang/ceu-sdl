@@ -10,23 +10,17 @@ input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
 class UIGrid with
     interface UI;
 
+    var   _SDL_Renderer* ren = null;
+
     event (int,UI*)     go_ui;
     event (int,UI*)     ok_uiclicked;
 
-    var   _SDL_Renderer* ren = null;
-
-    var   int            clr_bg? = 0;        // whole UI background
-    var   _SDL_Color     clr_bg;
-    var   int            clr_fr? = 0;        // whole UI frame
-    var   _SDL_Color     clr_fr;
-    var   int            clr_cell_bg? = 0;   // each cell background
-    var   _SDL_Color     clr_cell_bg;
-    var   int            clr_cell_fr? = 0;   // each cell frame
-    var   _SDL_Color     clr_cell_fr;
-    var   int            clr_ui_bg? = 0;     // each UI background
-    var   _SDL_Color     clr_ui_bg;          // (if existent)
-    var   int            clr_ui_fr? = 0;     // each UI frame
-    var   _SDL_Color     clr_ui_fr;          // (if existent)
+    var   _SDL_Color*   clr_bg      = null; // whole UI background
+    var   _SDL_Color*   clr_fr      = null; // whole UI frame
+    var   _SDL_Color*   clr_cell_bg = null; // each cell background
+    var   _SDL_Color*   clr_cell_fr = null; // each cell frame
+    var   _SDL_Color*   clr_ui_bg   = null; // each UI background (if existent)
+    var   _SDL_Color*   clr_ui_fr   = null; // each UI frame (if existent)
 
     //var   int           one_x=0, one_y=0;
     var   int            spc_x=0, spc_y=0;
@@ -197,8 +191,9 @@ do
     with
         _assert(this.ren != null);
         every SDL_REDRAW do
-            if clr_bg? then
-                _SDL_SetRenderDrawColor(ren, clr_bg.r,clr_bg.g,clr_bg.b,0xFF);
+            if clr_bg != null then
+                _SDL_SetRenderDrawColor(ren,
+                        clr_bg:r,clr_bg:g,clr_bg:b,clr_bg:a);
                 _SDL_RenderFillRect(ren, &rect);
             end
 /*
@@ -212,36 +207,38 @@ clr_ui_fr.g = 0xFF;
 clr_ui_fr.b = 0x00;
 */
             loop i, uis_n do
-                if clr_cell_bg? then
+                if clr_cell_bg != null then
                     _SDL_SetRenderDrawColor(ren,
-                        clr_cell_bg.r,clr_cell_bg.g,clr_cell_bg.b,0xFF);
+                        clr_cell_bg:r,clr_cell_bg:g,clr_cell_bg:b,clr_cell_bg:a);
                     _SDL_RenderFillRect(ren, &cell_rects[i]);
                 end
-                if clr_ui_bg? then
+                if clr_ui_bg != null then
                     _SDL_SetRenderDrawColor(ren,
-                        clr_ui_bg.r,clr_ui_bg.g,clr_ui_bg.b,0);
+                        clr_ui_bg:r,clr_ui_bg:g,clr_ui_bg:b,clr_ui_bg:a);
                     _SDL_RenderFillRect(ren, &ui_rects[i]);
                 end
-                if clr_cell_fr? then
+                if clr_cell_fr != null then
                     _SDL_SetRenderDrawColor(ren,
-                        clr_cell_fr.r,clr_cell_fr.g,clr_cell_fr.b,0xFF);
+                        clr_cell_fr:r,clr_cell_fr:g,clr_cell_fr:b,clr_cell_fr:a);
                     _SDL_RenderDrawRect(ren, &cell_rects[i]);
                 end
-                if clr_ui_fr? then
+                if clr_ui_fr != null then
                     _SDL_SetRenderDrawColor(ren,
-                        clr_ui_fr.r,clr_ui_fr.g,clr_ui_fr.b,0);
+                        clr_ui_fr:r,clr_ui_fr:g,clr_ui_fr:b,clr_ui_fr:a);
                     _SDL_RenderDrawRect(ren, &ui_rects[i]);
                 end
             end
 
-            if clr_fr? then
-                _SDL_SetRenderDrawColor(ren, clr_fr.r,clr_fr.g,clr_fr.b,0xFF);
+            if clr_fr != null then
+                _SDL_SetRenderDrawColor(ren,
+                        clr_fr:r,clr_fr:g,clr_fr:b,clr_fr:a);
                 _SDL_RenderDrawRect(ren, &rect);
             end
         end
     end
 end
 
+import colors.ceu;
 input void SDL_QUIT;
 
 var _SDL_Window* win;
@@ -275,54 +272,15 @@ native do
     };
 end
 
-var _SDL_Color clr_bg;
-    clr_bg.r = 0x77;
-    clr_bg.g = 0x77;
-    clr_bg.b = 0x77;
-
-var _SDL_Color clr_fr;
-    clr_fr.r = 0xFF;
-    clr_fr.g = 0x00;
-    clr_fr.b = 0x00;
-
-var _SDL_Color clr_cell_bg;
-    clr_cell_bg.r = 0xFF;
-    clr_cell_bg.g = 0xFF;
-    clr_cell_bg.b = 0xFF;
-
-var _SDL_Color clr_cell_fr;
-    clr_cell_fr.r = 0x00;
-    clr_cell_fr.g = 0x00;
-    clr_cell_fr.b = 0x00;
-
-var _SDL_Color clr_cell_fr;
-    clr_cell_fr.r = 0x00;
-    clr_cell_fr.g = 0x00;
-    clr_cell_fr.b = 0x00;
-
-var _SDL_Color clr_ui_bg;
-    clr_ui_bg.r = 0xFF;
-    clr_ui_bg.g = 0xFF;
-    clr_ui_bg.b = 0x00;
-
-var _SDL_Color clr_ui_fr;
-    clr_ui_fr.r = 0xFF;
-    clr_ui_fr.g = 0x00;
-    clr_ui_fr.b = 0x00;
-
 par/or do
     await SDL_QUIT;
 with
     var UIGrid g1 with
         this.ren          = ren;
-        this.clr_bg?      = 1;
-        this.clr_bg       = clr_bg;
-        this.clr_fr?      = 1;
-        this.clr_fr       = clr_fr;
-        this.clr_cell_bg? = 1;
-        this.clr_cell_bg  = clr_cell_bg;
-        this.clr_cell_fr? = 1;
-        this.clr_cell_fr  = clr_cell_fr;
+        this.clr_bg       = &_colors.gray;
+        this.clr_fr       = &_colors.red;
+        this.clr_cell_bg  = &_colors.white;
+        this.clr_cell_fr  = &_colors.black;
         this.spc_x        = 10;
         this.spc_y        = 10;
         this.lay_lins     = 4;
@@ -335,12 +293,9 @@ with
 
     var UIGrid g2 with
         this.ren          = ren;
-        this.clr_cell_fr? = 1;
-        this.clr_cell_fr  = clr_cell_fr;
-        this.clr_ui_bg?   = 1;
-        this.clr_ui_bg    = clr_ui_bg;
-        this.clr_ui_fr?   = 1;
-        this.clr_ui_fr    = clr_ui_fr;
+        this.clr_cell_fr  = &_colors.black;
+        this.clr_ui_bg    = &_colors.yellow;
+        this.clr_ui_fr    = &_colors.red;
         this.pad_x        = 5;
         this.pad_y        = 5;
         this.lay_lins     = 1;

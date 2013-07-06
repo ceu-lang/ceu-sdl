@@ -48,6 +48,5 @@ interface UI with
     var   _SDL_Rect      rect;
     var   int            align_x;
     var   int            align_y;
-    var   int            clr_bg?;
-    var   _SDL_Color     clr_bg;
+    var   _SDL_Color*    clr_bg;
 end
