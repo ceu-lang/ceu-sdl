@@ -7,6 +7,9 @@ native nohold _sprintf(), _fprintf(), _printf();
 native nohold _free();
 native _malloc();
 
+native pure
+    _strcmp();
+
 native constant _GL_SCISSOR_TEST, _GL_TEXTURE_2D;
 native _glEnable(), _glDisable(), _glScissor();
 

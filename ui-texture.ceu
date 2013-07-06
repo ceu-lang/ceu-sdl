@@ -1,0 +1,251 @@
+import sdl.ceu;
+import ui.ceu;
+
+class UITexture with
+    interface UI;
+    var   _SDL_Renderer* ren     = null;
+    var   _SDL_Texture*  tex     = null;
+    var   int            align_x = _UI_ALIGN_CENTER;
+    var   int            align_y = _UI_ALIGN_MIDDLE;
+    var   int            clr_bg? = 0;
+do
+    var _SDL_Rect* r = await go_redim;
+
+    _assert(this.tex != null);
+
+    // TODO: check result
+    var int w, h;
+    _SDL_QueryTexture(tex, null, null, &w, &h);
+
+    var _SDL_Rect rect_out;
+
+    par do
+        // GO_REDIM
+        loop do
+            if r != null then
+                rect_out = *r;
+            end
+
+            rect.w = w;     // TODO: scale?
+            rect.h = h;
+            rect.x = _UI_align(rect_out.x, rect_out.w, rect.w, align_x);
+            rect.y = _UI_align(rect_out.y, rect_out.h, rect.h, align_y);
+            r = await go_redim;
+        end
+    with
+        // GO_MOVE
+        loop do
+            var _SDL_Point* pt = await go_move;
+            rect.x = rect.x + pt:x;
+            rect.y = rect.y + pt:y;
+            emit go_redim => &rect;
+        end
+    with
+        // OK_CLICKED
+        loop do
+            var _SDL_MouseButtonEvent* but = await SDL_MOUSEBUTTONDOWN;
+            if _SDL_Rect_vs_Mouse(&this.rect, but) then
+                emit ok_clicked;
+            end
+        end
+    with
+        _assert(this.ren != null);
+        every SDL_REDRAW do
+            if clr_bg? then
+                _SDL_SetRenderDrawColor(ren,
+                    clr_bg.r,clr_bg.g,clr_bg.b,clr_bg.a);
+                _SDL_RenderFillRect(ren, &rect_out);
+            end
+            emit ok_redraw_pre;
+            _SDL_RenderCopy(this.ren, this.tex, null, &rect);
+            emit ok_redraw_pos;
+        end
+    end
+end
+
+native nohold _SDL_text2texture();
+native do
+    #include "SDL2/SDL_ttf.h"
+    SDL_Texture* SDL_text2texture (SDL_Renderer* ren,
+                                   TTF_Font* font, char* text,
+                                   SDL_Color* fg, SDL_Color* bg)
+    {
+        // Text => Surface
+        SDL_Surface* sfc;
+        if (bg == NULL)
+            sfc = TTF_RenderText_Blended(font, text, *fg);
+        else
+            sfc = TTF_RenderText_Shaded(font, text, *fg, *bg);
+
+        // Surface => Texture
+        SDL_Texture* tex = SDL_CreateTextureFromSurface(ren, sfc);
+        SDL_FreeSurface(sfc);
+
+        return tex;
+    }
+end
+
+input void SDL_QUIT;
+
+var int win_w;
+var int win_h;
+var _SDL_Window* win;
+    finalize
+        win = _SDL_CreateWindow("UI - Texture",
+                            500, 1300, 800, 480, _SDL_WINDOW_SHOWN);
+    with
+        _SDL_DestroyWindow(win);
+    end
+
+_SDL_GetWindowSize(win, &win_w, &win_h);
+var _SDL_Rect win_r;
+    win_r.w = win_w;
+    win_r.h = win_h;
+
+var _SDL_Renderer* ren;
+    finalize
+        ren = _SDL_CreateRenderer(win, -1, 0);
+    with
+        _SDL_DestroyRenderer(ren);
+    end
+
+_TTF_Init();
+    finalize with
+        _TTF_Quit();
+    end
+
+var _TTF_Font* font;
+finalize
+    font = _TTF_OpenFont("fnts/monofonto.ttf", 20);
+with
+    _TTF_CloseFont(font);
+end
+_assert(font != null);
+
+var _SDL_Texture* txt;
+
+var _SDL_Color bg;
+    bg.r = 0xFF;
+    bg.g = 0xFF;
+    bg.b = 0xFF;
+var _SDL_Color fg;
+    fg.r = 0x00;
+    fg.g = 0x00;
+    fg.b = 0x00;
+
+var _SDL_Texture* tex_txt;
+finalize
+    tex_txt = _SDL_text2texture(ren, font, "ola mundo!", &fg, &bg);
+with
+    _SDL_DestroyTexture(tex_txt);
+end
+
+var _SDL_Rect r;
+
+par/or do
+    await SDL_QUIT;
+with
+    every SDL_REDRAW do
+
+        _SDL_SetRenderDrawColor(ren, 0x00,0x00,0x00, 0);
+        _SDL_RenderFillRect(ren, &win_r);
+
+        _SDL_SetRenderDrawColor(ren, 0xFF,0xFF,0xFF, 0);
+        _SDL_RenderFillRect(ren, &r);
+    end
+with
+    var _SDL_Texture* tex;
+    finalize
+        tex = _IMG_LoadTexture(ren, "samples/img.png");
+    with
+        _SDL_DestroyTexture(tex);
+    end
+
+    var UITexture ui with
+        this.ren = ren;
+        this.tex = tex;
+    end;
+
+    var UITexture ui_txt with
+        this.ren = ren;
+        this.tex = tex_txt;
+    end;
+
+    var _SDL_Rect r_txt;
+        r_txt.x = 10;
+        r_txt.y = 10;
+        r_txt.w = 300;
+        r_txt.h = 200;
+    emit ui_txt.go_redim => &r_txt;
+
+    par do
+        r.x = 10;
+        r.y = 10;
+        r.w = 100;
+        r.h = 100;
+
+        loop do
+            native _rand();
+            loop i, 500 do
+                r.x = r.x + 1;
+                r.w = r.w + _rand() % 3 - 1;
+                if r.w < 5 then r.w = 5; end
+                r.h = r.h + _rand() % 3 - 1;
+                if r.h < 5 then r.h = 5; end
+                emit ui.go_redim => &r;
+                await 5ms;
+            end
+
+            loop i, 300 do
+                r.y = r.y + 1;
+                r.w = r.w + _rand() % 3 - 1;
+                if r.w < 5 then r.w = 5; end
+                r.h = r.h + _rand() % 3 - 1;
+                if r.h < 5 then r.h = 5; end
+                emit ui.go_redim => &r;
+                await 5ms;
+            end
+
+            loop i, 500 do
+                r.x = r.x - 1;
+                r.w = r.w + _rand() % 3 - 1;
+                if r.w < 5 then r.w = 5; end
+                r.h = r.h + _rand() % 3 - 1;
+                if r.h < 5 then r.h = 5; end
+                emit ui.go_redim => &r;
+                await 5ms;
+            end
+
+            loop i, 300 do
+                r.y = r.y - 1;
+                r.w = r.w + _rand() % 3 - 1;
+                if r.w < 5 then r.w = 5; end
+                r.h = r.h + _rand() % 3 - 1;
+                if r.h < 5 then r.h = 5; end
+                emit ui.go_redim => &r;
+                await 5ms;
+            end
+        end
+    with
+        loop do
+            loop i, 3 do
+                loop j, 3 do
+                    ui.align_x = i;
+                    ui.align_y = j;
+                    emit ui.go_redim => null;
+                    await 1s;
+                end
+            end
+        end
+    with
+        every ui.ok_clicked do
+            _printf("clicked\n");
+        end
+    end
+with
+    every SDL_REDRAW do
+        _SDL_RenderPresent(ren);
+    end
+end
+
+return 0;

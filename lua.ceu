@@ -5,8 +5,10 @@ native do
 
     int ceu_lua_atpanic (lua_State* lua) {
 #ifdef CEU_DEBUG
-        fprintf(stderr, "LUA_ATPANIC on %d: %s\n",
-                CEU.trk.lbl, lua_tostring(lua,-1));
+        //fprintf(stderr, "LUA_ATPANIC on %d: %s\n",
+                //CEU.lst.lbl, lua_tostring(lua,-1));
+        fprintf(stderr, "LUA_ATPANIC: %s\n",
+                lua_tostring(lua,-1));
 #endif
         return 0;
     }
@@ -41,6 +43,7 @@ native nohold
         _lua_remove(),
         _lua_setglobal(),
         _lua_settop(),
+        _lua_tointeger(),
         _lua_tonumber(),
         _lua_topointer(),
         _lua_tostring(),

@@ -1,6 +1,8 @@
 native constant _UI_ALIGN_LEFT, _UI_ALIGN_CENTER, _UI_ALIGN_RIGHT,
                 _UI_ALIGN_TOP,  _UI_ALIGN_MIDDLE, _UI_ALIGN_BOTTOM;
+
 native pure _UI_align();
+
 native do
     enum {
         UI_ALIGN_LEFT = 0,
@@ -32,63 +34,20 @@ native do
     }
 end
 
-// TODO:
-// macro p/ verificar que go_redim<-draw/move/etc
+input void SDL_REDRAW;
+input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
 
 interface UI with
-    event void                      ok_redraw_pre;
-    event void                      ok_redraw_pos;
-    event _SDL_Point*               go_move;
-    event _SDL_Rect*                go_redim;
+    event void           ok_redraw_pre;
+    event void           ok_redraw_pos;
+    event void           ok_clicked;
+    event _SDL_Point*    go_move;
+    event _SDL_Rect*     go_redim;
 
-    var   _SDL_Renderer*            ren;
-    var   _SDL_Rect                 rect;
-    var   int                       align_x;
-    var   int                       align_y;
-end
-
-input void SDL_REDRAW;
-
-class UITexture with
-    interface UI;
-    var   _SDL_Texture* tex     = null;
-    var   int           align_x = _UI_ALIGN_CENTER;
-    var   int           align_y = _UI_ALIGN_MIDDLE;
-do
-    var _SDL_Rect* r = await go_redim;
-
-    _assert(this.tex != null);
-
-    // TODO: check result
-    var int w, h;
-    _SDL_QueryTexture(tex, null, null, &w, &h);
-
-    var _SDL_Rect rect_out;
-
-    par do
-        loop do
-            if r != null then
-                rect_out = *r;
-            end
-
-            rect.w = w;     // TODO: scale?
-            rect.h = h;
-            rect.x = _UI_align(rect_out.x, rect_out.w, rect.w, align_x);
-            rect.y = _UI_align(rect_out.y, rect_out.h, rect.h, align_y);
-            r = await go_redim;
-        end
-    with
-        loop do
-            var _SDL_Point* pt = await go_move;
-            rect.x = rect.x + pt:x;
-            rect.y = rect.y + pt:y;
-            emit go_redim => &rect;
-        end
-    with
-        every SDL_REDRAW do
-            emit ok_redraw_pre;
-            _SDL_RenderCopy(this.ren, this.tex, null, &rect);
-            emit ok_redraw_pos;
-        end
-    end
+    var   _SDL_Renderer* ren;
+    var   _SDL_Rect      rect;
+    var   int            align_x;
+    var   int            align_y;
+    var   int            clr_bg?;
+    var   _SDL_Color     clr_bg;
 end

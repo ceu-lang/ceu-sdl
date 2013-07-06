@@ -1,11 +1,14 @@
 #include <stdio.h>
 
+// definitely lost: 3,285 bytes in 25 blocks
+
+
 #ifdef __ANDROID__
 #include "SDL.h"
-#include "SDL_image.h"
-#include "SDL_mixer.h"
-#include "SDL_ttf.h"
-#include "SDL_opengles.h"
+//#include "SDL_image.h"
+//#include "SDL_mixer.h"
+//#include "SDL_ttf.h"
+//#include "SDL_opengles.h"
 #define printf(args...)     __android_log_print(4, "SDL", ## args);
 #define fprintf(x, args...) __android_log_print(4, "SDL", ## args);
 #else
