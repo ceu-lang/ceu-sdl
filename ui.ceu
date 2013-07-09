@@ -38,15 +38,21 @@ input void SDL_REDRAW;
 input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
 
 interface UI with
-    event void           ok_redraw_pre;
-    event void           ok_redraw_pos;
+    //event void           ok_redraw_pre;
+    //event void           ok_redraw_pos;
     event void           ok_clicked;
-    event _SDL_Point*    go_move;
-    event _SDL_Rect*     go_redim;
+    //event _SDL_Point*    go_move;
 
     var   _SDL_Renderer* ren;
     var   _SDL_Rect      rect;
     var   int            align_x;
     var   int            align_y;
     var   _SDL_Color*    clr_bg;
+
+    native nohold _go();
+    native nohold _go_rect();
+    native do
+        void CEU_UI__go (CEU_UI* ui);
+        void CEU_UI__go_rect (CEU_UI* ui, SDL_Rect* rect);
+    end
 end

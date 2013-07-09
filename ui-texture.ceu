@@ -11,34 +11,36 @@ class UITexture with
 
     var   int            w, h;  // original dimensions
 do
+    /* NATIVE METHODS */
+
+    native do
+        void CEU_UITexture__go (CEU_UITexture* t) {
+            t->rect.w = t->w;     // TODO: scale?
+            t->rect.h = t->h;
+            t->rect.x = UI_align(t->rect_out.x, t->rect_out.w, t->w,
+                                 t->align_x);
+            t->rect.y = UI_align(t->rect_out.y, t->rect_out.h, t->h,
+                                 t->align_y);
+        }
+
+        void CEU_UITexture__go_rect (CEU_UITexture* this, SDL_Rect* r) {
+            if (r != NULL) {
+                this->rect_out = *r;
+            }
+            this->_go(this);
+        }
+    end
+
+    /* BODY */
+
+    _assert(this.ren != null);
     _assert(this.tex != null);
+
     _SDL_QueryTexture(tex, null, null, &this.w, &this.h);
 
-    var _SDL_Rect* r = await go_redim;
     var _SDL_Rect rect_out;
 
     par do
-        // GO_REDIM
-        loop do
-            if r != null then
-                rect_out = *r;
-            end
-
-            rect.w = w;     // TODO: scale?
-            rect.h = h;
-            rect.x = _UI_align(rect_out.x, rect_out.w, rect.w, align_x);
-            rect.y = _UI_align(rect_out.y, rect_out.h, rect.h, align_y);
-            r = await go_redim;
-        end
-    with
-        // GO_MOVE
-        loop do
-            var _SDL_Point* pt = await go_move;
-            rect.x = rect.x + pt:x;
-            rect.y = rect.y + pt:y;
-            emit go_redim => &rect;
-        end
-    with
         // OK_CLICKED
         loop do
             var _SDL_MouseButtonEvent* but = await SDL_MOUSEBUTTONDOWN;
@@ -47,23 +49,22 @@ do
             end
         end
     with
-        _assert(this.ren != null);
         every SDL_REDRAW do
             if clr_bg != null then
                 _SDL_SetRenderDrawColor(ren,
                     clr_bg:r,clr_bg:g,clr_bg:b,clr_bg:a);
                 _SDL_RenderFillRect(ren, &rect_out);
             end
-            emit ok_redraw_pre;
+            //emit ok_redraw_pre;
             _SDL_RenderCopy(this.ren, this.tex, null, &rect);
-            emit ok_redraw_pos;
+            //emit ok_redraw_pos;
         end
     end
 end
 
 native nohold _SDL_text2texture();
 native do
-    #include "SDL2/SDL_ttf.h"
+    //#include "SDL2/SDL_ttf.h"
     SDL_Texture* SDL_text2texture (SDL_Renderer* ren,
                                    TTF_Font* font, char* text,
                                    SDL_Color* fg, SDL_Color* bg)
@@ -167,7 +168,7 @@ with
         r_txt.y = 10;
         r_txt.w = 300;
         r_txt.h = 200;
-    emit ui_txt.go_redim => &r_txt;
+    ui_txt._go_rect(&r_txt);
 
     par do
         r.x = 10;
@@ -183,7 +184,7 @@ with
                 if r.w < 5 then r.w = 5; end
                 r.h = r.h + _rand() % 3 - 1;
                 if r.h < 5 then r.h = 5; end
-                emit ui.go_redim => &r;
+                ui._go_rect(&r);
                 await 5ms;
             end
 
@@ -193,7 +194,7 @@ with
                 if r.w < 5 then r.w = 5; end
                 r.h = r.h + _rand() % 3 - 1;
                 if r.h < 5 then r.h = 5; end
-                emit ui.go_redim => &r;
+                ui._go_rect(&r);
                 await 5ms;
             end
 
@@ -203,7 +204,7 @@ with
                 if r.w < 5 then r.w = 5; end
                 r.h = r.h + _rand() % 3 - 1;
                 if r.h < 5 then r.h = 5; end
-                emit ui.go_redim => &r;
+                ui._go_rect(&r);
                 await 5ms;
             end
 
@@ -213,7 +214,7 @@ with
                 if r.w < 5 then r.w = 5; end
                 r.h = r.h + _rand() % 3 - 1;
                 if r.h < 5 then r.h = 5; end
-                emit ui.go_redim => &r;
+                ui._go_rect(&r);
                 await 5ms;
             end
         end
@@ -223,7 +224,7 @@ with
                 loop j, 3 do
                     ui.align_x = i;
                     ui.align_y = j;
-                    emit ui.go_redim => null;
+                    ui._go_rect(&r);
                     await 1s;
                 end
             end
