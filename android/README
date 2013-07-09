@@ -56,20 +56,37 @@ Edit templates:
 # cd android-project/jni/
     (android-project/jni/)
 
-# ln -s <SDL>/
+# ln -s <SDL>/ SDL2/
     (link to "SDL" source tree)
 
-# ln -s <SDL_image>/
+# ln -s <SDL_image>/ SDL2_image
     (link to "SDL_image" source tree)
 
-# ln -s <SDL_mixer>/
+# ln -s <SDL_mixer>/ SDL2_mixer
     (link to "SDL_mixer" source tree)
 
-# ln -s <SDL_ttf>/
+# ln -s <SDL_ttf>/ SDL2_ttf
     (link to "SDL_ttf" source tree)
 
-# ln -s <SDL_gfx>/
+# ln -s <SDL_gfx>/ SDL2_gfx
     (link to "SDL_gfx" source tree)
+
+# ln -s <lua-5.1.4>/src lua/
+    (link to "lua" source tree)
+
+-----
+ LUA
+-----
+
+No easy acess to the filesystem.
+
+Copy as a library:
+
+# cp <file>.lua libs/armeabi/lib_lua_<file>.so
+
+Load as
+
+# /data/data/com.domain.app/lib/lib_lua_<file>.so
 
 -------
  BUILD
@@ -83,4 +100,4 @@ Edit templates:
 # android avd
 # adb logcat
 # adb install -r bin/CeuApp-debug.apk
-
+# adb shell
