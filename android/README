@@ -1,0 +1,86 @@
+Copy SDL skeleton:
+
+# cd <your-project>/
+# cp -Rf <SDL-dir>/android-project/ .
+
+Edit templates:
+
+# cd android-project/
+
+# vi AndroidManifest.xml
+    (redefine "package", ex: "com.abc.name")
+    (redefine activity, ex: "Name")
+    (landscape? orientation?)
+
+# vi build.xml
+    (redefine "project name")
+
+# vi ant.properties
+    (define keys)
+
+# vi res/values/strings.xml
+    (app name)
+
+# rm jni/src/Android.mk
+# rmdir jni/src/
+# ln -s ../.. jni/src
+    (share w/ desktop version)
+# cp <CEU-SDL>/Android.mk ../
+
+# cp <CEU-SDL>/android/SDLActivity.java src/org/libsdl/app/
+    (copy modified version that handles onKey(BACK))
+    (uncomment modules to use)
+
+# mkdir -p src/com/abc/name/
+# cp <CEU-SDL>/android/App.java src/com/abc/name/<Name>.java
+# vi src/org/abc/name/<Name>.java
+    (substitute com.abc.name and App)
+
+# vi local.properties
+    (sdk.dir=/opt/android-sdk-linux)
+
+-----------
+ ASSETS
+-----------
+
+# cd android-project/
+# mkdir assets/
+# cd assets
+# ln -s ../../imgs
+    (share w/ desktop version)
+
+-----------
+ LIBRARIES
+-----------
+
+# cd android-project/jni/
+    (android-project/jni/)
+
+# ln -s <SDL>/
+    (link to "SDL" source tree)
+
+# ln -s <SDL_image>/
+    (link to "SDL_image" source tree)
+
+# ln -s <SDL_mixer>/
+    (link to "SDL_mixer" source tree)
+
+# ln -s <SDL_ttf>/
+    (link to "SDL_ttf" source tree)
+
+# ln -s <SDL_gfx>/
+    (link to "SDL_gfx" source tree)
+
+-------
+ BUILD
+-------
+
+# cd android-project/
+# ndk-build
+# ant debug
+# ant debug install
+
+# android avd
+# adb logcat
+# adb install -r bin/CeuApp-debug.apk
+

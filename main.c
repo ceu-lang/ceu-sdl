@@ -124,6 +124,7 @@ int main (int argc, char *argv[])
 #endif
 
         // OTHER EVENTS
+        int redraw = 1;     // timer and any valid event (case "default" don't)
         if (has)
         {
 //printf("EVT: %x\n", evt.type);
@@ -183,13 +184,17 @@ int main (int argc, char *argv[])
                     ceu_go_event(CEU_IN_SDL_FINGERUP, &evt);
                     break;
 #endif
+                default:
+                    redraw = 0;
             }
             if (ret) goto END;
         }
 
 #ifdef CEU_IN_SDL_REDRAW
-        ceu_go_event(CEU_IN_SDL_REDRAW, NULL);
-        if (ret) goto END;
+        if (redraw) {
+            ceu_go_event(CEU_IN_SDL_REDRAW, NULL);
+            if (ret) goto END;
+        }
 #endif
 
 #endif  // SDL_SIMUL

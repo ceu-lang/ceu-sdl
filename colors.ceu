@@ -1,0 +1,19 @@
+native do
+    typedef struct {
+        SDL_Color black;
+        SDL_Color white;
+        SDL_Color red;
+        SDL_Color yellow;
+        SDL_Color gray;
+        SDL_Color brown;
+    } SDL_Colors;
+
+    SDL_Colors colors = {
+        { 0x00, 0x00, 0x00, 0xFF },
+        { 0xFF, 0xFF, 0xFF, 0xFF },
+        { 0xFF, 0x00, 0x00, 0xFF },
+        { 0xFF, 0xFF, 0x00, 0xFF },
+        { 0x77, 0x77, 0x77, 0xFF },
+        { 0x40, 0x0D, 0x12, 0xFF },
+    };
+end

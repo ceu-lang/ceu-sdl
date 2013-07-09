@@ -8,15 +8,13 @@ class UITexture with
     var   int            align_x = _UI_ALIGN_CENTER;
     var   int            align_y = _UI_ALIGN_MIDDLE;
     var   _SDL_Color*    clr_bg  = null;
+
+    var   int            w, h;  // original dimensions
 do
-    var _SDL_Rect* r = await go_redim;
-
     _assert(this.tex != null);
+    _SDL_QueryTexture(tex, null, null, &this.w, &this.h);
 
-    // TODO: check result
-    var int w, h;
-    _SDL_QueryTexture(tex, null, null, &w, &h);
-
+    var _SDL_Rect* r = await go_redim;
     var _SDL_Rect rect_out;
 
     par do

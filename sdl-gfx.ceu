@@ -1,10 +1,14 @@
 native nohold
+    _bezierRGBA(),
+    _boxColor(),
     _boxRGBA(),
     _filledPolygonRGBA(),
     _lineRGBA(),
     _pixelRGBA(),
+    _polygonColor(),
     _polygonRGBA(),
     _roundedBoxRGBA(),
     _roundedRectangleRGBA(),
+    _stringColor(),
     _stringRGBA(),
     _thickLineRGBA();

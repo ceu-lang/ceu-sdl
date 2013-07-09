@@ -34,6 +34,7 @@ native nohold
         _lua_pop(),
         _lua_pushboolean(),
         _lua_pushlightuserdata(),
+        _lua_pushnil(),
         _lua_pushnumber(),
         _lua_pushstring(),
         _lua_pushvalue(),
@@ -43,6 +44,7 @@ native nohold
         _lua_remove(),
         _lua_setglobal(),
         _lua_settop(),
+        _lua_toboolean(),
         _lua_tointeger(),
         _lua_tonumber(),
         _lua_topointer(),
@@ -55,6 +57,7 @@ native nohold
         _luaL_loadfile(),
         _luaL_newstate(),
         _luaL_openlibs(),
+        _luaL_optint(),
         _luaL_optnumber(),
         _luaL_unref();
 
