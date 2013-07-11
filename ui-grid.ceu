@@ -1,5 +1,8 @@
-import sdl.ceu;
-import ui.ceu;
+#ifndef _UI_GRID_CEU
+#define _UI_GRID_CEU
+
+#include "sdl.ceu"
+#include "ui.ceu"
 
 input void SDL_REDRAW;
 input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
@@ -221,7 +224,9 @@ clr_ui_fr.b = 0x00;
     end
 end
 
-import colors.ceu;
+#ifdef __UI_GRID_CEU
+
+#include "colors.ceu"
 input void SDL_QUIT;
 
 var _SDL_Window* win;
@@ -341,3 +346,6 @@ end
 
 return 0;
 
+#endif
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef _SDL_CEU
+#define _SDL_CEU
+
 native _char  = 1,
        _float = 4;
 
@@ -8,6 +11,7 @@ native nohold _free();
 native _malloc();
 
 native pure
+    _abs(),
     _strcmp();
 
 native constant _GL_SCISSOR_TEST, _GL_TEXTURE_2D;
@@ -104,3 +108,5 @@ native do
             && (but->y >= r->y) && (but->y <= r->y+r->h);
     }
 end
+
+#endif

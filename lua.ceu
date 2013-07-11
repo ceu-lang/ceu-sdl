@@ -1,7 +1,10 @@
+#ifndef _LUA_CEU
+#define _LUA_CEU
+
 native do
     /******/
-    #include <lua.h>
-    #include <lauxlib.h>
+    ##include <lua.h>
+    ##include <lauxlib.h>
 
     int ceu_lua_atpanic (lua_State* lua) {
 #ifdef CEU_DEBUG
@@ -62,3 +65,5 @@ native nohold
         _luaL_unref();
 
 native nohold _luaL_ref();   // TODO: should be hold
+
+#endif

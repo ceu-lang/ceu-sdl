@@ -6,7 +6,7 @@
 #ifdef __ANDROID__
 #include "SDL.h"
 #include "SDL_image.h"
-//#include "SDL_mixer.h"
+#include "SDL_mixer.h"
 #include "SDL_ttf.h"
 #include "SDL_opengles.h"
 #define printf(args...)     __android_log_print(4, "SDL", ## args);
@@ -14,7 +14,7 @@
 #else
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
-//#include "SDL2/SDL_mixer.h"
+#include "SDL2/SDL_mixer.h"
 #include "SDL2/SDL_ttf.h"
 #include "SDL2/SDL_opengl.h"
 #endif
@@ -188,6 +188,12 @@ int main (int argc, char *argv[])
                     ceu_go_event(CEU_IN_SDL_FINGERUP, &evt);
                     break;
 #endif
+#ifdef CEU_IN_SDL_FINGERMOTION
+                case SDL_FINGERMOTION:
+                    handled = 0;
+                    ceu_go_event(CEU_IN_SDL_FINGERMOTION, &evt);
+                    break;
+#endif
                 default:
                     handled = 0;    // undefined event
             }
@@ -196,7 +202,8 @@ int main (int argc, char *argv[])
         }
 
 #ifdef CEU_IN_SDL_REDRAW
-        if (redraw) {
+        //if (redraw) {
+        if (! SDL_PollEvent(NULL)) {
             ceu_go_event(CEU_IN_SDL_REDRAW, NULL);
             if (ret) goto END;
         }

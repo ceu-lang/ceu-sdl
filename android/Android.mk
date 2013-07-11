@@ -34,4 +34,3 @@ endif
 include $(BUILD_SHARED_LIBRARY)
 
 $(shell (cd $(LOCAL_PATH) ; ceu --m4 game.ceu))
-

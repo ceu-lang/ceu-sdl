@@ -1,3 +1,6 @@
+#ifndef _UI_CEU
+#define _UI_CEU
+
 native constant _UI_ALIGN_LEFT, _UI_ALIGN_CENTER, _UI_ALIGN_RIGHT,
                 _UI_ALIGN_TOP,  _UI_ALIGN_MIDDLE, _UI_ALIGN_BOTTOM;
 
@@ -56,3 +59,5 @@ interface UI with
         void CEU_UI__go_rect (CEU_UI* ui, SDL_Rect* rect);
     end
 end
+
+#endif

@@ -1,5 +1,8 @@
-import sdl.ceu;
-import ui.ceu;
+#ifndef _UI_TEXTURE_CEU
+#define _UI_TEXTURE_CEU
+
+#include "sdl.ceu"
+#include "ui.ceu"
 
 class UITexture with
     interface UI;
@@ -84,7 +87,9 @@ native do
     }
 end
 
-import colors.ceu;
+#ifdef __UI_TEXTURE_CEU
+
+#include "colors.ceu"
 input void SDL_QUIT;
 
 var int win_w;
@@ -241,3 +246,7 @@ with
 end
 
 return 0;
+
+#endif
+
+#endif
