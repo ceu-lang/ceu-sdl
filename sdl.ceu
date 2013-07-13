@@ -12,7 +12,8 @@ native _malloc();
 
 native pure
     _abs(),
-    _strcmp();
+    _strcmp(),
+    _strcpy();
 
 native constant _GL_SCISSOR_TEST, _GL_TEXTURE_2D;
 native _glEnable(), _glDisable(), _glScissor();
