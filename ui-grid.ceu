@@ -5,7 +5,7 @@
 #include "ui.ceu"
 
 input void SDL_REDRAW;
-input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
+input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONUP;
 
 // TODO:
 // * go_pause
@@ -25,6 +25,9 @@ class UIGrid with
     var   _SDL_Color*   clr_cell_fr = null; // each cell frame
     var   _SDL_Color*   clr_ui_bg   = null; // each UI background (if existent)
     var   _SDL_Color*   clr_ui_fr   = null; // each UI frame (if existent)
+
+    var   int            align_x = _UI_ALIGN_LEFT;
+    var   int            align_y = _UI_ALIGN_TOP;
 
     //var   int           one_x=0, one_y=0;
     var   int            spc_x=0, spc_y=0;
@@ -118,7 +121,7 @@ do
 
                         CEU_UI* ui = t->uis[cur];
                         if (ui != NULL) {
-                            _CEU_UI__go_rect(ui)(ui, ui_rect);
+                            (*(_CEU_UI__go_rect(ui)))(ui, ui_rect);
                         }
                     }
                 }
@@ -165,7 +168,7 @@ do
         // OK_UICLICKED
         // OK_CLICKED
         loop do
-            var _SDL_MouseButtonEvent* but = await SDL_MOUSEBUTTONDOWN;
+            var _SDL_MouseButtonEvent* but = await SDL_MOUSEBUTTONUP;
             loop i, uis_n do
                 if _SDL_Rect_vs_Mouse(&ui_rects[i], but) then
                     emit ok_uiclicked => (i, uis[i]); // 0 are blank cells
@@ -347,5 +350,4 @@ end
 return 0;
 
 #endif
-
 #endif

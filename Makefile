@@ -6,6 +6,10 @@ all:
 	gcc -g -Os main.c $(CFLAGS) -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lSDL2_net -lSDL2_gfx -lpthread \
 		-o $(basename $(CEUFILE)).exe
 
+ui-scroll:
+	ceu --cpp-args "-D __UI_SCROLL_CEU" ui-scroll.ceu
+	gcc main.c $(CFLAGS) -lSDL2 -lSDL2_image -lSDL2_ttf
+
 ui-grid:
 	ceu --cpp-args "-D __UI_GRID_CEU" ui-grid.ceu
 	gcc main.c $(CFLAGS) -lSDL2

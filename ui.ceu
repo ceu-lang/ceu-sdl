@@ -37,9 +37,6 @@ native do
     }
 end
 
-input void SDL_REDRAW;
-input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
-
 interface UI with
     //event void           ok_redraw_pre;
     //event void           ok_redraw_pos;

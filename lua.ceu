@@ -7,12 +7,12 @@ native do
     ##include <lauxlib.h>
 
     int ceu_lua_atpanic (lua_State* lua) {
-#ifdef CEU_DEBUG
+##ifdef CEU_DEBUG
         //fprintf(stderr, "LUA_ATPANIC on %d: %s\n",
                 //CEU.lst.lbl, lua_tostring(lua,-1));
         fprintf(stderr, "LUA_ATPANIC: %s\n",
                 lua_tostring(lua,-1));
-#endif
+##endif
         return 0;
     }
     /******/
@@ -57,7 +57,9 @@ native nohold
 
 native nohold
         _luaL_dofile(),
+        _luaL_dostring(),
         _luaL_loadfile(),
+        _luaL_loadstring(),
         _luaL_newstate(),
         _luaL_openlibs(),
         _luaL_optint(),

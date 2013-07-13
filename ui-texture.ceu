@@ -4,6 +4,9 @@
 #include "sdl.ceu"
 #include "ui.ceu"
 
+input void SDL_REDRAW;
+input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONUP;
+
 class UITexture with
     interface UI;
     var   _SDL_Renderer* ren     = null;
@@ -46,7 +49,7 @@ do
     par do
         // OK_CLICKED
         loop do
-            var _SDL_MouseButtonEvent* but = await SDL_MOUSEBUTTONDOWN;
+            var _SDL_MouseButtonEvent* but = await SDL_MOUSEBUTTONUP;
             if _SDL_Rect_vs_Mouse(&this.rect, but) then
                 emit ok_clicked;
             end

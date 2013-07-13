@@ -1,0 +1,269 @@
+#ifndef _UI_SCROLL_CEU
+#define _UI_SCROLL_CEU
+
+#include "sdl.ceu"
+#include "ui.ceu"
+
+input void SDL_REDRAW;
+input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
+
+class UIScroll with
+    interface UI;
+    var UI*         ui         = null;
+    var _SDL_Color* clr_scroll = null;
+do
+    /* NATIVE METHODS */
+
+    native do
+        void CEU_UIScroll__go (CEU_UIScroll* this) {
+            SDL_Rect* r = _CEU_UI_rect(this->ui);
+            r->x = UI_align(this->rect.x, this->rect.w, r->w,
+                           *_CEU_UI_align_x(this->ui));
+            r->y = UI_align(this->rect.y, this->rect.h, r->h,
+                           *_CEU_UI_align_y(this->ui));
+            (*_CEU_UI__go(this->ui))(this->ui);
+        }
+
+        void CEU_UIScroll__go_rect (CEU_UIScroll* this, SDL_Rect* r) {
+            if (r != NULL) {
+                this->rect = *r;
+            }
+            this->_go(this);
+        }
+    end
+
+    /* BODY */
+
+    _assert(this.ren        != null);
+    _assert(this.ui         != null);
+    _assert(this.clr_scroll != null);
+
+    event void go_x,    go_y;
+    var   int  go_x?=0, go_y?=0;
+
+    par do
+        loop do
+            var _SDL_MouseButtonEvent* but = await SDL_MOUSEBUTTONDOWN;
+
+            var _SDL_Point pt1, pt2;
+                pt1.x = but:x;
+                pt1.y = but:y;
+
+            every 50ms do
+                var int s = _SDL_GetMouseState(&pt2.x, &pt2.y);
+                if not s then
+                    break;
+                end
+                pt1.x = pt2.x - pt1.x;
+                pt1.y = pt2.y - pt1.y;
+
+                // LIMITS
+                if ui:rect.w > rect.w then
+                    if pt1.x > 0 then
+                        var int max_x  = rect.x;
+                        var int max_dx = max_x - ui:rect.x;
+                            if pt1.x > max_dx then
+                                pt1.x = max_dx;
+                            end
+                    else/if pt1.x < 0 then
+                        var int min_x  = rect.x - (ui:rect.w-rect.w);
+                        var int min_dx = min_x - ui:rect.x;
+                        if pt1.x < min_dx then
+                            pt1.x = min_dx;
+                        end
+                    end
+                    emit go_x;
+                else
+                    pt1.x = 0;
+                end
+
+                if ui:rect.h > rect.h then
+                    if pt1.y > 0 then
+                        var int max_y  = rect.y;
+                        var int max_dy = max_y - ui:rect.y;
+                        if pt1.y > max_dy then
+                            pt1.y = max_dy;
+                        end
+                    else/if pt1.y < 0 then
+                        var int min_y  = rect.y - (ui:rect.h-rect.h);
+                        var int min_dy = min_y - ui:rect.y;
+                        if pt1.y < min_dy then
+                            pt1.y = min_dy;
+                        end
+                    end
+                    emit go_y;
+                else
+                    pt1.y = 0;
+                end
+
+                if pt1.x!=0 or pt1.y!=0 then
+                    ui:rect.x = ui:rect.x + pt1.x;
+                    ui:rect.y = ui:rect.y + pt1.y;
+                    ui:_go();
+                end
+
+                //ui:rect.x = ui:rect.x + pt1.x;
+                //ui:rect.y = ui:rect.y + pt1.y;
+
+                pt1 = pt2;
+            end
+        end
+    with
+        par do
+            await go_x;
+            loop do
+                go_x? = 1;
+                par/or do
+                    await 1s;
+                    go_x? = 0;
+                    await FOREVER;
+                with
+                    await go_x;
+                end
+            end
+        with
+            await go_y;
+            loop do
+                go_y? = 1;
+                par/or do
+                    await 1s;
+                    go_y? = 0;
+                    await FOREVER;
+                with
+                    await go_y;
+                end
+            end
+        end
+    with
+        loop do
+            await SDL_REDRAW;
+
+/*
+            // TODO!!!
+            _glEnable(_GL_SCISSOR_TEST);
+            _glScissor(rect.x,global:win_rect.h-rect.y-rect.h,rect.w,rect.h);
+            emit ui:go_redraw;
+            _glDisable(_GL_SCISSOR_TEST);
+*/
+
+            if go_x? then
+                var _SDL_Rect rs;
+                    rs.x = rect.x + (rect.x-ui:rect.x) * rect.w / ui:rect.w;
+                    rs.y = rect.y + rect.h - 6;
+                    rs.w = rect.w*rect.w / ui:rect.w;
+                    rs.h = 5;
+                _SDL_SetRenderDrawBlendMode(ren, _SDL_BLENDMODE_BLEND);
+                _SDL_SetRenderDrawColor(ren, clr_scroll:r,
+                                             clr_scroll:g,
+                                             clr_scroll:b,
+                                             clr_scroll:a);
+                _SDL_RenderFillRect(ren, &rs);
+            end
+
+            if go_y? then
+                var _SDL_Rect rs;
+                    rs.x = rect.x + rect.w - 6;
+                    rs.y = rect.y + (rect.y-ui:rect.y) * rect.h / ui:rect.h;
+                    rs.w = 5;
+                    rs.h = rect.h*rect.h / ui:rect.h;
+                _SDL_SetRenderDrawBlendMode(ren, _SDL_BLENDMODE_BLEND);
+                _SDL_SetRenderDrawColor(ren, clr_scroll:r,
+                                             clr_scroll:g,
+                                             clr_scroll:b,
+                                             clr_scroll:a);
+                _SDL_RenderFillRect(ren, &rs);
+            end
+
+            _SDL_SetRenderDrawBlendMode(ren, _SDL_BLENDMODE_NONE);
+        end
+    end
+end
+
+#ifdef __UI_SCROLL_CEU
+
+#include "colors.ceu"
+#include "ui-grid.ceu"
+
+input void SDL_QUIT;
+
+var int win_w;
+var int win_h;
+var _SDL_Window* win;
+    finalize
+        win = _SDL_CreateWindow("UI - Scroll",
+                            500, 1300, 800, 480, _SDL_WINDOW_SHOWN);
+    with
+        _SDL_DestroyWindow(win);
+    end
+
+_SDL_GetWindowSize(win, &win_w, &win_h);
+var _SDL_Rect win_r;
+    win_r.x = 0;
+    win_r.y = 0;
+    win_r.w = win_w;
+    win_r.h = win_h;
+
+var _SDL_Renderer* ren;
+    finalize
+        ren = _SDL_CreateRenderer(win, -1, 0);
+    with
+        _SDL_DestroyRenderer(ren);
+    end
+
+par/or do
+    await SDL_QUIT;
+with
+    every SDL_REDRAW do
+
+        _SDL_SetRenderDrawColor(ren, 0x00,0x00,0x00, 0);
+        _SDL_RenderFillRect(ren, &win_r);
+    end
+with
+    var UIGrid grid with
+        this.ren = ren;
+        this.lay_lins = 4;
+        this.lay_cols = 4;
+        this.lay = _UI_SCROLL_grid;
+        this.uis_n = 16;
+        native do
+            int UI_SCROLL_grid[] = {
+                 0,  1,  2,  3,
+                 4,  5,  6,  7,
+                 8,  9, 10, 11,
+                12, 13, 14, 15
+            };
+        end
+
+        this.spc_x     = 10;
+        this.spc_y     = 10;
+        this.pad_x     = 10;
+        this.pad_y     = 10;
+        this.clr_bg    = &_colors.white;
+        this.clr_ui_bg = &_colors.gray;
+
+        this.rect.w = win_r.w+200;
+        this.rect.h = win_r.h+200;
+    end;
+
+    var _SDL_Color c = _colors.blue;
+        c.a = 0x77;
+
+    var UIScroll scroll with
+        this.ren = ren;
+        this.ui = &grid;
+        this.clr_scroll = &c;
+    end;
+    scroll._go_rect(&win_r);
+
+    await FOREVER;
+
+with
+    every SDL_REDRAW do
+        _SDL_RenderPresent(ren);
+    end
+end
+
+return 0;
+
+#endif
+#endif
