@@ -67,6 +67,10 @@ int main (int argc, char *argv[])
     u32 old = SDL_GetTicks();
 #endif
 
+#ifdef CEU_THREADS
+    CEU_THREADS_MUTEX_LOCK(&CEU.threads_mutex);
+#endif
+
     ceu_go_init();
     if (ret) goto END;
 
@@ -99,7 +103,15 @@ int main (int argc, char *argv[])
 #endif
 #endif  // CEU_IN_SDL_DT
 
+#ifdef CEU_THREADS
+        CEU_THREADS_MUTEX_UNLOCK(&CEU.threads_mutex);
+#endif
+
         int has = SDL_WaitEventTimeout(&evt, tm);
+
+#ifdef CEU_THREADS
+        CEU_THREADS_MUTEX_LOCK(&CEU.threads_mutex);
+#endif
 
 #if defined(CEU_WCLOCKS) || defined(CEU_IN_SDL_DT)
         u32 now = SDL_GetTicks();
@@ -219,6 +231,9 @@ int main (int argc, char *argv[])
 #endif
     }
 END:
+#ifdef CEU_THREADS
+    CEU_THREADS_MUTEX_UNLOCK(&CEU.threads_mutex);
+#endif
     SDL_Quit();         // TODO: slow
     return ret_val;
 }
