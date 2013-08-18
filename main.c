@@ -8,6 +8,7 @@
 #include "SDL_image.h"
 #include "SDL_mixer.h"
 #include "SDL_ttf.h"
+#include "SDL_net.h"
 #include "SDL_opengles.h"
 #define printf(args...)     __android_log_print(4, "SDL", ## args);
 #define fprintf(x, args...) __android_log_print(4, "SDL", ## args);
@@ -55,7 +56,11 @@ int SDL_main (int argc, char *argv[])
 int main (int argc, char *argv[])
 #endif
 {
-    SDL_Init(SDL_INIT_EVERYTHING);
+    int err = SDL_Init(SDL_INIT_EVERYTHING);
+    if (err != 0) {
+        printf("SDL_Init failed: %s\n", SDL_GetError());
+        return err;
+    }
 
 #ifdef CEU_IN_SDL_DT
     WCLOCK_nxt = 20000;

@@ -1,5 +1,5 @@
 native do
-    ##include "SDL2/SDL_net.h"
+    //##include "SDL2/SDL_net.h"
 end
 
 _SDL_Init(0);
@@ -80,16 +80,24 @@ with
     end
 with
     // SERVER
+_printf("3\n");
     async thread
     do
+_printf("C\n");
         var _IPaddress srv_ip;
+_printf("1\n");
         _assert(_SDLNet_ResolveHost(&srv_ip, null, 2222) == 0);
+_printf("2\n");
 
         var _TCPsocket srv = _SDLNet_TCP_Open(&srv_ip);
+_printf("3\n");
         _assert(srv != null);
+_printf("4\n");
 
         loop do
+_printf("5 %p\n", srv);
             var _TCPsocket clt = _SDLNet_TCP_Accept(srv);
+_printf("6\n");
             if clt == null then
                 _sleep(1);
                 continue;
