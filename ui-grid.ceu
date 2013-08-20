@@ -14,9 +14,8 @@ input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONUP;
 class UIGrid with
     interface UI;
 
-    var   _SDL_Renderer* ren = null;
+    var _SDL_Renderer* ren = null;
 
-    event (int,UI*)     go_ui;
     event (int,UI*)     ok_uiclicked;
 
     var   _SDL_Color*   clr_bg      = null; // whole UI background
@@ -143,13 +142,15 @@ do
 
     _assert(this.ren != null);
 
-    finalize
-        this.uis = _malloc(uis_n * sizeof(UI*));
-    with
-        _free(this.uis);
-    end
-    loop i, uis_n do
-        this.uis[i] = null;
+    if this.uis == null then
+        finalize
+            this.uis = _malloc(uis_n * sizeof(UI*));
+        with
+            _free(this.uis);
+        end
+        loop i, uis_n do
+            this.uis[i] = null;
+        end
     end
 
     finalize
