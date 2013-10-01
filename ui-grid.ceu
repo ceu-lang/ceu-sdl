@@ -14,19 +14,22 @@ input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONUP;
 class UIGrid with
     interface UI;
 
-    var _SDL_Renderer* ren = null;
+    var _SDL_Renderer* ren       = null;
+    var   int          align_x   = _UI_ALIGN_CENTER;
+    var   int          align_y   = _UI_ALIGN_MIDDLE;
+    var   int          bg_redim? = 0;
+    var   _SDL_Color*  bg_clr    = null;
+
 
     event (int,UI*)     ok_uiclicked;
 
+    // TODO: clr_bg vs bg_clr
     var   _SDL_Color*   clr_bg      = null; // whole UI background
     var   _SDL_Color*   clr_fr      = null; // whole UI frame
     var   _SDL_Color*   clr_cell_bg = null; // each cell background
     var   _SDL_Color*   clr_cell_fr = null; // each cell frame
     var   _SDL_Color*   clr_ui_bg   = null; // each UI background (if existent)
     var   _SDL_Color*   clr_ui_fr   = null; // each UI frame (if existent)
-
-    var   int            align_x = _UI_ALIGN_LEFT;
-    var   int            align_y = _UI_ALIGN_TOP;
 
     //var   int           one_x=0, one_y=0;
     var   int            spc_x=0, spc_y=0;
@@ -46,12 +49,20 @@ do
     /* NATIVE METHODS */
 
     native do
-        void CEU_UIGrid__go (CEU_UIGrid* t) {
-            int one_x = (t->rect.w-t->spc_x)/t->lay_cols - t->spc_x - 2*t->pad_x;
-            int one_y = (t->rect.h-t->spc_y)/t->lay_lins - t->spc_y - 2*t->pad_y;
+        void CEU_UIGrid__go (CEU_UIGrid* t, SDL_Rect* r)
+        {
+            if (r != NULL) {
+                t->rect.x = UI_align(r->x, r->w, t->align_x);
+                t->rect.y = UI_align(r->y, r->h, t->align_y);
+                t->rect.w = r->w;
+                t->rect.h = r->h;
+            }
 
             int x0 = t->rect.x;
             int y0 = t->rect.y;
+
+            int one_x = (t->rect.w-t->spc_x)/t->lay_cols - t->spc_x - 2*t->pad_x;
+            int one_y = (t->rect.h-t->spc_y)/t->lay_lins - t->spc_y - 2*t->pad_y;
 
             int cur = -1;
             int x, y;
@@ -120,21 +131,24 @@ do
 
                         CEU_UI* ui = t->uis[cur];
                         if (ui != NULL) {
-                            (*(_CEU_UI__go_rect(ui)))(ui, ui_rect);
+                            (*(_CEU_UI__go_bg(ui)))(ui, ui_rect);
                         }
                     }
                 }
             }
         }
-        void CEU_UIGrid__go_rect (CEU_UIGrid* this, SDL_Rect* r) {
-            if (r != NULL) {
-                this->rect = *r;
-            }
-            this->_go(this);
-        }
+
         void CEU_UIGrid__go_ui (CEU_UIGrid* this, int idx, CEU_UI* ui) {
             this->uis[idx] = ui;
-            this->_go(this);
+            this->_go(this, NULL);
+        }
+
+        void CEU_UIGrid__go_bg (CEU_UIGrid* this, SDL_Rect* bg) {
+            this->bg_rect = *bg;
+            if (this->bg_redim_) {
+                this->rect = *bg;
+            }
+            this->_go(this, NULL);
         }
     end
 
@@ -181,6 +195,12 @@ do
         end
     with
         every SDL_REDRAW do
+            // TODO: clr_bg vs bg_clr
+            if bg_clr != null then
+                _SDL_SetRenderDrawColor(ren,
+                    bg_clr:r,bg_clr:g,bg_clr:b,bg_clr:a);
+                _SDL_RenderFillRect(ren, &this.bg_rect);
+            end
             if clr_bg != null then
                 _SDL_SetRenderDrawColor(ren,
                         clr_bg:r,clr_bg:g,clr_bg:b,clr_bg:a);
@@ -283,6 +303,7 @@ with
 
     var UIGrid g2 with
         this.ren          = ren;
+        this.bg_redim?    = 1;
         this.clr_cell_fr  = &_colors.black;
         this.clr_ui_bg    = &_colors.yellow;
         this.clr_ui_fr    = &_colors.red;
@@ -295,13 +316,13 @@ with
     end;
 
     var _SDL_Rect r;
-        r.w = win_w/2;
-        r.h = win_h/2;
-        r.x = (win_w-r.w) / 2;
-        r.y = (win_h-r.h) / 2;
+        r.w = win_w / 2;
+        r.h = win_h / 2;
+        r.x = win_w / 2;
+        r.y = win_h / 2;
 
     g1.uis[1] = &g2;
-    g1._go_rect(&r);
+    g1._go(&r);
 
     par do
         loop do
@@ -339,7 +360,7 @@ with
             g2.pad_y = g2.pad_y + _rand() % 3 - 1;
             if g2.pad_y < 0 then g2.pad_y = 0; end
 
-            g1._go_rect(&r);
+            g1._go(&r);
         end
     end
 with

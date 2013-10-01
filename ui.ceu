@@ -18,7 +18,25 @@ native do
         UI_ALIGN_BOTTOM,
     };
 
-    int UI_align (int p_out, int dim_out, int dim_in, int align)
+    int UI_align (int p, int dim, int align)
+    {
+        switch (align)
+        {
+            case UI_ALIGN_LEFT:
+            //case UI_ALIGN_TOP:
+                return p;
+
+            case UI_ALIGN_CENTER:
+            //case UI_ALIGN_MIDDLE:
+                return p - dim/2;
+
+            case UI_ALIGN_RIGHT:
+            //case UI_ALIGN_BOTTOM:
+                return p - dim;
+        }
+    }
+
+    int UI_align_bg (int p_out, int dim_out, int dim_in, int align)
     {
         switch (align)
         {
@@ -47,13 +65,16 @@ interface UI with
     var   _SDL_Rect      rect;
     var   int            align_x;
     var   int            align_y;
-    var   _SDL_Color*    clr_bg;
+
+    var   _SDL_Rect      bg_rect;
+    var   int            bg_redim?;
+    var   _SDL_Color*    bg_clr;
 
     native nohold _go();
-    native nohold _go_rect();
+    native nohold _go_bg();
     native do
-        void CEU_UI__go (CEU_UI* ui);
-        void CEU_UI__go_rect (CEU_UI* ui, SDL_Rect* rect);
+        void CEU_UI__go    (CEU_UI* ui, SDL_Rect* rect);
+        void CEU_UI__go_bg (CEU_UI* ui, SDL_Rect* bg);
     end
 end
 

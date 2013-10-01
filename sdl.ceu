@@ -7,7 +7,7 @@ native _char  = 1,
 native constant _stderr;
 native _assert();
 native nohold _sprintf(), _fprintf(), _printf();
-native nohold _free();
+native nohold _free(), _srand();
 native _malloc();
 
 native pure
@@ -64,6 +64,7 @@ native nohold _SDL_GL_BindTexture(),
               _SDL_CreateTextureFromSurface(),
               _SDL_GetMouseState(),
               _SDL_GetWindowSize(),
+              _SDL_HasIntersection(),
               _SDL_SetWindowFullscreen(),
               _SDL_SetRenderDrawColor(),
               _SDL_RenderClear(),
@@ -96,17 +97,24 @@ native nohold _SDL_GL_BindTexture(),
               _TTF_SizeText(),
               _Mix_LoadWAV(),
               _Mix_FreeChunk(),
+              _Mix_FreeMusic(),
               _Mix_PlayChannel(),
+              _Mix_PlayMusic(),
               _Mix_Playing(),
               _Mix_CloseAudio(),
               _Mix_OpenAudio();
 
-native nohold _SDL_Rect_vs_Mouse();
+native nohold _SDL_Rect_vs_Mouse(),
+              _SDL_Rect_vs_Point();
 
 native do
     int SDL_Rect_vs_Mouse (SDL_Rect* r, SDL_MouseButtonEvent* but) {
         return (but->x >= r->x) && (but->x <= r->x+r->w)
             && (but->y >= r->y) && (but->y <= r->y+r->h);
+    }
+    int SDL_Rect_vs_Point (SDL_Rect* r, SDL_Point* pt) {
+        return (pt->x >= r->x) && (pt->x <= r->x+r->w)
+            && (pt->y >= r->y) && (pt->y <= r->y+r->h);
     }
 end
 

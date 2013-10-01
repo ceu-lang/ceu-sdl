@@ -9,31 +9,35 @@ input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONUP;
 
 class UITexture with
     interface UI;
-    var   _SDL_Renderer* ren     = null;
-    var   _SDL_Texture*  tex     = null;
-    var   int            align_x = _UI_ALIGN_CENTER;
-    var   int            align_y = _UI_ALIGN_MIDDLE;
-    var   _SDL_Color*    clr_bg  = null;
+    var   _SDL_Renderer* ren       = null;
+    var   int            align_x   = _UI_ALIGN_CENTER;
+    var   int            align_y   = _UI_ALIGN_MIDDLE;
+    var   int            bg_redim? = 0;
+    var   _SDL_Color*    bg_clr    = null;
 
+    var   _SDL_Texture*  tex     = null;
     var   int            w, h;  // original dimensions
 do
     /* NATIVE METHODS */
 
     native do
-        void CEU_UITexture__go (CEU_UITexture* t) {
-            t->rect.w = t->w;     // TODO: scale?
-            t->rect.h = t->h;
-            t->rect.x = UI_align(t->rect_out.x, t->rect_out.w, t->w,
-                                 t->align_x);
-            t->rect.y = UI_align(t->rect_out.y, t->rect_out.h, t->h,
-                                 t->align_y);
+        void CEU_UITexture__go (CEU_UITexture* this, SDL_Rect* r) {
+            if (r != NULL) {
+                // ignoring r->w / r->h (no redim)
+                this->rect.x = UI_align(r->x, this->w, this->align_x);
+                this->rect.y = UI_align(r->y, this->h, this->align_y);
+                this->rect.w = this->w;
+                this->rect.h = this->h;
+            }
         }
 
-        void CEU_UITexture__go_rect (CEU_UITexture* this, SDL_Rect* r) {
-            if (r != NULL) {
-                this->rect_out = *r;
-            }
-            this->_go(this);
+        void CEU_UITexture__go_bg (CEU_UITexture* this, SDL_Rect* bg) {
+            assert(this->bg_redim_ == 0);
+            this->bg_rect = *bg;
+            this->rect.x = UI_align_bg(bg->x, bg->w, this->w, this->align_x);
+            this->rect.y = UI_align_bg(bg->y, bg->h, this->h, this->align_y);
+            this->rect.w = this->w;
+            this->rect.h = this->h;
         }
     end
 
@@ -43,8 +47,6 @@ do
     _assert(this.tex != null);
 
     _SDL_QueryTexture(tex, null, null, &this.w, &this.h);
-
-    var _SDL_Rect rect_out;
 
     par do
         // OK_CLICKED
@@ -56,12 +58,13 @@ do
         end
     with
         every SDL_REDRAW do
-            if clr_bg != null then
+            if bg_clr != null then
                 _SDL_SetRenderDrawColor(ren,
-                    clr_bg:r,clr_bg:g,clr_bg:b,clr_bg:a);
-                _SDL_RenderFillRect(ren, &rect_out);
+                    bg_clr:r,bg_clr:g,bg_clr:b,bg_clr:a);
+                _SDL_RenderFillRect(ren, &this.bg_rect);
             end
             //emit ok_redraw_pre;
+
             _SDL_RenderCopy(this.ren, this.tex, null, &rect);
             //emit ok_redraw_pos;
         end
@@ -140,18 +143,16 @@ with
     _SDL_DestroyTexture(tex_txt);
 end
 
-var _SDL_Rect r;
+var _SDL_Rect r1, r2;
 
 par/or do
     await SDL_QUIT;
 with
     every SDL_REDRAW do
-
         _SDL_SetRenderDrawColor(ren, 0x00,0x00,0x00, 0);
         _SDL_RenderFillRect(ren, &win_r);
-
         _SDL_SetRenderDrawColor(ren, 0xFF,0xFF,0xFF, 0);
-        _SDL_RenderFillRect(ren, &r);
+        _SDL_RenderFillRect(ren, &r2);
     end
 with
     var _SDL_Texture* tex;
@@ -161,7 +162,13 @@ with
         _SDL_DestroyTexture(tex);
     end
 
-    var UITexture ui with
+    var UITexture ui1 with
+        this.ren = ren;
+        this.tex = tex;
+        this.bg_clr = &_colors.blue;
+    end;
+
+    var UITexture ui2 with
         this.ren = ren;
         this.tex = tex;
     end;
@@ -169,77 +176,90 @@ with
     var UITexture ui_txt with
         this.ren = ren;
         this.tex = tex_txt;
+        this.align_x = _UI_ALIGN_LEFT;
+        this.align_y = _UI_ALIGN_TOP;
     end;
 
     var _SDL_Rect r_txt;
         r_txt.x = 10;
         r_txt.y = 10;
-        r_txt.w = 300;
-        r_txt.h = 200;
-    ui_txt._go_rect(&r_txt);
+    ui_txt._go(&r_txt);
 
     par do
-        r.x = 10;
-        r.y = 10;
-        r.w = 100;
-        r.h = 100;
+        r1.x = 10;
+        r1.y = 10;
+        r1.w = 150;
+        r1.h = 150;
+
+        r2.x = 200;
+        r2.y = 100;
+        r2.w = 100;
+        r2.h = 100;
 
         loop do
             native _rand();
             loop i, 500 do
-                r.x = r.x + 1;
-                r.w = r.w + _rand() % 3 - 1;
-                if r.w < 5 then r.w = 5; end
-                r.h = r.h + _rand() % 3 - 1;
-                if r.h < 5 then r.h = 5; end
-                ui._go_rect(&r);
-                await 5ms;
+                r1.x = r1.x + 1;
+                r1.w = r1.w + _rand() % 3 - 1;
+                if r1.w < 5 then r1.w = 5; end
+                r1.h = r1.h + _rand() % 3 - 1;
+                if r1.h < 5 then r1.h = 5; end
+                ui1._go_bg(&r1);
+                await 10ms;
             end
 
             loop i, 300 do
-                r.y = r.y + 1;
-                r.w = r.w + _rand() % 3 - 1;
-                if r.w < 5 then r.w = 5; end
-                r.h = r.h + _rand() % 3 - 1;
-                if r.h < 5 then r.h = 5; end
-                ui._go_rect(&r);
-                await 5ms;
+                r1.y = r1.y + 1;
+                r1.w = r1.w + _rand() % 3 - 1;
+                if r1.w < 5 then r1.w = 5; end
+                r1.h = r1.h + _rand() % 3 - 1;
+                if r1.h < 5 then r1.h = 5; end
+                ui1._go_bg(&r1);
+                await 10ms;
             end
 
             loop i, 500 do
-                r.x = r.x - 1;
-                r.w = r.w + _rand() % 3 - 1;
-                if r.w < 5 then r.w = 5; end
-                r.h = r.h + _rand() % 3 - 1;
-                if r.h < 5 then r.h = 5; end
-                ui._go_rect(&r);
-                await 5ms;
+                r1.x = r1.x - 1;
+                r1.w = r1.w + _rand() % 3 - 1;
+                if r1.w < 5 then r1.w = 5; end
+                r1.h = r1.h + _rand() % 3 - 1;
+                if r1.h < 5 then r1.h = 5; end
+                ui1._go_bg(&r1);
+                await 10ms;
             end
 
             loop i, 300 do
-                r.y = r.y - 1;
-                r.w = r.w + _rand() % 3 - 1;
-                if r.w < 5 then r.w = 5; end
-                r.h = r.h + _rand() % 3 - 1;
-                if r.h < 5 then r.h = 5; end
-                ui._go_rect(&r);
-                await 5ms;
+                r1.y = r1.y - 1;
+                r1.w = r1.w + _rand() % 3 - 1;
+                if r1.w < 5 then r1.w = 5; end
+                r1.h = r1.h + _rand() % 3 - 1;
+                if r1.h < 5 then r1.h = 5; end
+                ui1._go_bg(&r1);
+                await 10ms;
             end
         end
     with
         loop do
             loop i, 3 do
                 loop j, 3 do
-                    ui.align_x = i;
-                    ui.align_y = j;
-                    ui._go_rect(&r);
+                    ui1.align_x = i;
+                    ui1.align_y = j;
+                    ui1._go_bg(&r1);
+
+                    ui2.align_x = i;
+                    ui2.align_y = j;
+                    ui2._go_bg(&r2);
                     await 1s;
                 end
             end
         end
     with
-        every ui.ok_clicked do
-            _printf("clicked\n");
+        every ui1.ok_clicked do
+            _printf("clicked 1\n");
+        end
+    with
+        every ui2.ok_clicked do
+            _printf("clicked 2\n");
         end
     end
 with

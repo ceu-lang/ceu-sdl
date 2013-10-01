@@ -8,10 +8,15 @@
 #include "SDL_image.h"
 #include "SDL_mixer.h"
 #include "SDL_ttf.h"
-#include "SDL_net.h"
-#include "SDL_opengles.h"
+//#include "SDL_net.h"
+//#include "SDL_opengles.h"
+#ifdef DEBUG
 #define printf(args...)     __android_log_print(4, "SDL", ## args);
 #define fprintf(x, args...) __android_log_print(4, "SDL", ## args);
+#else
+#define printf(args...)
+#define fprintf(x, args...)
+#endif
 #else
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
@@ -220,10 +225,10 @@ int main (int argc, char *argv[])
 
 #ifdef CEU_IN_SDL_REDRAW
         //if (redraw) {
-        if (! SDL_PollEvent(NULL)) {
+        //if (! SDL_PollEvent(NULL)) {
             ceu_go_event(CEU_IN_SDL_REDRAW, NULL);
             if (ret) goto END;
-        }
+        //}
 #endif
 
 #endif  // SDL_SIMUL

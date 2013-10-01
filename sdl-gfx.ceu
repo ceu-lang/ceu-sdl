@@ -2,6 +2,8 @@ native nohold
     _bezierRGBA(),
     _boxColor(),
     _boxRGBA(),
+    _circleRGBA(),
+    _filledCircleRGBA(),
     _filledPolygonRGBA(),
     _lineRGBA(),
     _pixelRGBA(),

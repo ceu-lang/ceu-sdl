@@ -9,26 +9,31 @@ input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
 
 class UIScroll with
     interface UI;
+    var int         bg_redim?  = 0;
+    var _SDL_Color* bg_clr     = null;
+
     var UI*         ui         = null;
     var _SDL_Color* clr_scroll = null;
 do
     /* NATIVE METHODS */
 
     native do
-        void CEU_UIScroll__go (CEU_UIScroll* this) {
-            SDL_Rect* r = _CEU_UI_rect(this->ui);
-            r->x = UI_align(this->rect.x, this->rect.w, r->w,
-                           *_CEU_UI_align_x(this->ui));
-            r->y = UI_align(this->rect.y, this->rect.h, r->h,
-                           *_CEU_UI_align_y(this->ui));
-            (*_CEU_UI__go(this->ui))(this->ui);
+        void CEU_UIScroll__go (CEU_UIScroll* this, SDL_Rect* r) {
+            if (r != NULL) {
+                this->rect.x = UI_align(r->x, r->w, this->align_x);
+                this->rect.y = UI_align(r->y, r->h, this->align_y);
+                this->rect.w = r->w;
+                this->rect.h = r->h;
+            }
+            (*_CEU_UI__go_bg(this->ui))(this->ui, &this->rect);
         }
 
-        void CEU_UIScroll__go_rect (CEU_UIScroll* this, SDL_Rect* r) {
-            if (r != NULL) {
-                this->rect = *r;
+        void CEU_UIScroll__go_bg (CEU_UIScroll* this, SDL_Rect* bg) {
+            this->bg_rect = *bg;
+            if (this->bg_redim_) {
+                this->rect = *bg;
             }
-            this->_go(this);
+            this->_go(this, NULL);
         }
     end
 
@@ -99,7 +104,7 @@ do
                 if pt1.x!=0 or pt1.y!=0 then
                     ui:rect.x = ui:rect.x + pt1.x;
                     ui:rect.y = ui:rect.y + pt1.y;
-                    ui:_go();
+                    ui:_go(null);
                 end
 
                 //ui:rect.x = ui:rect.x + pt1.x;
@@ -253,7 +258,7 @@ with
         this.ui = &grid;
         this.clr_scroll = &c;
     end;
-    scroll._go_rect(&win_r);
+    scroll._go(&win_r);
 
     await FOREVER;
 

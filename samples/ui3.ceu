@@ -1,5 +1,6 @@
 #include "sdl.ceu"
 
+input void START;
 input void SDL_REDRAW;
 input void SDL_QUIT;
 
@@ -7,7 +8,7 @@ var int win_w;
 var int win_h;
 var _SDL_Window* win;
     finalize
-        win = _SDL_CreateWindow("UI 1 - Texture",
+        win = _SDL_CreateWindow("UI 3 - Texture",
                             500, 1300, 800, 480, _SDL_WINDOW_SHOWN);
     with
         _SDL_DestroyWindow(win);
@@ -26,6 +27,7 @@ var _SDL_Renderer* ren;
     end
 
 #include "ui-texture.ceu"
+#include "ui-grid.ceu"
 
 var _SDL_Texture* tex;
 finalize
@@ -40,14 +42,14 @@ par/or do
     await SDL_QUIT;
 with
     every SDL_REDRAW do
-
         _SDL_SetRenderDrawColor(ren, 0x00,0x00,0x00, 0);
         _SDL_RenderFillRect(ren, &win_r);
-
         _SDL_SetRenderDrawColor(ren, 0xFF,0xFF,0xFF, 0);
         _SDL_RenderFillRect(ren, &r);
     end
 with
+    await START;
+
     var UITexture ui with
         this.ren = ren;
         this.tex = tex;
