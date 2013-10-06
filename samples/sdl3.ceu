@@ -15,11 +15,12 @@ var _SDL_Window* win;
 
 _SDL_GetWindowSize(win, &win_w, &win_h);
 
-var _SDL_Renderer* ren;
-    finalize
-        ren = _SDL_CreateRenderer(win, -1, 0);
-    with
-        _SDL_DestroyRenderer(ren);
+native do
+    SDL_Renderer* REN = NULL;
+end
+_REN = _SDL_CreateRenderer(win, -1, 0);
+    finalize with
+        _SDL_DestroyRenderer(_REN);
     end
 
 var _SDL_Rect bg;
@@ -34,14 +35,9 @@ var _SDL_Color bg_clr;
     bg_clr.b = 0x00;
 
 class Rect with
-    var _SDL_Rect  rct;
-    var int        dt;
-
-    var _SDL_Renderer* ren;
+    var _SDL_Rect  rect;
+    var int        v;
 do
-    this.rct.w = 20;
-    this.rct.h = 20;
-
     var _SDL_Color clr;
         clr.r = 0xFF;
         clr.g = 0xFF;
@@ -49,17 +45,17 @@ do
 
     par/or do
         loop do
-            await (this.dt) ms;
-            rct.x = rct.x + 1;
-            if rct.x > 500 then
+            await (1000/this.v) ms;
+            rect.x = rect.x + 1;
+            if rect.x > 500 then
                 break;
             end
         end
     with
         loop do
             await SDL_REDRAW;
-            _SDL_SetRenderDrawColor(ren, clr.r,clr.g,clr.b,0);
-            _SDL_RenderFillRect(ren, &rct);
+            _SDL_SetRenderDrawColor(_REN, clr.r,clr.g,clr.b,0);
+            _SDL_RenderFillRect(_REN, &rect);
         end
     end
 end
@@ -69,8 +65,8 @@ par/or do
 with
     loop do
         await SDL_REDRAW;
-        _SDL_SetRenderDrawColor(ren, bg_clr.r,bg_clr.g,bg_clr.b,0);
-        _SDL_RenderFillRect(ren, &bg);
+        _SDL_SetRenderDrawColor(_REN, bg_clr.r,bg_clr.g,bg_clr.b,0);
+        _SDL_RenderFillRect(_REN, &bg);
     end
 with
     loop do
@@ -81,13 +77,13 @@ with
             do
                 loop do
                     await 1s;
-                    native _rand();
                     //r = new Rect with
                     spawn Rect with
-                        this.dt    = 10 + _rand()%200;
-                        this.rct.x = 100;
-                        this.rct.y = 100 + _rand()%300;
-                        this.ren = ren;
+                        this.rect.x = 100;
+                        this.rect.y = 100 + _rand()%300;
+                        this.rect.w = 20;
+                        this.rect.h = 20;
+                        this.v      = 5 + _rand()%100;
                     end;
                 end
             end
@@ -96,7 +92,7 @@ with
 with
     loop do
         await SDL_REDRAW;
-        _SDL_RenderPresent(ren);
+        _SDL_RenderPresent(_REN);
     end
 end
 

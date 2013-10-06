@@ -1,0 +1,23 @@
+input void SDL_QUIT;
+
+class BlinkA with
+    var int dt;
+    var int id;
+do
+    every (this.dt)ms do
+        _printf("[%d] toggle\n", this.id);
+    end
+end
+
+var BlinkA b1 with
+    this.id = 1;
+    this.dt = 5000;
+end;
+
+var BlinkA b2 with
+    this.id = 2;
+    this.dt = 2500;
+end;
+
+await SDL_QUIT;
+return 0;

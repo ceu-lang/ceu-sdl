@@ -9,6 +9,7 @@ native nohold
     _pixelRGBA(),
     _polygonColor(),
     _polygonRGBA(),
+    _rectangleRGBA(),
     _roundedBoxRGBA(),
     _roundedRectangleRGBA(),
     _stringColor(),
