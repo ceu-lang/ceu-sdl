@@ -1,3 +1,4 @@
+#include "c.ceu"
 #include "sdl.ceu"
 
 native do
@@ -12,7 +13,7 @@ input int  SDL_DT;
 
 var _SDL_Window* win;
     finalize
-        win = _SDL_CreateWindow("SDL 8",
+        win = _SDL_CreateWindow("SDL 6",
                             500, 1300, 1024, 768, _SDL_WINDOW_SHOWN);
     with
         _SDL_DestroyWindow(win);
@@ -77,10 +78,10 @@ do
         end
     with
         var s32 dt;
-        var _float fx = x;
+        var float fx = x;
 
         every dt=SDL_DT do
-            fx = fx + (_float)(this.vel*dt)/1000;   // update my position
+            fx = fx + (float)(this.vel*dt)/1000;    // update my position
             rct.x = fx;
 
             /* When the rectangle reaches the end of screen, escape the "every".

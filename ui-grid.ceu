@@ -1,6 +1,7 @@
 #ifndef _UI_GRID_CEU
 #define _UI_GRID_CEU
 
+#include "c.ceu"
 #include "sdl.ceu"
 #include "ui.ceu"
 

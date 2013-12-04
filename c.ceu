@@ -1,0 +1,19 @@
+#ifndef _C_CEU
+#define _C_CEU
+
+native _assert(),
+       _malloc();
+
+native constant _stderr;
+
+native nohold _fprintf(),
+              _free(),
+              _printf(),
+              _sprintf(),
+              _srand();
+
+native pure _abs(),
+            _strcmp(),
+            _strcpy();
+
+#endif

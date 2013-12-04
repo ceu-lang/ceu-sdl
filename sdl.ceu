@@ -1,38 +1,8 @@
 #ifndef _SDL_CEU
 #define _SDL_CEU
 
-native _char  = 1,
-       _float = 4;
-
-native constant _stderr;
-native _assert();
-native nohold _sprintf(), _fprintf(), _printf();
-native nohold _free(), _srand();
-native _malloc();
-
-native pure
-    _abs(),
-    _strcmp(),
-    _strcpy();
-
 native constant _GL_SCISSOR_TEST, _GL_TEXTURE_2D;
 native _glEnable(), _glDisable(), _glScissor();
-
-native _SDL_Rect  = 16,
-       _SDL_Point =  8,
-       _SDL_Color = 16,
-       _SDL_Event = 56,
-       _SDL_MouseButtonEvent = 24,
-       _SDL_MouseMotionEvent = 56,   // TODO: ?
-       _SDL_KeyboardEvent = 32,
-       _SDL_TextInputEvent = 56,     // TODO: ?
-       _SDL_WindowEvent = 20,
-       _SDL_Surface  = 0,
-       _SDL_Renderer = 0,
-       _SDL_Window   = 0,
-       _SDL_Texture  = 0,
-       _TTF_Font     = 0,
-       _Mix_Chunk    = 0;
 
 native constant _SDL_TRUE, _SDL_FALSE,
                 _SDL_BLENDMODE_NONE, _SDL_BLENDMODE_BLEND,
