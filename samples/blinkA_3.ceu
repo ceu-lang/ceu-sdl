@@ -19,7 +19,12 @@ do
         this.dt = 5000;
     end;
 
-    ptr = &b1;
+    //ptr = &b1;
+    finalize
+        ptr = &b1;
+    with
+        ptr = null;
+    end
 
     var BlinkA b2 with
         this.id = 2;
@@ -27,6 +32,7 @@ do
     end;
 
     await 8s;
+    _printf("INSIDE: %p\n", ptr);
 end
 
 _printf("FIM: %p\n", ptr);
