@@ -45,112 +45,111 @@ class UIGrid with
     var _SDL_Rect*       cell_rects = null;
     var _SDL_Rect*       ui_rects   = null;
 
-    native _go_ui();
+    function (int idx, hold UI* ui)=>void go_ui;
 do
-    /* NATIVE METHODS */
+    /* METHODS */
 
-    native do
-        void CEU_UIGrid__go (CEU_UIGrid* t, SDL_Rect* r)
-        {
-            if (r != NULL) {
-                t->rect.x = UI_align(r->x, r->w, t->align_x);
-                t->rect.y = UI_align(r->y, r->h, t->align_y);
-                t->rect.w = r->w;
-                t->rect.h = r->h;
-            }
+    function (_SDL_Rect* r)=>void go do
+        if r != null then
+            this.rect.x = _UI_align(r:x, r:w, this.align_x);
+            this.rect.y = _UI_align(r:y, r:h, this.align_y);
+            this.rect.w = (u16)r:w;
+            this.rect.h = (u16)r:h;
+        end
 
-            int x0 = t->rect.x;
-            int y0 = t->rect.y;
+        var int x0 = this.rect.x;
+        var int y0 = this.rect.y;
 
-            int one_x = (t->rect.w-t->spc_x)/t->lay_cols - t->spc_x - 2*t->pad_x;
-            int one_y = (t->rect.h-t->spc_y)/t->lay_lins - t->spc_y - 2*t->pad_y;
+        var int one_x = (this.rect.w-this.spc_x)/this.lay_cols
+                            - this.spc_x - 2*this.pad_x;
+        var int one_y = (this.rect.h-this.spc_y)/this.lay_lins
+                            - this.spc_y - 2*this.pad_y;
 
-            int cur = -1;
-            int x, y;
+        var int cur = -1;
+        var int x, y;
 
-            int l;
-            for (l=0; l<t->lay_lins; l++) {
-                x = x0 + t->spc_x;     // starts from spc_x
-                if (l == 0) {
-                    y = y0 + t->spc_y; // starts from spc_y
-                } else {
-                    y = y + t->pad_y + one_y + t->pad_y + t->spc_y;
-                }
+        var int l;
+        loop l, this.lay_lins do
+            x = x0 + this.spc_x;     // starts from spc_x
+            if (l == 0) then
+                y = y0 + this.spc_y; // starts from spc_y
+            else
+                y = y + this.pad_y + one_y + this.pad_y + this.spc_y;
+            end
 
-                int c;
-                for (c=0; c<t->lay_cols; c++) {
-                    if (c != 0) {
-                        x = x + t->pad_x + one_x
-                              + t->pad_x + t->spc_x;
-                    }
+            var int c;
+            loop c, this.lay_cols do
+                if (c != 0) then
+                    x = x + this.pad_x + one_x
+                          + this.pad_x + this.spc_x;
+                end
 
-                    int i1   = l*t->lay_cols + c;
-                    int lay1 = t->lay[i1];
+                var int i1   = l*this.lay_cols + c;
+                var int lay1 = this.lay[i1];
 
-                    if (lay1 > cur) {      // always increasing items
-                        cur = lay1;
-                        assert(cur < t->uis_n);
+                if (lay1 > cur) then      // always increasing items
+                    cur = lay1;
+                    _assert(cur < this.uis_n);
 
-                        SDL_Rect* cell_rect = &t->cell_rects[cur];
-                            cell_rect->x = x;
-                            cell_rect->y = y;
-                            cell_rect->w = one_x + 2*t->pad_x;
-                            cell_rect->h = one_y + 2*t->pad_y;
+                    var _SDL_Rect* cell_rect = &this.cell_rects[cur];
+                        cell_rect:x = x;
+                        cell_rect:y = y;
+                        cell_rect:w = one_x + 2*this.pad_x;
+                        cell_rect:h = one_y + 2*this.pad_y;
 
-                        SDL_Rect* ui_rect = &t->ui_rects[cur];
-                            ui_rect->x = x+t->pad_x;
-                            ui_rect->y = y+t->pad_y;
-                            ui_rect->w = one_x;
-                            ui_rect->h = one_y;
+                    var _SDL_Rect* ui_rect = &this.ui_rects[cur];
+                        ui_rect:x = x+this.pad_x;
+                        ui_rect:y = y+this.pad_y;
+                        ui_rect:w = one_x;
+                        ui_rect:h = one_y;
 
-                        // colspan
-                        int j;
-                        for (j=0; j<t->lay_cols-c-1; j++) {
-                            int lay2 = t->lay[i1 + j+1];
-                            if (lay1 == lay2) {
-                                cell_rect->w = cell_rect->w + t->spc_x
-                                             + one_x  + 2*t->pad_x;
-                                ui_rect->w   = ui_rect->w   + t->spc_x
-                                             + one_x  + 2*t->pad_x;
-                            } else {
-                                break;
-                            }
-                        }
+                    // colspan
+                    var int j;
+                    loop j, this.lay_cols-c-1 do
+                        var int lay2 = this.lay[i1 + j+1];
+                        if (lay1 == lay2) then
+                            cell_rect:w = cell_rect:w + this.spc_x
+                                         + one_x  + 2*this.pad_x;
+                            ui_rect:w   = ui_rect:w   + this.spc_x
+                                         + one_x  + 2*this.pad_x;
+                        else
+                            break;
+                        end
+                    end
 
-                        // linspan
-                        for (j=0; j<t->lay_lins-l-1; j++) {
-                            int lay2 = t->lay[i1 + (j+1)*t->lay_cols];
-                            if (lay1 == lay2) {
-                                cell_rect->h = cell_rect->h + t->spc_y +
-                                               one_y + 2*t->pad_y;
-                                ui_rect->h   = ui_rect->h   + t->spc_y +
-                                               one_y + 2*t->pad_y;
-                            } else {
-                                break;
-                            }
-                        }
+                    // linspan
+                    loop j, this.lay_lins-l-1 do
+                        var int lay2 = this.lay[i1 + (j+1)*this.lay_cols];
+                        if (lay1 == lay2) then
+                            cell_rect:h = cell_rect:h + this.spc_y +
+                                           one_y + 2*this.pad_y;
+                            ui_rect:h   = ui_rect:h   + this.spc_y +
+                                           one_y + 2*this.pad_y;
+                        else
+                            break;
+                        end
+                    end
 
-                        CEU_UI* ui = t->uis[cur];
-                        if (ui != NULL) {
-                            (*(_CEU_UI__go_bg(ui)))(ui, ui_rect);
-                        }
-                    }
-                }
-            }
-        }
+                    var UI* ui = this.uis[cur];
+                    if (ui != null) then
+                        ui:go_bg(ui_rect);
+                    end
+                end
+            end
+        end
+    end
 
-        void CEU_UIGrid__go_ui (CEU_UIGrid* this, int idx, CEU_UI* ui) {
-            this->uis[idx] = ui;
-            this->_go(this, NULL);
-        }
+    function (int idx, hold UI* ui)=>void go_ui do
+        this.uis[idx] = ui;
+        this.go(null);
+    end
 
-        void CEU_UIGrid__go_bg (CEU_UIGrid* this, SDL_Rect* bg) {
-            this->bg_rect = *bg;
-            if (this->bg_redim_) {
-                this->rect = *bg;
-            }
-            this->_go(this, NULL);
-        }
+    function (_SDL_Rect* bg)=>void go_bg do
+        this.bg_rect := *bg;    // struct
+        if (this.bg_redim_) then
+            this.rect := *bg;   // struct
+        end
+        this.go(null);
     end
 
     /* BODY */
@@ -323,7 +322,7 @@ with
         r.y = win_h / 2;
 
     g1.uis[1] = &g2;
-    g1._go(&r);
+    g1.go(&r);
 
     par do
         loop do
@@ -361,7 +360,7 @@ with
             g2.pad_y = g2.pad_y + _rand() % 3 - 1;
             if g2.pad_y < 0 then g2.pad_y = 0; end
 
-            g1._go(&r);
+            g1.go(&r);
         end
     end
 with
@@ -370,7 +369,7 @@ with
     end
 end
 
-return 0;
+escape 0;
 
 #endif
 #endif

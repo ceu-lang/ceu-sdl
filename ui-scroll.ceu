@@ -15,26 +15,24 @@ class UIScroll with
     var UI*         ui         = null;
     var _SDL_Color* clr_scroll = null;
 do
-    /* NATIVE METHODS */
+    /* METHODS */
 
-    native do
-        void CEU_UIScroll__go (CEU_UIScroll* this, SDL_Rect* r) {
-            if (r != NULL) {
-                this->rect.x = UI_align(r->x, r->w, this->align_x);
-                this->rect.y = UI_align(r->y, r->h, this->align_y);
-                this->rect.w = r->w;
-                this->rect.h = r->h;
-            }
-            (*_CEU_UI__go_bg(this->ui))(this->ui, &this->rect);
-        }
+    function (_SDL_Rect* r)=>void go do
+        if (r != null) then
+            this.rect.x = _UI_align(r:x, r:w, this.align_x);
+            this.rect.y = _UI_align(r:y, r:h, this.align_y);
+            this.rect.w = (u16) r:w;
+            this.rect.h = (u16) r:h;
+        end
+        this.ui:go_bg(&this.rect);
+    end
 
-        void CEU_UIScroll__go_bg (CEU_UIScroll* this, SDL_Rect* bg) {
-            this->bg_rect = *bg;
-            if (this->bg_redim_) {
-                this->rect = *bg;
-            }
-            this->_go(this, NULL);
-        }
+    function (_SDL_Rect* bg)=>void go_bg do
+        this.bg_rect := *bg;    // struct
+        if (this.bg_redim_) then
+            this.rect := *bg;   // struct
+        end
+        this.go(null);
     end
 
     /* BODY */
@@ -104,7 +102,7 @@ do
                 if pt1.x!=0 or pt1.y!=0 then
                     ui:rect.x = ui:rect.x + pt1.x;
                     ui:rect.y = ui:rect.y + pt1.y;
-                    ui:_go(null);
+                    ui:go(null);
                 end
 
                 //ui:rect.x = ui:rect.x + pt1.x;
@@ -258,7 +256,7 @@ with
         this.ui = &grid;
         this.clr_scroll = &c;
     end;
-    scroll._go(&win_r);
+    scroll.go(&win_r);
 
     await FOREVER;
 
@@ -268,7 +266,7 @@ with
     end
 end
 
-return 0;
+escape 0;
 
 #endif
 #endif

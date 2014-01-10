@@ -18,27 +18,25 @@ class UITexture with
     var   _SDL_Texture*  tex     = null;
     var   int            w, h;  // original dimensions
 do
-    /* NATIVE METHODS */
+    /* METHODS */
 
-    native do
-        void CEU_UITexture__go (CEU_UITexture* this, SDL_Rect* r) {
-            if (r != NULL) {
-                // ignoring r->w / r->h (no redim)
-                this->rect.x = UI_align(r->x, this->w, this->align_x);
-                this->rect.y = UI_align(r->y, this->h, this->align_y);
-                this->rect.w = this->w;
-                this->rect.h = this->h;
-            }
-        }
+    function (_SDL_Rect* r)=>void go do
+        if (r != null) then
+            // ignoring r:w / r:h (no redim)
+            this.rect.x = _UI_align(r:x, this.w, this.align_x);
+            this.rect.y = _UI_align(r:y, this.h, this.align_y);
+            this.rect.w = this.w;
+            this.rect.h = this.h;
+        end
+    end
 
-        void CEU_UITexture__go_bg (CEU_UITexture* this, SDL_Rect* bg) {
-            assert(this->bg_redim_ == 0);
-            this->bg_rect = *bg;
-            this->rect.x = UI_align_bg(bg->x, bg->w, this->w, this->align_x);
-            this->rect.y = UI_align_bg(bg->y, bg->h, this->h, this->align_y);
-            this->rect.w = this->w;
-            this->rect.h = this->h;
-        }
+    function (_SDL_Rect* bg)=>void go_bg do
+        _assert(this.bg_redim_ == 0);
+        this.bg_rect := *bg;    // struct
+        this.rect.x = _UI_align_bg(bg:x, bg:w, this.w, this.align_x);
+        this.rect.y = _UI_align_bg(bg:y, bg:h, this.h, this.align_y);
+        this.rect.w = this.w;
+        this.rect.h = this.h;
     end
 
     /* BODY */
@@ -183,7 +181,8 @@ with
     var _SDL_Rect r_txt;
         r_txt.x = 10;
         r_txt.y = 10;
-    ui_txt._go(&r_txt);
+
+    ui_txt.go(&r_txt);
 
     par do
         r1.x = 10;
@@ -204,7 +203,7 @@ with
                 if r1.w < 5 then r1.w = 5; end
                 r1.h = r1.h + _rand() % 3 - 1;
                 if r1.h < 5 then r1.h = 5; end
-                ui1._go_bg(&r1);
+                ui1.go_bg(&r1);
                 await 10ms;
             end
 
@@ -214,7 +213,7 @@ with
                 if r1.w < 5 then r1.w = 5; end
                 r1.h = r1.h + _rand() % 3 - 1;
                 if r1.h < 5 then r1.h = 5; end
-                ui1._go_bg(&r1);
+                ui1.go_bg(&r1);
                 await 10ms;
             end
 
@@ -224,7 +223,7 @@ with
                 if r1.w < 5 then r1.w = 5; end
                 r1.h = r1.h + _rand() % 3 - 1;
                 if r1.h < 5 then r1.h = 5; end
-                ui1._go_bg(&r1);
+                ui1.go_bg(&r1);
                 await 10ms;
             end
 
@@ -234,7 +233,7 @@ with
                 if r1.w < 5 then r1.w = 5; end
                 r1.h = r1.h + _rand() % 3 - 1;
                 if r1.h < 5 then r1.h = 5; end
-                ui1._go_bg(&r1);
+                ui1.go_bg(&r1);
                 await 10ms;
             end
         end
@@ -244,11 +243,11 @@ with
                 loop j, 3 do
                     ui1.align_x = i;
                     ui1.align_y = j;
-                    ui1._go_bg(&r1);
+                    ui1.go_bg(&r1);
 
                     ui2.align_x = i;
                     ui2.align_y = j;
-                    ui2._go_bg(&r2);
+                    ui2.go_bg(&r2);
                     await 1s;
                 end
             end
@@ -268,7 +267,7 @@ with
     end
 end
 
-return 0;
+escape 0;
 
 #endif
 
