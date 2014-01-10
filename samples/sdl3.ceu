@@ -70,15 +70,13 @@ with
     end
 with
     loop do
-        //var Rect* r;
         par/or do
-            await 20s;
+            await 10s;
         with
             do
                 loop do
                     await 1s;
-                    //r = new Rect with
-                    spawn Rect with
+                    spawn [1] Rect with
                         this.rect.x = 100;
                         this.rect.y = 100 + _rand()%300;
                         this.rect.w = 20;
