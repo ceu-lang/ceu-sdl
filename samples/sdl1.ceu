@@ -66,4 +66,4 @@ with
     end
 end
 
-return 0;
+escape 0;

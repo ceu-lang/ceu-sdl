@@ -38,4 +38,4 @@ end
 _printf("FIM: %p\n", ptr);
 
 await SDL_QUIT;
-return 0;
+escape 0;

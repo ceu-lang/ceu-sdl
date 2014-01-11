@@ -76,7 +76,7 @@ with
             do
                 loop do
                     await 1s;
-                    spawn [1] Rect with
+                    spawn [5] Rect with
                         this.rect.x = 100;
                         this.rect.y = 100 + _rand()%300;
                         this.rect.w = 20;
@@ -94,4 +94,4 @@ with
     end
 end
 
-return 0;
+escape 0;

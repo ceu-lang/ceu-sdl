@@ -20,4 +20,4 @@ var BlinkA b2 with
 end;
 
 await SDL_QUIT;
-return 0;
+escape 0;

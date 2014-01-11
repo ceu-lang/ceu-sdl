@@ -26,4 +26,4 @@ end
 _printf("FIM\n");
 
 await SDL_QUIT;
-return 0;
+escape 0;
