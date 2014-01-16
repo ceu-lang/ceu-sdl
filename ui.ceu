@@ -70,8 +70,8 @@ interface UI with
     var   int            bg_redim?;
     var   _SDL_Color*    bg_clr;
 
-    function (SDL_Rect* rect)=>void go;
-    function (SDL_Rect* bg  )=>void go_bg;
+    function delay (SDL_Rect* rect)=>void go;
+    function delay (SDL_Rect* bg  )=>void go_bg;
 end
 
 #endif

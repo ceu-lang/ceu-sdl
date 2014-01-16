@@ -17,6 +17,9 @@ class UITexture with
 
     var   _SDL_Texture*  tex     = null;
     var   int            w, h;  // original dimensions
+
+    function (_SDL_Rect* r)=>void go;
+    function (_SDL_Rect* bg)=>void go_bg;
 do
     /* METHODS */
 
