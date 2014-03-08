@@ -45,11 +45,11 @@ class UIGrid with
     var _SDL_Rect*       cell_rects = null;
     var _SDL_Rect*       ui_rects   = null;
 
-    function delay (int idx, hold UI* ui)=>void go_ui;
+    function recursive (int idx, hold UI* ui)=>void go_ui;
 do
     /* METHODS */
 
-    function delay (_SDL_Rect* r)=>void go do
+    function recursive (_SDL_Rect* r)=>void go do
         if r != null then
             this.rect.x = _UI_align(r:x, r:w, this.align_x);
             this.rect.y = _UI_align(r:y, r:h, this.align_y);
@@ -132,24 +132,24 @@ do
 
                     var UI* ui = this.uis[cur];
                     if (ui != null) then
-                        call/delay ui:go_bg(ui_rect);
+                        call/rec ui:go_bg(ui_rect);
                     end
                 end
             end
         end
     end
 
-    function delay (int idx, hold UI* ui)=>void go_ui do
+    function recursive (int idx, hold UI* ui)=>void go_ui do
         this.uis[idx] = ui;
-        call/delay this.go(null);
+        call/rec this.go(null);
     end
 
-    function delay (_SDL_Rect* bg)=>void go_bg do
+    function recursive (_SDL_Rect* bg)=>void go_bg do
         this.bg_rect := *bg;    // struct
         if (this.bg_redim_) then
             this.rect := *bg;   // struct
         end
-        call/delay this.go(null);
+        call/rec this.go(null);
     end
 
     /* BODY */
@@ -322,7 +322,7 @@ with
         r.y = win_h / 2;
 
     g1.uis[1] = &g2;
-    call/delay g1.go(&r);
+    call/rec g1.go(&r);
 
     par do
         loop do
@@ -360,7 +360,7 @@ with
             g2.pad_y = g2.pad_y + _rand() % 3 - 1;
             if g2.pad_y < 0 then g2.pad_y = 0; end
 
-            call/delay g1.go(&r);
+            call/rec g1.go(&r);
         end
     end
 with
