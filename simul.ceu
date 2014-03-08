@@ -60,7 +60,7 @@ with
 */
             // input
                 // 32=' ' => 126='~'
-                var _char[2] str;
+                var char[2] str;
                     str[0] = ' ';
                     str[1] = '\0';
                 str[0] = _rand() % (126-32) + 32;

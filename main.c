@@ -72,7 +72,7 @@ int main (int argc, char *argv[])
     CEU_THREADS_MUTEX_LOCK(&CEU.threads_mutex);
 #endif
 
-    char CEU_DATA[sizeof(CEU_Main)];
+    byte CEU_DATA[sizeof(CEU_Main)];
     tceu_app app;
         app.data = (tceu_org*) &CEU_DATA;
         app.init = &ceu_app_init;
