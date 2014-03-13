@@ -62,7 +62,7 @@ do
             end
         end
     with
-        var int paused? = 0;
+        var bool paused? = false;
         loop do
             var _SDL_MouseButtonEvent* but = await SDL_MOUSEBUTTONDOWN;
             if but:button == _SDL_BUTTON_LEFT then
@@ -110,7 +110,7 @@ with
                 end
             end
         with
-            var int paused? = 0;
+            var int paused? = false;
             loop do
                 var _SDL_KeyboardEvent* key = await SDL_KEYDOWN;
                 if key:keysym.sym == _SDLK_ESCAPE then

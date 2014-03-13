@@ -18,7 +18,7 @@ class UIGrid with
     var _SDL_Renderer* ren       = null;
     var   int          align_x   = _UI_ALIGN_CENTER;
     var   int          align_y   = _UI_ALIGN_MIDDLE;
-    var   int          bg_redim? = 0;
+    var   bool         bg_redim? = false;
     var   _SDL_Color*  bg_clr    = null;
 
 
@@ -207,11 +207,11 @@ do
                 _SDL_RenderFillRect(ren, &rect);
             end
 /*
-clr_cell_fr? = 1;
+clr_cell_fr? = true;
 clr_cell_fr.r = 0xFF;
 clr_cell_fr.g = 0x00;
 clr_cell_fr.b = 0x00;
-clr_ui_fr? = 1;
+clr_ui_fr? = true;
 clr_ui_fr.r = 0xFF;
 clr_ui_fr.g = 0xFF;
 clr_ui_fr.b = 0x00;
@@ -303,7 +303,7 @@ with
 
     var UIGrid g2 with
         this.ren          = ren;
-        this.bg_redim?    = 1;
+        this.bg_redim?    = true;
         this.clr_cell_fr  = &_colors.black;
         this.clr_ui_bg    = &_colors.yellow;
         this.clr_ui_fr    = &_colors.red;

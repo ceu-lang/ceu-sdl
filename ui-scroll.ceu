@@ -9,7 +9,7 @@ input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
 
 class UIScroll with
     interface UI;
-    var int         bg_redim?  = 0;
+    var bool        bg_redim?  = false;
     var _SDL_Color* bg_clr     = null;
 
     var UI*         ui         = null;
@@ -41,8 +41,8 @@ do
     _assert(this.ui         != null);
     _assert(this.clr_scroll != null);
 
-    event void go_x,    go_y;
-    var   int  go_x?=0, go_y?=0;
+    event void go_x,        go_y;
+    var   bool go_x?=false, go_y?=false;
 
     par do
         loop do
@@ -115,10 +115,10 @@ do
         par do
             await go_x;
             loop do
-                go_x? = 1;
+                go_x? = true;
                 par/or do
                     await 1s;
-                    go_x? = 0;
+                    go_x? = false;
                     await FOREVER;
                 with
                     await go_x;
@@ -127,10 +127,10 @@ do
         with
             await go_y;
             loop do
-                go_y? = 1;
+                go_y? = true;
                 par/or do
                     await 1s;
-                    go_y? = 0;
+                    go_y? = false;
                     await FOREVER;
                 with
                     await go_y;

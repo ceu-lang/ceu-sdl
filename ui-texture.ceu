@@ -12,7 +12,7 @@ class UITexture with
     var   _SDL_Renderer* ren       = null;
     var   int            align_x   = _UI_ALIGN_CENTER;
     var   int            align_y   = _UI_ALIGN_MIDDLE;
-    var   int            bg_redim? = 0;
+    var   bool           bg_redim? = false;
     var   _SDL_Color*    bg_clr    = null;
 
     var   _SDL_Texture*  tex     = null;

@@ -67,7 +67,7 @@ interface UI with
     var   int            align_y;
 
     var   _SDL_Rect      bg_rect;
-    var   int            bg_redim?;
+    var   bool           bg_redim?;
     var   _SDL_Color*    bg_clr;
 
     function recursive (SDL_Rect* rect)=>void go;
