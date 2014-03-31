@@ -1,3 +1,14 @@
+#ifndef _SDL_GFX_H
+#define _SDL_GFX_H
+
+native do
+    #ifdef __ANDROID__
+    //include "SDL_gfxPrimitives.h"
+    #else
+    //include "SDL/SDL_gfxPrimitives.h"
+    #endif
+end
+
 native nohold
     _bezierRGBA(),
     _boxColor(),
@@ -15,3 +26,5 @@ native nohold
     _stringColor(),
     _stringRGBA(),
     _thickLineRGBA();
+
+#endif
