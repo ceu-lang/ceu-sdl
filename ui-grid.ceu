@@ -69,7 +69,7 @@ do
         var int x, y;
 
         var int l;
-        loop l, this.lay_lins do
+        loop l in this.lay_lins do
             x = x0 + this.spc_x;     // starts from spc_x
             if (l == 0) then
                 y = y0 + this.spc_y; // starts from spc_y
@@ -78,7 +78,7 @@ do
             end
 
             var int c;
-            loop c, this.lay_cols do
+            loop c in this.lay_cols do
                 if (c != 0) then
                     x = x + this.pad_x + one_x
                           + this.pad_x + this.spc_x;
@@ -105,7 +105,7 @@ do
 
                     // colspan
                     var int j;
-                    loop j, this.lay_cols-c-1 do
+                    loop j in this.lay_cols-c-1 do
                         var int lay2 = this.lay[i1 + j+1];
                         if (lay1 == lay2) then
                             cell_rect:w = cell_rect:w + this.spc_x
@@ -118,7 +118,7 @@ do
                     end
 
                     // linspan
-                    loop j, this.lay_lins-l-1 do
+                    loop j in this.lay_lins-l-1 do
                         var int lay2 = this.lay[i1 + (j+1)*this.lay_cols];
                         if (lay1 == lay2) then
                             cell_rect:h = cell_rect:h + this.spc_y +
@@ -162,7 +162,7 @@ do
         with
             _free(this.uis);
         end
-        loop i, uis_n do
+        loop i in uis_n do
             this.uis[i] = null;
         end
     end
@@ -184,7 +184,7 @@ do
         // OK_CLICKED
         loop do
             var _SDL_MouseButtonEvent* but = await SDL_MOUSEBUTTONUP;
-            loop i, uis_n do
+            loop i in uis_n do
                 if _SDL_Rect_vs_Mouse(&ui_rects[i], but) then
                     emit ok_uiclicked => (i, uis[i]); // 0 are blank cells
                 end
@@ -216,7 +216,7 @@ clr_ui_fr.r = 0xFF;
 clr_ui_fr.g = 0xFF;
 clr_ui_fr.b = 0x00;
 */
-            loop i, uis_n do
+            loop i in uis_n do
                 if clr_cell_bg != null then
                     _SDL_SetRenderDrawColor(ren,
                         clr_cell_bg:r,clr_cell_bg:g,clr_cell_bg:b,clr_cell_bg:a);

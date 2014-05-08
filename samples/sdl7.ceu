@@ -63,7 +63,7 @@ with
         _SDL_SetRenderDrawColor(ren, fg_clr.r,fg_clr.g,fg_clr.b,0xFF);
         _SDL_RenderFillRect(ren, &fg);
 
-        loop i,30 do
+        loop i in 30 do
             _pixelRGBA(ren, 10+_rand()%50, 10+_rand()%50, 100,100,100, 0xFF);
         end
 

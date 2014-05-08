@@ -18,10 +18,11 @@ _SDL_GetWindowSize(win, &win_w, &win_h);
 native do
     SDL_Renderer* REN = NULL;
 end
-_REN = _SDL_CreateRenderer(win, -1, 0);
-    finalize with
-        _SDL_DestroyRenderer(_REN);
-    end
+finalize
+    _REN = _SDL_CreateRenderer(win, -1, 0);
+with
+    _SDL_DestroyRenderer(_REN);
+end
 
 var _SDL_Rect bg;
     bg.w = win_w;
@@ -74,14 +75,15 @@ with
             await 10s;
         with
             do
+                pool Rect[5] rs;
                 loop do
                     await 1s;
-                    spawn [5] Rect with
-                        this.rect.x = 100;
-                        this.rect.y = 100 + _rand()%300;
-                        this.rect.w = 20;
-                        this.rect.h = 20;
-                        this.v      = 5 + _rand()%100;
+                    spawn Rect in rs with
+                        _.rect.x = 100;
+                        _.rect.y = 100 + _rand()%300;
+                        _.rect.w = 20;
+                        _.rect.h = 20;
+                        _.v      = 5 + _rand()%100;
                     end;
                 end
             end

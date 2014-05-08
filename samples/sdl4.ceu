@@ -97,14 +97,15 @@ with
         par/or do
             pause/if go_pause_all do
                 do
+                    pool Rect[] rs;
                     loop do
                         await 1s;
                         native _rand();
-                        spawn Rect with
-                            this.dt    =  10 + _rand()%20;
-                            this.rct.x = 100;
-                            this.rct.y = 100 + _rand()%300;
-                            this.ren = ren;
+                        spawn Rect in rs with
+                            _.dt    =  10 + _rand()%20;
+                            _.rct.x = 100;
+                            _.rct.y = 100 + _rand()%300;
+                            _.ren := ren;
                         end;
                     end
                 end

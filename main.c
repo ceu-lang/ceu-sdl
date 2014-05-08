@@ -183,8 +183,8 @@ int main (int argc, char *argv[])
                 }
 #ifndef CEU_IN_SDL_DT
             }
-#endif
-#endif
+#endif  /* !CEU_IN_SDL_DT */
+#endif  /* CEU_WCLOCKS */
 #ifdef CEU_IN_SDL_DT
             ceu_sys_go(&app, CEU_IN_SDL_DT, (tceu_evtp)dt);
 #ifdef CEU_RET

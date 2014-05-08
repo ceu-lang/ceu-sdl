@@ -11,13 +11,13 @@ end
 
 do
     var BlinkA b1 with
-        this.id = 1;
-        this.dt = 5000;
+        _.id = 1;
+        _.dt = 5000;
     end;
 
     var BlinkA b2 with
-        this.id = 2;
-        this.dt = 2500;
+        _.id = 2;
+        _.dt = 2500;
     end;
 
     await 8s;

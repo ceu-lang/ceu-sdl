@@ -11,10 +11,11 @@ loop do
         await 5s;
     with
         do
+            pool HelloWorld[] hs;
             var int i = 1;
             every 1s do
-                spawn HelloWorld with
-                    this.id = i;
+                spawn HelloWorld in hs with
+                    _.id = i;
                 end;
                 i = i + 1;
             end

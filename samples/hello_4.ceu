@@ -10,7 +10,7 @@ do
     var int i = 1;
     every 1s do
         spawn HelloWorld with
-            this.id = i;
+            _.id = i;
         end;
         i = i + 1;
     end
