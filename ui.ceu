@@ -1,8 +1,8 @@
 #ifndef _UI_CEU
 #define _UI_CEU
 
-native constant _UI_ALIGN_LEFT, _UI_ALIGN_CENTER, _UI_ALIGN_RIGHT,
-                _UI_ALIGN_TOP,  _UI_ALIGN_MIDDLE, _UI_ALIGN_BOTTOM;
+native const _UI_ALIGN_LEFT, _UI_ALIGN_CENTER, _UI_ALIGN_RIGHT,
+             _UI_ALIGN_TOP,  _UI_ALIGN_MIDDLE, _UI_ALIGN_BOTTOM;
 
 native pure _UI_align(), _UI_align_bg();
 
@@ -61,14 +61,14 @@ interface UI with
     event void           ok_clicked;
     //event _SDL_Point*    go_move;
 
-    var   _SDL_Renderer* ren;
-    var   _SDL_Rect      rect;
-    var   int            align_x;
-    var   int            align_y;
+    var   _SDL_Renderer[] ren;
+    var   _SDL_Rect       rect;
+    var   int             align_x;
+    var   int             align_y;
 
     var   _SDL_Rect      bg_rect;
     var   bool           bg_redim?;
-    var   _SDL_Color*    bg_clr;
+    var   _SDL_Color[]   bg_clr;
 
     function recursive (SDL_Rect* rect)=>void go;
     function recursive (SDL_Rect* bg  )=>void go_bg;

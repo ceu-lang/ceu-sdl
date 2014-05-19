@@ -1,4 +1,4 @@
-@include(sdl.ceu);
+#include "sdl.ceu";
 
 input void SDL_QUIT;
 input void SDL_REDRAW;
@@ -6,7 +6,7 @@ input void SDL_MOUSEBUTTONDOWN;
 
 var _SDL_Window* win;
 finalize
-    win = _SDL_CreateWindow("SDL APP", 200,200, 640,480, 0);
+    win = _SDL_CreateWindow("SDL APP 9", 200,200, 640,480, 0);
 with
     _SDL_DestroyWindow(win);
 end
@@ -24,7 +24,7 @@ bg.h = 480;
 bg.x = 0;
 bg.y = 0;
 
-class Rect with
+class Rect9 with
     var _SDL_Rect r;
     var int dt;
     var _SDL_Renderer* ren;
@@ -35,7 +35,7 @@ do
 
     par do
     //par/or do
-        loop i, 500 do
+        loop i do //, 500 do
             await (dt)ms;
             r.x = r.x + 1;
         end
@@ -55,13 +55,13 @@ par/or do
         _SDL_RenderFillRect(ren, &bg);
     end
 with
-    C _rand();
-    var Rect* a;
+    native _rand();
+    //var Rect9* a;
     loop do
         par/or do
             do
                 loop do
-                    spawn Rect with
+                    spawn Rect9 with
                         this.r.y = 20 + _rand()%400;
                         this.dt  = 10 + _rand()%10;
                         this.ren = ren;
@@ -82,4 +82,4 @@ with
     await SDL_QUIT;
 end
 
-return 0;
+escape 0;

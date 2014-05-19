@@ -15,29 +15,29 @@ input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONUP;
 class UIGrid with
     interface UI;
 
-    var _SDL_Renderer* ren       = null;
-    var   int          align_x   = _UI_ALIGN_CENTER;
-    var   int          align_y   = _UI_ALIGN_MIDDLE;
-    var   bool         bg_redim? = false;
-    var   _SDL_Color*  bg_clr    = null;
+    var _SDL_Renderer[] ren       = null;
+    var   int           align_x   = _UI_ALIGN_CENTER;
+    var   int           align_y   = _UI_ALIGN_MIDDLE;
+    var   bool          bg_redim? = false;
+    var   _SDL_Color[]  bg_clr    = null;
 
 
     event (int,UI*)     ok_uiclicked;
 
     // TODO: clr_bg vs bg_clr
-    var   _SDL_Color*   clr_bg      = null; // whole UI background
-    var   _SDL_Color*   clr_fr      = null; // whole UI frame
-    var   _SDL_Color*   clr_cell_bg = null; // each cell background
-    var   _SDL_Color*   clr_cell_fr = null; // each cell frame
-    var   _SDL_Color*   clr_ui_bg   = null; // each UI background (if existent)
-    var   _SDL_Color*   clr_ui_fr   = null; // each UI frame (if existent)
+    var   _SDL_Color[]  clr_bg      = null; // whole UI background
+    var   _SDL_Color[]  clr_fr      = null; // whole UI frame
+    var   _SDL_Color[]  clr_cell_bg = null; // each cell background
+    var   _SDL_Color[]  clr_cell_fr = null; // each cell frame
+    var   _SDL_Color[]  clr_ui_bg   = null; // each UI background (if existent)
+    var   _SDL_Color[]  clr_ui_fr   = null; // each UI frame (if existent)
 
     //var   int           one_x=0, one_y=0;
     var   int            spc_x=0, spc_y=0;
     var   int            pad_x=0, pad_y=0;
 
     var   int            lay_lins, lay_cols;
-    var   int*           lay = null;
+    var   int[]          lay = null;
 
     var   UI**           uis   = null;
     var   int            uis_n = 0;
@@ -140,14 +140,15 @@ do
     end
 
     function recursive (int idx, hold UI* ui)=>void go_ui do
-        this.uis[idx] = ui;
+        this.uis[idx] := ui;
+                        // TODO: assumes ui>this
         call/rec this.go(null);
     end
 
     function recursive (_SDL_Rect* bg)=>void go_bg do
-        this.bg_rect := *bg;    // struct
+        this.bg_rect = *bg;
         if (this.bg_redim_) then
-            this.rect := *bg;   // struct
+            this.rect = *bg;
         end
         call/rec this.go(null);
     end
@@ -264,7 +265,7 @@ var int win_w;
 var int win_h;
     _SDL_GetWindowSize(win, &win_w, &win_h);
 
-var _SDL_Renderer* ren;
+var _SDL_Renderer[] ren;
     finalize
         ren = _SDL_CreateRenderer(win, -1, 0);
     with
@@ -288,31 +289,31 @@ par/or do
     await SDL_QUIT;
 with
     var UIGrid g1 with
-        this.ren          = ren;
-        this.clr_bg       = &_colors.gray;
-        this.clr_fr       = &_colors.red;
-        this.clr_cell_bg  = &_colors.white;
-        this.clr_cell_fr  = &_colors.black;
-        this.spc_x        = 10;
-        this.spc_y        = 10;
-        this.lay_lins     = 4;
-        this.lay_cols     = 4;
-        this.lay          = _lay1;
-        this.uis_n        = 3;
+        _.ren          := ren;
+        _.clr_bg       = &_colors.gray;
+        _.clr_fr       = &_colors.red;
+        _.clr_cell_bg  = &_colors.white;
+        _.clr_cell_fr  = &_colors.black;
+        _.spc_x        = 10;
+        _.spc_y        = 10;
+        _.lay_lins     = 4;
+        _.lay_cols     = 4;
+        _.lay          := _lay1;
+        _.uis_n        = 3;
     end;
 
     var UIGrid g2 with
-        this.ren          = ren;
-        this.bg_redim?    = true;
-        this.clr_cell_fr  = &_colors.black;
-        this.clr_ui_bg    = &_colors.yellow;
-        this.clr_ui_fr    = &_colors.red;
-        this.pad_x        = 5;
-        this.pad_y        = 5;
-        this.lay_lins     = 1;
-        this.lay_cols     = 3;
-        this.lay          = _lay2;
-        this.uis_n        = 3;
+        _.ren          := ren;
+        _.bg_redim?    = true;
+        _.clr_cell_fr  = &_colors.black;
+        _.clr_ui_bg    = &_colors.yellow;
+        _.clr_ui_fr    = &_colors.red;
+        _.pad_x        = 5;
+        _.pad_y        = 5;
+        _.lay_lins     = 1;
+        _.lay_cols     = 3;
+        _.lay          := _lay2;
+        _.uis_n        = 3;
     end;
 
     var _SDL_Rect r;

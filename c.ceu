@@ -4,7 +4,7 @@
 native _assert(),
        _malloc();
 
-native constant _stderr;
+native const _stderr;
 
 native nohold _fprintf(),
               _free(),

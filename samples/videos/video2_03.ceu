@@ -1,11 +1,11 @@
-@include(sdl.ceu);
+#include "sdl.ceu";
 
 input void SDL_QUIT;
 input void SDL_REDRAW;
 
 var _SDL_Window* win;
 finalize
-    win = _SDL_CreateWindow("SDL APP", 200,200, 640,480, 0);
+    win = _SDL_CreateWindow("SDL APP 1", 200,200, 640,480, 0);
 with
     _SDL_DestroyWindow(win);
 end
@@ -47,4 +47,4 @@ with
     await SDL_QUIT;
 end
 
-return 0;
+escape 0;

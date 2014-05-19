@@ -1,33 +1,35 @@
 #ifndef _SDL_CEU
 #define _SDL_CEU
 
-native constant _GL_SCISSOR_TEST, _GL_TEXTURE_2D;
+native const _GL_SCISSOR_TEST, _GL_TEXTURE_2D;
 native _glEnable(), _glDisable(), _glScissor();
 
-native plain _SDL_Rect, _SDL_Point;
+native plain _SDL_Rect, _SDL_Point, _SDL_Color,
+             _SDL_TouchFingerEvent,
+             _SDL_Texture;
 
-native constant _SDL_TRUE, _SDL_FALSE,
-                _SDL_BLENDMODE_NONE, _SDL_BLENDMODE_BLEND,
-                _SDL_BUTTON_LEFT,
-                _SDL_BUTTON_RIGHT,
-                _SDL_KEYDOWN,
-                _SDL_MOUSEBUTTONDOWN,
-                _SDL_PIXELFORMAT_UNKNOWN,
-                _SDL_SCANCODE_AC_BACK,
-                _SDL_RENDERER_ACCELERATED,
-                _SDL_RENDERER_PRESENTVSYNC,
-                _SDL_TEXTINPUT,
-                _SDL_TEXTUREACCESS_STATIC,
-                _SDL_TEXTUREACCESS_TARGET,
-                _SDL_WINDOW_SHOWN,
-                _SDL_WINDOW_RESIZABLE,
-                _SDL_WINDOWEVENT_RESIZED,
-                _AUDIO_S16SYS;
+native const _SDL_TRUE, _SDL_FALSE,
+             _SDL_BLENDMODE_NONE, _SDL_BLENDMODE_BLEND,
+             _SDL_BUTTON_LEFT,
+             _SDL_BUTTON_RIGHT,
+             _SDL_KEYDOWN,
+             _SDL_MOUSEBUTTONDOWN,
+             _SDL_PIXELFORMAT_UNKNOWN,
+             _SDL_SCANCODE_AC_BACK,
+             _SDL_RENDERER_ACCELERATED,
+             _SDL_RENDERER_PRESENTVSYNC,
+             _SDL_TEXTINPUT,
+             _SDL_TEXTUREACCESS_STATIC,
+             _SDL_TEXTUREACCESS_TARGET,
+             _SDL_WINDOW_SHOWN,
+             _SDL_WINDOW_RESIZABLE,
+             _SDL_WINDOWEVENT_RESIZED,
+             _AUDIO_S16SYS;
 
-native constant _SDLK_ESCAPE,
-                _SDLK_BACKSPACE,
-                _SDLK_RETURN,
-                _SDLK_p;
+native const _SDLK_ESCAPE,
+             _SDLK_BACKSPACE,
+             _SDLK_RETURN,
+             _SDLK_p;
 
 native nohold _SDL_GL_BindTexture(),
               _SDL_CreateWindow(),
@@ -110,6 +112,7 @@ native do
         return r;
     }
 
+#ifdef SDL_MATH
     int SDL_Circle_vs_Mouse (SDL_Point* pos, int rad, SDL_MouseButtonEvent* but) {
         SDL_Point pt = { but->x, but->y };
         return SDL_Circle_vs_Point(pos, rad, &pt);
@@ -123,6 +126,7 @@ native do
         return sqrt( pow(pos1->x-pos2->x,2) + pow(pos1->y-pos2->y,2) )
                 < rad1+rad2;
     }
+#endif
 end
 
 #endif

@@ -1,11 +1,11 @@
-@include(sdl.ceu);
+#include "sdl.ceu";
 
 input void SDL_QUIT;
 input void SDL_REDRAW;
 
 var _SDL_Window* win;
 finalize
-    win = _SDL_CreateWindow("SDL APP", 200,200, 640,480, 0);
+    win = _SDL_CreateWindow("SDL APP 3", 200,200, 640,480, 0);
 with
     _SDL_DestroyWindow(win);
 end
@@ -23,7 +23,7 @@ bg.h = 480;
 bg.x = 0;
 bg.y = 0;
 
-class Rect with
+class Rect3 with
     var _SDL_Rect r;
     var int dt;
     var _SDL_Renderer* ren;
@@ -32,9 +32,9 @@ do
     this.r.h = 100;
     this.r.x = 20;
 
-    par/or do
-    //par do
-        loop i, 500 do
+    //par/or do
+    par do
+        loop i do //, 500 do
             await (dt)ms;
             r.x = r.x + 1;
         end
@@ -54,13 +54,13 @@ par/or do
         _SDL_RenderFillRect(ren, &bg);
     end
 with
-    var Rect a with
+    var Rect3 a with
         this.r.y = 100;
         this.dt  = 10;
         this.ren = ren;
     end;
 
-    var Rect b with
+    var Rect3 b with
         this.r.y = 300;
         this.dt  = 5;
         this.ren = ren;
@@ -79,4 +79,4 @@ with
     await SDL_QUIT;
 end
 
-return 0;
+escape 0;

@@ -17,7 +17,7 @@ var _SDL_Window* win;
 
 _SDL_GetWindowSize(win, &win_w, &win_h);
 
-var _SDL_Renderer* ren;
+var _SDL_Renderer[] ren;
     finalize
         ren = _SDL_CreateRenderer(win, -1, 0);
     with
@@ -39,7 +39,7 @@ class Rect with
     var _SDL_Rect  rct;
     var int        dt;
 
-    var _SDL_Renderer* ren;
+    var _SDL_Renderer[] ren;
 do
     this.rct.w = 20;
     this.rct.h = 20;
@@ -105,7 +105,7 @@ with
                             _.dt    =  10 + _rand()%20;
                             _.rct.x = 100;
                             _.rct.y = 100 + _rand()%300;
-                            _.ren := ren;
+                            _.ren = ren;
                         end;
                     end
                 end

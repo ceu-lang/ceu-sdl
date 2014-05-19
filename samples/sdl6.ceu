@@ -21,7 +21,7 @@ var _SDL_Window* win;
 
 /* Create SDL_Renderer (Destroy on finalization) */
 
-var _SDL_Renderer* ren;
+var _SDL_Renderer[] ren;
     finalize
         ren = _SDL_CreateRenderer(win, -1, 0);
     with
@@ -42,7 +42,7 @@ var _SDL_Rect bg;
 class Rect with
     var _SDL_Rect  rct;         // My initial values
     var int        vel;         // I have a speed set from outside
-    var _SDL_Renderer* ren;     // I redraw myself
+    var _SDL_Renderer[] ren;    // I redraw myself
 do
     this.rct.w = 25;
     this.rct.h = 25;
@@ -141,7 +141,7 @@ with
                         _.vel   = 50 + _rand()%20;
                         _.rct.x = 50 + _rand()%930;
                         _.rct.y = _rand()%750;
-                        _.ren := ren;
+                        _.ren = ren;
                     end;
                 end
                 await FOREVER;

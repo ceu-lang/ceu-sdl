@@ -9,11 +9,11 @@ input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
 
 class UIScroll with
     interface UI;
-    var bool        bg_redim?  = false;
-    var _SDL_Color* bg_clr     = null;
+    var bool         bg_redim?  = false;
+    var _SDL_Color[] bg_clr     = null;
 
-    var UI*         ui         = null;
-    var _SDL_Color* clr_scroll = null;
+    var UI&          ui;
+    var _SDL_Color[] clr_scroll = null;
 do
     /* METHODS */
 
@@ -24,13 +24,13 @@ do
             this.rect.w = (u16) r:w;
             this.rect.h = (u16) r:h;
         end
-        call/rec this.ui:go_bg(&this.rect);
+        call/rec this.ui.go_bg(&this.rect);
     end
 
     function recursive (_SDL_Rect* bg)=>void go_bg do
-        this.bg_rect := *bg;    // struct
+        this.bg_rect = *bg;
         if (this.bg_redim_) then
-            this.rect := *bg;   // struct
+            this.rect = *bg;
         end
         call/rec this.go(null);
     end
@@ -38,7 +38,6 @@ do
     /* BODY */
 
     _assert(this.ren        != null);
-    _assert(this.ui         != null);
     _assert(this.clr_scroll != null);
 
     event void go_x,        go_y;
@@ -61,16 +60,16 @@ do
                 pt1.y = pt2.y - pt1.y;
 
                 // LIMITS
-                if ui:rect.w > rect.w then
+                if ui.rect.w > rect.w then
                     if pt1.x > 0 then
                         var int max_x  = rect.x;
-                        var int max_dx = max_x - ui:rect.x;
+                        var int max_dx = max_x - ui.rect.x;
                             if pt1.x > max_dx then
                                 pt1.x = max_dx;
                             end
                     else/if pt1.x < 0 then
-                        var int min_x  = rect.x - (ui:rect.w-rect.w);
-                        var int min_dx = min_x - ui:rect.x;
+                        var int min_x  = rect.x - (ui.rect.w-rect.w);
+                        var int min_dx = min_x - ui.rect.x;
                         if pt1.x < min_dx then
                             pt1.x = min_dx;
                         end
@@ -80,16 +79,16 @@ do
                     pt1.x = 0;
                 end
 
-                if ui:rect.h > rect.h then
+                if ui.rect.h > rect.h then
                     if pt1.y > 0 then
                         var int max_y  = rect.y;
-                        var int max_dy = max_y - ui:rect.y;
+                        var int max_dy = max_y - ui.rect.y;
                         if pt1.y > max_dy then
                             pt1.y = max_dy;
                         end
                     else/if pt1.y < 0 then
-                        var int min_y  = rect.y - (ui:rect.h-rect.h);
-                        var int min_dy = min_y - ui:rect.y;
+                        var int min_y  = rect.y - (ui.rect.h-rect.h);
+                        var int min_dy = min_y - ui.rect.y;
                         if pt1.y < min_dy then
                             pt1.y = min_dy;
                         end
@@ -100,13 +99,13 @@ do
                 end
 
                 if pt1.x!=0 or pt1.y!=0 then
-                    ui:rect.x = ui:rect.x + pt1.x;
-                    ui:rect.y = ui:rect.y + pt1.y;
-                    call/rec ui:go(null);
+                    ui.rect.x = ui.rect.x + pt1.x;
+                    ui.rect.y = ui.rect.y + pt1.y;
+                    call/rec ui.go(null);
                 end
 
-                //ui:rect.x = ui:rect.x + pt1.x;
-                //ui:rect.y = ui:rect.y + pt1.y;
+                //ui.rect.x = ui.rect.x + pt1.x;
+                //ui.rect.y = ui.rect.y + pt1.y;
 
                 pt1 = pt2;
             end
@@ -151,9 +150,9 @@ do
 
             if go_x? then
                 var _SDL_Rect rs;
-                    rs.x = rect.x + (rect.x-ui:rect.x) * rect.w / ui:rect.w;
+                    rs.x = rect.x + (rect.x-ui.rect.x) * rect.w / ui.rect.w;
                     rs.y = rect.y + rect.h - 6;
-                    rs.w = rect.w*rect.w / ui:rect.w;
+                    rs.w = rect.w*rect.w / ui.rect.w;
                     rs.h = 5;
                 _SDL_SetRenderDrawBlendMode(ren, _SDL_BLENDMODE_BLEND);
                 _SDL_SetRenderDrawColor(ren, clr_scroll:r,
@@ -166,9 +165,9 @@ do
             if go_y? then
                 var _SDL_Rect rs;
                     rs.x = rect.x + rect.w - 6;
-                    rs.y = rect.y + (rect.y-ui:rect.y) * rect.h / ui:rect.h;
+                    rs.y = rect.y + (rect.y-ui.rect.y) * rect.h / ui.rect.h;
                     rs.w = 5;
-                    rs.h = rect.h*rect.h / ui:rect.h;
+                    rs.h = rect.h*rect.h / ui.rect.h;
                 _SDL_SetRenderDrawBlendMode(ren, _SDL_BLENDMODE_BLEND);
                 _SDL_SetRenderDrawColor(ren, clr_scroll:r,
                                              clr_scroll:g,
@@ -206,7 +205,7 @@ var _SDL_Rect win_r;
     win_r.w = win_w;
     win_r.h = win_h;
 
-var _SDL_Renderer* ren;
+var _SDL_Renderer[] ren;
     finalize
         ren = _SDL_CreateRenderer(win, -1, 0);
     with
@@ -223,11 +222,11 @@ with
     end
 with
     var UIGrid grid with
-        this.ren = ren;
-        this.lay_lins = 4;
-        this.lay_cols = 4;
-        this.lay = _UI_SCROLL_grid;
-        this.uis_n = 16;
+        _.ren := ren;
+        _.lay_lins = 4;
+        _.lay_cols = 4;
+        _.lay := _UI_SCROLL_grid;
+        _.uis_n = 16;
         native do
             int UI_SCROLL_grid[] = {
                  0,  1,  2,  3,
@@ -237,24 +236,24 @@ with
             };
         end
 
-        this.spc_x     = 10;
-        this.spc_y     = 10;
-        this.pad_x     = 10;
-        this.pad_y     = 10;
-        this.clr_bg    = &_colors.white;
-        this.clr_ui_bg = &_colors.gray;
+        _.spc_x     = 10;
+        _.spc_y     = 10;
+        _.pad_x     = 10;
+        _.pad_y     = 10;
+        _.clr_bg    = &_colors.white;
+        _.clr_ui_bg = &_colors.gray;
 
-        this.rect.w = win_r.w+200;
-        this.rect.h = win_r.h+200;
+        _.rect.w = win_r.w+200;
+        _.rect.h = win_r.h+200;
     end;
 
     var _SDL_Color c = _colors.blue;
         c.a = 0x77;
 
     var UIScroll scroll with
-        this.ren = ren;
-        this.ui = &grid;
-        this.clr_scroll = &c;
+        _.ren := ren;
+        _.ui = grid;
+        _.clr_scroll = &c;
     end;
     call/rec scroll.go(&win_r);
 
