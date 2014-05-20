@@ -112,7 +112,7 @@ native do
         return r;
     }
 
-#ifdef SDL_MATH
+##ifdef SDL_MATH
     int SDL_Circle_vs_Mouse (SDL_Point* pos, int rad, SDL_MouseButtonEvent* but) {
         SDL_Point pt = { but->x, but->y };
         return SDL_Circle_vs_Point(pos, rad, &pt);
@@ -126,7 +126,7 @@ native do
         return sqrt( pow(pos1->x-pos2->x,2) + pow(pos1->y-pos2->y,2) )
                 < rad1+rad2;
     }
-#endif
+##endif
 end
 
 #endif

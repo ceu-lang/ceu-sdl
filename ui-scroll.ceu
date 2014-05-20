@@ -12,6 +12,9 @@ class UIScroll with
     var bool         bg_redim?  = false;
     var _SDL_Color[] bg_clr     = null;
 
+    var int          align_x   = _UI_ALIGN_CENTER;
+    var int          align_y   = _UI_ALIGN_MIDDLE;
+
     var UI&          ui;
     var _SDL_Color[] clr_scroll = null;
 do
@@ -193,7 +196,7 @@ var int win_h;
 var _SDL_Window* win;
     finalize
         win = _SDL_CreateWindow("UI - Scroll",
-                            500, 1300, 800, 480, _SDL_WINDOW_SHOWN);
+                            500, 1300, 400, 200, _SDL_WINDOW_SHOWN);
     with
         _SDL_DestroyWindow(win);
     end
@@ -221,12 +224,14 @@ with
         _SDL_RenderFillRect(ren, &win_r);
     end
 with
+    var UIGridPool uis;
     var UIGrid grid with
-        _.ren := ren;
+        _.ren = ren;
         _.lay_lins = 4;
         _.lay_cols = 4;
         _.lay := _UI_SCROLL_grid;
         _.uis_n = 16;
+        _.uis   = uis;
         native do
             int UI_SCROLL_grid[] = {
                  0,  1,  2,  3,
@@ -242,22 +247,37 @@ with
         _.pad_y     = 10;
         _.clr_bg    = &_colors.white;
         _.clr_ui_bg = &_colors.gray;
-
-        _.rect.w = win_r.w+200;
-        _.rect.h = win_r.h+200;
     end;
 
-    var _SDL_Color c = _colors.blue;
-        c.a = 0x77;
+    var _SDL_Rect r;
+        r.x = win_r.w / 2;
+        r.y = win_r.y / 2;
+        r.w = 2*win_r.w;
+        r.h = 2*win_r.h;
+    call/rec grid.go(&r);
+_printf("grid %d %d\n", grid.align_x, grid.align_y);
 
-    var UIScroll scroll with
-        _.ren := ren;
-        _.ui = grid;
-        _.clr_scroll = &c;
-    end;
-    call/rec scroll.go(&win_r);
+    par do
+        loop do
+            var int opt = await grid.ok_uiclicked;
+            _fprintf(_stderr, "G: %d\n", opt);
+        end
+    with
+        await 10s;
+        _printf("oi\n");
 
-    await FOREVER;
+        var _SDL_Color c = _colors.blue;
+            c.a = 0x77;
+
+        var UIScroll scroll with
+            _.ren = ren;
+            _.ui  = grid;
+            _.clr_scroll = &c;
+        end;
+        call/rec scroll.go(&win_r);
+
+        await FOREVER;
+    end
 
 with
     every SDL_REDRAW do

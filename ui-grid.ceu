@@ -12,6 +12,19 @@ input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONUP;
 // * go_pause
 // * remaining space from division
 
+class UIGridItem with
+    var UI&  ui;
+    var int  idx;
+do
+    await FOREVER;
+end
+
+class UIGridPool with
+    pool UIGridItem[] all;
+do
+    await FOREVER;
+end
+
 class UIGrid with
     interface UI;
 
@@ -22,7 +35,7 @@ class UIGrid with
     var   _SDL_Color[]  bg_clr    = null;
 
 
-    event (int,UI*)     ok_uiclicked;
+    event int           ok_uiclicked;
 
     // TODO: clr_bg vs bg_clr
     var   _SDL_Color[]  clr_bg      = null; // whole UI background
@@ -39,11 +52,11 @@ class UIGrid with
     var   int            lay_lins, lay_cols;
     var   int[]          lay = null;
 
-    var   UI**           uis   = null;
+    var   UIGridPool&    uis;
     var   int            uis_n = 0;
 
-    var _SDL_Rect*       cell_rects = null;
-    var _SDL_Rect*       ui_rects   = null;
+    var _SDL_Rect[]      cell_rects = null;
+    var _SDL_Rect[]      ui_rects   = null;
 
     function recursive (int idx, hold UI* ui)=>void go_ui;
 do
@@ -130,24 +143,21 @@ do
                         end
                     end
 
-                    var UI* ui = this.uis[cur];
-                    if (ui != null) then
-                        call/rec ui:go_bg(ui_rect);
+                    // TODO: save all cur in a vector and do this loop once, 
+                    // after calculating them all
+                    loop (UIGridItem*)item in this.uis.all do
+                        if item:idx == cur then
+                            call/rec item:ui.go_bg(ui_rect);
+                        end
                     end
                 end
             end
         end
     end
 
-    function recursive (int idx, hold UI* ui)=>void go_ui do
-        this.uis[idx] := ui;
-                        // TODO: assumes ui>this
-        call/rec this.go(null);
-    end
-
     function recursive (_SDL_Rect* bg)=>void go_bg do
         this.bg_rect = *bg;
-        if (this.bg_redim_) then
+        if (this.bg_redim?) then
             this.rect = *bg;
         end
         call/rec this.go(null);
@@ -156,17 +166,6 @@ do
     /* BODY */
 
     _assert(this.ren != null);
-
-    if this.uis == null then
-        finalize
-            this.uis = _malloc(uis_n * sizeof(UI*));
-        with
-            _free(this.uis);
-        end
-        loop i in uis_n do
-            this.uis[i] = null;
-        end
-    end
 
     finalize
         this.cell_rects = _malloc(uis_n * sizeof(_SDL_Rect));
@@ -184,10 +183,11 @@ do
         // OK_UICLICKED
         // OK_CLICKED
         loop do
-            var _SDL_MouseButtonEvent* but = await SDL_MOUSEBUTTONUP;
+            var _SDL_MouseButtonEvent* but := await SDL_MOUSEBUTTONUP;
+                                            // TODO: loop is tight
             loop i in uis_n do
                 if _SDL_Rect_vs_Mouse(&ui_rects[i], but) then
-                    emit ok_uiclicked => (i, uis[i]); // 0 are blank cells
+                    emit ok_uiclicked => i;
                 end
             end
             if _SDL_Rect_vs_Mouse(&this.rect, but) then
@@ -254,7 +254,7 @@ end
 #include "colors.ceu"
 input void SDL_QUIT;
 
-var _SDL_Window* win;
+var _SDL_Window[] win;
     finalize
         win = _SDL_CreateWindow("UI - Grid",
                             500, 1300, 800, 480, _SDL_WINDOW_SHOWN);
@@ -288,8 +288,9 @@ end
 par/or do
     await SDL_QUIT;
 with
+    var UIGridPool pool1;
     var UIGrid g1 with
-        _.ren          := ren;
+        _.ren          = ren;
         _.clr_bg       = &_colors.gray;
         _.clr_fr       = &_colors.red;
         _.clr_cell_bg  = &_colors.white;
@@ -300,10 +301,12 @@ with
         _.lay_cols     = 4;
         _.lay          := _lay1;
         _.uis_n        = 3;
+        _.uis          = pool1;
     end;
 
+    var UIGridPool pool2;
     var UIGrid g2 with
-        _.ren          := ren;
+        _.ren          = ren;
         _.bg_redim?    = true;
         _.clr_cell_fr  = &_colors.black;
         _.clr_ui_bg    = &_colors.yellow;
@@ -314,6 +317,7 @@ with
         _.lay_cols     = 3;
         _.lay          := _lay2;
         _.uis_n        = 3;
+        _.uis          = pool2;
     end;
 
     var _SDL_Rect r;
@@ -322,25 +326,22 @@ with
         r.x = win_w / 2;
         r.y = win_h / 2;
 
-    g1.uis[1] = &g2;
-    call/rec g1.go(&r);
+    spawn UIGridItem in g1.uis.all with
+        _.ui  = g2;
+        _.idx = 1;
+    end;
 
     par do
         loop do
-            var int opt;
-            var UI* ui;
-            (opt,ui) = await g1.ok_uiclicked;
+            var int opt = await g1.ok_uiclicked;
             _fprintf(_stderr, "G1: %d\n", opt);
         end
     with
         loop do
-            var int opt;
-            var UI* ui;
-            (opt,ui) = await g2.ok_uiclicked;
+            var int opt = await g2.ok_uiclicked;
             _fprintf(_stderr, "G2: %d\n", opt);
         end
     with
-        await 3s;
         native _rand();
         every 100ms do
             r.w = r.w + _rand() % 3 - 1;

@@ -9,11 +9,11 @@ all:
 
 ui-scroll:
 	ceu --cpp-args "-D __UI_SCROLL_CEU" ui-scroll.ceu
-	gcc main.c $(CFLAGS) -lSDL2 -lSDL2_image -lSDL2_ttf -lm
+	gcc -g main.c $(CFLAGS) -lSDL2 -lSDL2_image -lSDL2_ttf -lm
 
 ui-grid:
 	ceu --cpp-args "-D __UI_GRID_CEU" ui-grid.ceu
-	gcc main.c $(CFLAGS) -lSDL2 -lm
+	gcc -g main.c $(CFLAGS) -lSDL2 -lm
 
 ui-texture:
 	ceu --cpp-args "-D __UI_TEXTURE_CEU" ui-texture.ceu
