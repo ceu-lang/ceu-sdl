@@ -13,16 +13,12 @@ input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONUP;
 // * remaining space from division
 
 class UIGridItem with
-    var UI&  ui;
+    var UI*  ui;
     var int  idx;
 do
-    await FOREVER;
-end
-
-class UIGridPool with
-    pool UIGridItem[] all;
-do
-    await FOREVER;
+    watching ui do
+        await FOREVER;
+    end
 end
 
 class UIGrid with
@@ -52,13 +48,11 @@ class UIGrid with
     var   int            lay_lins, lay_cols;
     var   int[]          lay = null;
 
-    var   UIGridPool&    uis;
+    pool  UIGridItem[]   uis;
     var   int            uis_n = 0;
 
     var _SDL_Rect[]      cell_rects = null;
     var _SDL_Rect[]      ui_rects   = null;
-
-    function recursive (int idx, hold UI* ui)=>void go_ui;
 do
     /* METHODS */
 
@@ -145,9 +139,9 @@ do
 
                     // TODO: save all cur in a vector and do this loop once, 
                     // after calculating them all
-                    loop (UIGridItem*)item in this.uis.all do
+                    loop (UIGridItem*)item in this.uis do
                         if item:idx == cur then
-                            call/rec item:ui.go_bg(ui_rect);
+                            call/rec item:ui:go_bg(ui_rect);
                         end
                     end
                 end
@@ -156,6 +150,7 @@ do
     end
 
     function recursive (_SDL_Rect* bg)=>void go_bg do
+        _assert(bg != null);
         this.bg_rect = *bg;
         if (this.bg_redim?) then
             this.rect = *bg;
@@ -288,7 +283,6 @@ end
 par/or do
     await SDL_QUIT;
 with
-    var UIGridPool pool1;
     var UIGrid g1 with
         _.ren          = ren;
         _.clr_bg       = &_colors.gray;
@@ -301,10 +295,8 @@ with
         _.lay_cols     = 4;
         _.lay          := _lay1;
         _.uis_n        = 3;
-        _.uis          = pool1;
     end;
 
-    var UIGridPool pool2;
     var UIGrid g2 with
         _.ren          = ren;
         _.bg_redim?    = true;
@@ -317,7 +309,6 @@ with
         _.lay_cols     = 3;
         _.lay          := _lay2;
         _.uis_n        = 3;
-        _.uis          = pool2;
     end;
 
     var _SDL_Rect r;
@@ -326,8 +317,8 @@ with
         r.x = win_w / 2;
         r.y = win_h / 2;
 
-    spawn UIGridItem in g1.uis.all with
-        _.ui  = g2;
+    spawn UIGridItem in g1.uis with
+        _.ui  = &g2;
         _.idx = 1;
     end;
 
