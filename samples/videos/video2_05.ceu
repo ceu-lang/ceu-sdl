@@ -30,7 +30,7 @@ r.x = 20;
 r.y = 100;
 
 par/or do
-    loop i, 500 do
+    loop i in 500 do
         await 10ms;
         r.x = r.x + 1;
     end

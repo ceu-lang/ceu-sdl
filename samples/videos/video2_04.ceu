@@ -31,11 +31,11 @@ r.y = 200;
 
 par/or do
     loop do
-        loop i, 500 do
+        loop i in 500 do
             await 20ms;
             r.x = r.x + 1;
         end
-        loop i, 500 do
+        loop i in 500 do
             await 20ms;
             r.x = r.x - 1;
         end

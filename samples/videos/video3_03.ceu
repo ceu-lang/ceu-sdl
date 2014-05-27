@@ -1,33 +1,41 @@
+#ifndef ALL
+
 #include "sdl.ceu"
 
 input void SDL_QUIT;
 input void SDL_REDRAW;
 input void SDL_MOUSEBUTTONDOWN;
 
-var _SDL_Window* win;
+var _SDL_Window[] win;
 finalize
     win = _SDL_CreateWindow("SDL APP 5", 200,200, 640,480, 0);
 with
     _SDL_DestroyWindow(win);
 end
 
-var _SDL_Renderer* ren;
+var _SDL_Renderer[] ren;
 finalize
     ren = _SDL_CreateRenderer(win, -1, 0);
 with
     _SDL_DestroyRenderer(ren);
 end
 
+#else
+
+_SDL_SetWindowTitle(win, "Lexical scope: organisms");
+
+#endif
+
 var _SDL_Rect bg;
-bg.w = 640;
-bg.h = 480;
+bg.w = 2000;
+bg.h = 2000;
 bg.x = 0;
 bg.y = 0;
 
 class Rect5 with
     var _SDL_Rect r;
     var int dt;
-    var _SDL_Renderer* ren;
+    var _SDL_Renderer[] ren;
 do
     this.r.w = 10;
     this.r.h = 10;
@@ -57,9 +65,9 @@ with
     loop do
         var int i = 1;
         var Rect5[20] a with
-            this.r.y = 20 * i;
-            this.dt  = 10 + i;
-            this.ren = ren;
+            _.r.y = 20 * i;
+            _.dt  = 10 + i;
+            _.ren := ren;
             i = i + 1;
         end;
         await SDL_MOUSEBUTTONDOWN;

@@ -1,3 +1,5 @@
+#ifndef ALL
+
 #include "sdl.ceu";
 
 input void SDL_QUIT;
@@ -17,9 +19,15 @@ with
     _SDL_DestroyRenderer(ren);
 end
 
+#else
+
+_SDL_SetWindowTitle(win, "Rect: two");
+
+#endif
+
 var _SDL_Rect bg;
-bg.w = 640;
-bg.h = 480;
+bg.w = 2000;
+bg.h = 2000;
 bg.x = 0;
 bg.y = 0;
 

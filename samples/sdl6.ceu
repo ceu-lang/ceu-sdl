@@ -9,6 +9,8 @@ input void SDL_REDRAW;
 input void SDL_QUIT;
 input int  SDL_DT;
 
+#ifndef ALL
+
 /* Create SDL_Window (Destroy on finalization) */
 
 var _SDL_Window* win;
@@ -27,6 +29,12 @@ var _SDL_Renderer[] ren;
     with
         _SDL_DestroyRenderer(ren);
     end
+
+#else
+
+_SDL_SetWindowTitle(win, "40k trails");
+
+#endif
 
 var int win_w;
 var int win_h;
@@ -50,11 +58,11 @@ do
     var int x = rct.x;
 
     /* count the number of alive rectangles */
-/*
     _ORGS = _ORGS + 1;          // increment on init
         finalize with
             _ORGS = _ORGS - 1;  // decrement on finalization
         end;
+/*
 */
 
     var _SDL_Color clr;         // color varies periodically
@@ -98,9 +106,9 @@ do
              * The "finalize" will also execute on termination.
              */
             if rct.x > 950 then
-                rct.x = 0;
-                fx = 0;
-                //break;
+                //rct.x = 0;
+                //fx = 0;
+                break;
             end
         end
     with
@@ -120,36 +128,35 @@ with
         _SDL_RenderFillRect(ren, &bg);  // DRAW 1: clear screen
     end
 with
-/*
     loop do
         par/or do
             await 30s;                  // kill all rectangles and restart
         with
-*/
-            do
+            pool Rect[10000] rs;
 /*
+*/
+/*
+            do
                 var Rect[500] _ with
                     _.vel   = 50 + _rand()%20;
                     _.rct.x = 50 + _rand()%930;
                     _.rct.y = _rand()%750;
                     _.ren = ren;
                 end;
-*/
-                pool Rect[10000] rs;
                 loop i in 10000 do
                     spawn Rect in rs with
                         _.vel   = 50 + _rand()%20;
                         _.rct.x = 50 + _rand()%930;
                         _.rct.y = _rand()%750;
-                        _.ren = ren;
+                        _.ren := ren;
                     end;
                 end
                 await FOREVER;
             end
-/*
+*/
             do
                 every 40ms do
-                    loop i, 30 do       // create 30 rectangles every 40ms
+                    loop i in 30 do       // create 30 rectangles every 40ms
                         spawn Rect in rs with
                             _.vel   = 50 + _rand()%20;
                             _.rct.x = 50;
@@ -161,6 +168,7 @@ with
             end                         // DRAW 2: (all rectangles react here)
         end
     end
+/*
 */
 with
     loop do

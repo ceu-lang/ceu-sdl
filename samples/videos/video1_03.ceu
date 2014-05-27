@@ -2,13 +2,13 @@ C _printf();
 
 loop do
     par/and do
-        loop i, 10 do
+        loop i in 10 do
             await 100ms;
         end
         //await 1us;
         _printf("Hello\n");
     with
-        loop i, 1000 do
+        loop i in 1000 do
             await 1ms;
         end
         _printf("world!\n\n");

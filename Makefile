@@ -7,6 +7,13 @@ all:
 		-lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lSDL2_net -lSDL2_gfx \
 		-o $(basename $(CEUFILE)).exe
 
+demo:
+	ceu --cpp-args "-I . -DALL" samples/all.ceu
+	#gcc main.c $(CFLAGS) -lSDL2
+	gcc -g -Os main.c -DALL $(CFLAGS) -lpthread -lm \
+		-lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lSDL2_net -lSDL2_gfx \
+		-o samples/all.exe
+
 ui-scroll:
 	ceu --cpp-args "-D __UI_SCROLL_CEU" ui-scroll.ceu
 	gcc -g main.c $(CFLAGS) -lSDL2 -lSDL2_image -lSDL2_ttf -lm

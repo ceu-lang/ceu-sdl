@@ -1,33 +1,41 @@
+#ifndef ALL
+
 #include "sdl.ceu";
 
 input void SDL_QUIT;
 input void SDL_REDRAW;
 input void SDL_MOUSEBUTTONDOWN;
 
-var _SDL_Window* win;
+var _SDL_Window[] win;
 finalize
     win = _SDL_CreateWindow("SDL APP 9", 200,200, 640,480, 0);
 with
     _SDL_DestroyWindow(win);
 end
 
-var _SDL_Renderer* ren;
+var _SDL_Renderer[] ren;
 finalize
     ren = _SDL_CreateRenderer(win, -1, 0);
 with
     _SDL_DestroyRenderer(ren);
 end
 
+#else
+
+_SDL_SetWindowTitle(win, "Lexical scope: pools");
+
+#endif
+
 var _SDL_Rect bg;
-bg.w = 640;
-bg.h = 480;
+bg.w = 2000;
+bg.h = 2000;
 bg.x = 0;
 bg.y = 0;
 
 class Rect9 with
     var _SDL_Rect r;
     var int dt;
-    var _SDL_Renderer* ren;
+    var _SDL_Renderer[] ren;
 do
     this.r.w = 10;
     this.r.h = 10;
@@ -60,11 +68,12 @@ with
     loop do
         par/or do
             do
+                pool Rect9[] rs;
                 loop do
-                    spawn Rect9 with
-                        this.r.y = 20 + _rand()%400;
-                        this.dt  = 10 + _rand()%10;
-                        this.ren = ren;
+                    spawn Rect9 in rs with
+                        _.r.y = 20 + _rand()%400;
+                        _.dt  = 10 + _rand()%10;
+                        _.ren := ren;
                     end;
                     await 1s;
                 end
