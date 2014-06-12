@@ -3,10 +3,15 @@
 
 native do
     /******/
-    ##include <lua.h>
-    ##include <lauxlib.h>
+##ifdef __ANDROID__
+    ##include "lua.h"
+    ##include "lauxlib.h"
+##else
+    ##include <lua5.1/lua.h>
+    ##include <lua5.1/lauxlib.h>
+##endif
 
-    int ceu_lua_atpanic (lua_State* lua) {
+    int TODO_ceu_lua_atpanic (lua_State* lua) {
 ##ifdef CEU_DEBUG
         //fprintf(stderr, "LUA_ATPANIC on %d: %s\n",
                 //CEU.lst.lbl, lua_tostring(lua,-1));
@@ -20,11 +25,11 @@ end
 
 native _lua_State = 0;
 
-native constant _LUA_NOREF, _LUA_REGISTRYINDEX, _LUA_TSTRING;
+native @const _LUA_NOREF, _LUA_REGISTRYINDEX, _LUA_TSTRING;
 
-native nohold _ceu_lua_atpanic();
+native @nohold _ceu_lua_atpanic();
 
-native nohold
+native @nohold
         _lua_atpanic(),
         _lua_call(),
         _lua_close(),
@@ -55,7 +60,7 @@ native nohold
         _lua_touserdata(),
         _lua_type();
 
-native nohold
+native @nohold
         _luaL_dofile(),
         _luaL_dostring(),
         _luaL_loadfile(),
@@ -66,6 +71,6 @@ native nohold
         _luaL_optnumber(),
         _luaL_unref();
 
-native nohold _luaL_ref();   // TODO: should be hold
+native @nohold _luaL_ref();   // TODO: should be hold
 
 #endif

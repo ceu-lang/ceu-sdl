@@ -27,7 +27,7 @@ class UIGrid with
     var _SDL_Renderer[] ren       = null;
     var   int           align_x   = _UI_ALIGN_CENTER;
     var   int           align_y   = _UI_ALIGN_MIDDLE;
-    var   bool          bg_redim? = false;
+    var   bool          bg_redim? = true;
     var   _SDL_Color[]  bg_clr    = null;
 
 
@@ -56,7 +56,7 @@ class UIGrid with
 do
     /* METHODS */
 
-    function recursive (_SDL_Rect* r)=>void go do
+    function @rec (_SDL_Rect* r)=>void go do
         if r != null then
             this.rect.x = _UI_align(r:x, r:w, this.align_x);
             this.rect.y = _UI_align(r:y, r:h, this.align_y);
@@ -75,7 +75,6 @@ do
         var int cur = -1;
         var int x, y;
 
-        var int l;
         loop l in this.lay_lins do
             x = x0 + this.spc_x;     // starts from spc_x
             if (l == 0) then
@@ -84,7 +83,6 @@ do
                 y = y + this.pad_y + one_y + this.pad_y + this.spc_y;
             end
 
-            var int c;
             loop c in this.lay_cols do
                 if (c != 0) then
                     x = x + this.pad_x + one_x
@@ -111,7 +109,6 @@ do
                         ui_rect:h = one_y;
 
                     // colspan
-                    var int j;
                     loop j in this.lay_cols-c-1 do
                         var int lay2 = this.lay[i1 + j+1];
                         if (lay1 == lay2) then
@@ -149,7 +146,7 @@ do
         end
     end
 
-    function recursive (_SDL_Rect* bg)=>void go_bg do
+    function @rec (_SDL_Rect* bg)=>void go_bg do
         _assert(bg != null);
         this.bg_rect = *bg;
         if (this.bg_redim?) then
@@ -246,7 +243,7 @@ end
 
 #ifdef __UI_GRID_CEU
 
-#include "colors.ceu"
+#include "sdl-colors.ceu"
 input void SDL_QUIT;
 
 var _SDL_Window[] win;
@@ -284,31 +281,30 @@ par/or do
     await SDL_QUIT;
 with
     var UIGrid g1 with
-        _.ren          = ren;
-        _.clr_bg       = &_colors.gray;
-        _.clr_fr       = &_colors.red;
-        _.clr_cell_bg  = &_colors.white;
-        _.clr_cell_fr  = &_colors.black;
-        _.spc_x        = 10;
-        _.spc_y        = 10;
-        _.lay_lins     = 4;
-        _.lay_cols     = 4;
-        _.lay          := _lay1;
-        _.uis_n        = 3;
+        this.ren          = ren;
+        this.clr_bg       = &_colors.gray;
+        this.clr_fr       = &_colors.red;
+        this.clr_cell_bg  = &_colors.white;
+        this.clr_cell_fr  = &_colors.black;
+        this.spc_x        = 10;
+        this.spc_y        = 10;
+        this.lay_lins     = 4;
+        this.lay_cols     = 4;
+        this.lay          := _lay1;
+        this.uis_n        = 3;
     end;
 
     var UIGrid g2 with
-        _.ren          = ren;
-        _.bg_redim?    = true;
-        _.clr_cell_fr  = &_colors.black;
-        _.clr_ui_bg    = &_colors.yellow;
-        _.clr_ui_fr    = &_colors.red;
-        _.pad_x        = 5;
-        _.pad_y        = 5;
-        _.lay_lins     = 1;
-        _.lay_cols     = 3;
-        _.lay          := _lay2;
-        _.uis_n        = 3;
+        this.ren          = ren;
+        this.clr_cell_fr  = &_colors.black;
+        this.clr_ui_bg    = &_colors.yellow;
+        this.clr_ui_fr    = &_colors.red;
+        this.pad_x        = 5;
+        this.pad_y        = 5;
+        this.lay_lins     = 1;
+        this.lay_cols     = 3;
+        this.lay          := _lay2;
+        this.uis_n        = 3;
     end;
 
     var _SDL_Rect r;
@@ -318,8 +314,8 @@ with
         r.y = win_h / 2;
 
     spawn UIGridItem in g1.uis with
-        _.ui  = &g2;
-        _.idx = 1;
+        this.ui  = &g2;
+        this.idx = 1;
     end;
 
     par do

@@ -1,30 +1,13 @@
-#ifndef _SDL_GFX_H
-#define _SDL_GFX_H
-
-native do
-    #ifdef __ANDROID__
-    //include "SDL_gfxPrimitives.h"
-    #else
-    //include "SDL/SDL_gfxPrimitives.h"
-    #endif
-end
-
-native nohold
-    _bezierRGBA(),
-    _boxColor(),
-    _boxRGBA(),
-    _circleRGBA(),
-    _filledCircleRGBA(),
-    _filledPolygonRGBA(),
-    _lineRGBA(),
-    _pixelRGBA(),
-    _polygonColor(),
-    _polygonRGBA(),
-    _rectangleRGBA(),
-    _roundedBoxRGBA(),
-    _roundedRectangleRGBA(),
-    _stringColor(),
-    _stringRGBA(),
-    _thickLineRGBA();
-
-#endif
+native @nohold _bezierRGBA(),
+               _boxColor(),
+               _boxRGBA(),
+               _filledPolygonRGBA(),
+               _lineRGBA(),
+               _pixelRGBA(),
+               _polygonColor(),
+               _polygonRGBA(),
+               _roundedBoxRGBA(),
+               _roundedRectangleRGBA(),
+               _stringColor(),
+               _stringRGBA(),
+               _thickLineRGBA();

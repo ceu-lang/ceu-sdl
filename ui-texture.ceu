@@ -34,7 +34,7 @@ do
     end
 
     function (_SDL_Rect* bg)=>void go_bg do
-        _assert(this.bg_redim_ == 0);
+        _assert(not this.bg_redim?);
         this.bg_rect = *bg;
         this.rect.x = _UI_align_bg(bg:x, bg:w, this.w, this.align_x);
         this.rect.y = _UI_align_bg(bg:y, bg:h, this.h, this.align_y);
@@ -72,7 +72,7 @@ do
     end
 end
 
-native nohold _SDL_text2texture();
+native @nohold _SDL_text2texture();
 native do
     //#include "SDL2/SDL_ttf.h"
     SDL_Texture* SDL_text2texture (SDL_Renderer* ren,
@@ -85,6 +85,7 @@ native do
             sfc = TTF_RenderText_Blended(font, text, *fg);
         else
             sfc = TTF_RenderText_Shaded(font, text, *fg, *bg);
+        assert(sfc != NULL);
 
         // Surface => Texture
         SDL_Texture* tex = SDL_CreateTextureFromSurface(ren, sfc);
@@ -96,7 +97,7 @@ end
 
 #ifdef __UI_TEXTURE_CEU
 
-#include "colors.ceu"
+#include "sdl-colors.ceu"
 input void SDL_QUIT;
 
 var int win_w;
@@ -164,21 +165,21 @@ with
     end
 
     var UITexture ui1 with
-        _.ren = ren;
-        _.tex = tex;
-        _.bg_clr = &_colors.blue;
+        this.ren = ren;
+        this.tex = tex;
+        this.bg_clr = &_colors.blue;
     end;
 
     var UITexture ui2 with
-        _.ren = ren;
-        _.tex = tex;
+        this.ren = ren;
+        this.tex = tex;
     end;
 
     var UITexture ui_txt with
-        _.ren = ren;
-        _.tex = tex_txt;
-        _.align_x = _UI_ALIGN_LEFT;
-        _.align_y = _UI_ALIGN_TOP;
+        this.ren = ren;
+        this.tex = tex_txt;
+        this.align_x = _UI_ALIGN_LEFT;
+        this.align_y = _UI_ALIGN_TOP;
     end;
 
     var _SDL_Rect r_txt;

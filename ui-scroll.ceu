@@ -9,18 +9,18 @@ input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
 
 class UIScroll with
     interface UI;
-    var bool         bg_redim?  = false;
+    var bool         bg_redim?  = true;
     var _SDL_Color[] bg_clr     = null;
 
-    var int          align_x   = _UI_ALIGN_CENTER;
-    var int          align_y   = _UI_ALIGN_MIDDLE;
+    var int          align_x   = _UI_ALIGN_LEFT;
+    var int          align_y   = _UI_ALIGN_TOP;
 
     var UI&          ui;
     var _SDL_Color[] clr_scroll = null;
 do
     /* METHODS */
 
-    function recursive (_SDL_Rect* r)=>void go do
+    function @rec (_SDL_Rect* r)=>void go do
         if (r != null) then
             this.rect.x = _UI_align(r:x, r:w, this.align_x);
             this.rect.y = _UI_align(r:y, r:h, this.align_y);
@@ -30,7 +30,7 @@ do
         call/rec this.ui.go_bg(&this.rect);
     end
 
-    function recursive (_SDL_Rect* bg)=>void go_bg do
+    function @rec (_SDL_Rect* bg)=>void go_bg do
         this.bg_rect = *bg;
         if (this.bg_redim_) then
             this.rect = *bg;
@@ -186,7 +186,7 @@ end
 
 #ifdef __UI_SCROLL_CEU
 
-#include "colors.ceu"
+#include "sdl-colors.ceu"
 #include "ui-grid.ceu"
 
 input void SDL_QUIT;
@@ -224,14 +224,12 @@ with
         _SDL_RenderFillRect(ren, &win_r);
     end
 with
-    var UIGridPool uis;
     var UIGrid grid with
-        _.ren = ren;
-        _.lay_lins = 4;
-        _.lay_cols = 4;
-        _.lay := _UI_SCROLL_grid;
-        _.uis_n = 16;
-        _.uis   = uis;
+        this.ren = ren;
+        this.lay_lins = 4;
+        this.lay_cols = 4;
+        this.lay := _UI_SCROLL_grid;
+        this.uis_n = 16;
         native do
             int UI_SCROLL_grid[] = {
                  0,  1,  2,  3,
@@ -241,21 +239,20 @@ with
             };
         end
 
-        _.spc_x     = 10;
-        _.spc_y     = 10;
-        _.pad_x     = 10;
-        _.pad_y     = 10;
-        _.clr_bg    = &_colors.white;
-        _.clr_ui_bg = &_colors.gray;
+        this.spc_x     = 10;
+        this.spc_y     = 10;
+        this.pad_x     = 10;
+        this.pad_y     = 10;
+        this.clr_bg    = &_colors.white;
+        this.clr_ui_bg = &_colors.gray;
     end;
 
     var _SDL_Rect r;
         r.x = win_r.w / 2;
-        r.y = win_r.y / 2;
+        r.y = win_r.h / 2;
         r.w = 2*win_r.w;
         r.h = 2*win_r.h;
     call/rec grid.go(&r);
-_printf("grid %d %d\n", grid.align_x, grid.align_y);
 
     par do
         loop do
@@ -270,9 +267,9 @@ _printf("grid %d %d\n", grid.align_x, grid.align_y);
             c.a = 0x77;
 
         var UIScroll scroll with
-            _.ren = ren;
-            _.ui  = grid;
-            _.clr_scroll = &c;
+            this.ren = ren;
+            this.ui  = grid;
+            this.clr_scroll = &c;
         end;
         call/rec scroll.go(&win_r);
 

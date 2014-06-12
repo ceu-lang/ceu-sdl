@@ -1,10 +1,10 @@
 #ifndef _UI_CEU
 #define _UI_CEU
 
-native const _UI_ALIGN_LEFT, _UI_ALIGN_CENTER, _UI_ALIGN_RIGHT,
-             _UI_ALIGN_TOP,  _UI_ALIGN_MIDDLE, _UI_ALIGN_BOTTOM;
+native @const _UI_ALIGN_LEFT, _UI_ALIGN_CENTER, _UI_ALIGN_RIGHT,
+              _UI_ALIGN_TOP,  _UI_ALIGN_MIDDLE, _UI_ALIGN_BOTTOM;
 
-native pure _UI_align(), _UI_align_bg();
+native @pure _UI_align(), _UI_align_bg();
 
 native do
     enum {
@@ -70,8 +70,8 @@ interface UI with
     var   bool           bg_redim?;
     var   _SDL_Color[]   bg_clr;
 
-    function recursive (SDL_Rect* rect)=>void go;
-    function recursive (SDL_Rect* bg  )=>void go_bg;
+    function @rec (SDL_Rect* rect)=>void go;
+    function @rec (SDL_Rect* bg  )=>void go_bg;
 end
 
 #endif

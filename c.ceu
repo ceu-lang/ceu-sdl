@@ -4,16 +4,16 @@
 native _assert(),
        _malloc();
 
-native const _stderr;
+native @const _stderr;
 
-native nohold _fprintf(),
-              _free(),
-              _printf(),
-              _sprintf(),
-              _srand();
+native @nohold _fprintf(),
+               _free(),
+               _printf(),
+               _sprintf(),
+               _srand();
 
-native pure _abs(),
-            _strcmp(),
-            _strcpy();
+native @pure _abs(),
+             _strcmp(),
+             _strcpy();
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef _COLORS_CEU
-#define _COLORS_CEU
+#ifndef _SDL_COLORS_CEU
+#define _SDL_COLORS_CEU
 
 native do
     typedef struct {
