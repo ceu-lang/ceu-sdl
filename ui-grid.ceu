@@ -3,6 +3,7 @@
 
 #include "c.ceu"
 #include "sdl.ceu"
+#include "sdl-gfx.ceu"
 #include "ui.ceu"
 
 input void SDL_REDRAW;
@@ -25,11 +26,13 @@ class UIGrid with
     interface UI;
 
     var _SDL_Renderer[] ren       = null;
-    var   int           align_x   = _UI_ALIGN_CENTER;
-    var   int           align_y   = _UI_ALIGN_MIDDLE;
-    var   bool          bg_redim? = true;
+    var   bool          redim?    = true;
     var   _SDL_Color[]  bg_clr    = null;
 
+    var int align_x    = _UI_ALIGN_LEFT;
+    var int align_y    = _UI_ALIGN_TOP;
+    var int align_bg_x = _UI_ALIGN_CENTER;
+    var int align_bg_y = _UI_ALIGN_MIDDLE;
 
     event int           ok_uiclicked;
 
@@ -48,6 +51,7 @@ class UIGrid with
     var   int            lay_lins, lay_cols;
     var   int[]          lay = null;
 
+    // TODO: bg after pool
     pool  UIGridItem[]   uis;
     var   int            uis_n = 0;
 
@@ -60,8 +64,18 @@ do
         if r != null then
             this.rect.x = _UI_align(r:x, r:w, this.align_x);
             this.rect.y = _UI_align(r:y, r:h, this.align_y);
-            this.rect.w = (u16)r:w;
-            this.rect.h = (u16)r:h;
+            if this.redim? then
+                this.rect.w = r:w;
+                this.rect.h = r:h;
+            end
+        end
+
+        // TODO: save all cur in a vector and do this loop once, after 
+        // calculating them all
+        loop (UIGridItem*)item in this.uis do
+            if item:idx == -1 then
+                call/rec item:ui:go_bg(&this.rect, true);    // -1 = BG item
+            end
         end
 
         var int x0 = this.rect.x;
@@ -138,7 +152,7 @@ do
                     // after calculating them all
                     loop (UIGridItem*)item in this.uis do
                         if item:idx == cur then
-                            call/rec item:ui:go_bg(ui_rect);
+                            call/rec item:ui:go_bg(ui_rect, true);
                         end
                     end
                 end
@@ -146,12 +160,15 @@ do
         end
     end
 
-    function @rec (_SDL_Rect* bg)=>void go_bg do
+    function @rec (_SDL_Rect* bg, bool redim?)=>void go_bg do
+        //ui_go_bg(this, bg);
         _assert(bg != null);
-        this.bg_rect = *bg;
-        if (this.bg_redim?) then
-            this.rect = *bg;
+        if redim? then
+            this.rect.w = bg:w;
+            this.rect.h = bg:h;
         end
+        this.rect.x = _UI_align_bg(bg:x, bg:w, this.rect.w, this.align_bg_x);
+        this.rect.y = _UI_align_bg(bg:y, bg:h, this.rect.h, this.align_bg_y);
         call/rec this.go(null);
     end
 
@@ -192,12 +209,15 @@ do
             if bg_clr != null then
                 _SDL_SetRenderDrawColor(ren,
                     bg_clr:r,bg_clr:g,bg_clr:b,bg_clr:a);
-                _SDL_RenderFillRect(ren, &this.bg_rect);
+                _SDL_RenderFillRect(ren, &this.rect);
             end
             if clr_bg != null then
+/*
                 _SDL_SetRenderDrawColor(ren,
                         clr_bg:r,clr_bg:g,clr_bg:b,clr_bg:a);
                 _SDL_RenderFillRect(ren, &rect);
+*/
+                _boxColor(ren, rect.x,rect.y,rect.x+rect.w,rect.y+rect.h, *clr_bg);
             end
 /*
 clr_cell_fr? = true;
@@ -244,6 +264,7 @@ end
 #ifdef __UI_GRID_CEU
 
 #include "sdl-colors.ceu"
+
 input void SDL_QUIT;
 
 var _SDL_Window[] win;
@@ -308,10 +329,10 @@ with
     end;
 
     var _SDL_Rect r;
+        r.x = win_w / 4;
+        r.y = win_h / 4;
         r.w = win_w / 2;
         r.h = win_h / 2;
-        r.x = win_w / 2;
-        r.y = win_h / 2;
 
     spawn UIGridItem in g1.uis with
         this.ui  = &g2;
@@ -349,7 +370,7 @@ with
             g2.pad_y = g2.pad_y + _rand() % 3 - 1;
             if g2.pad_y < 0 then g2.pad_y = 0; end
 
-            call/rec g1.go(&r);
+            call/rec g1.go_bg(&r, true);
         end
     end
 with

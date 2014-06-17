@@ -63,15 +63,16 @@ interface UI with
 
     var   _SDL_Renderer[] ren;
     var   _SDL_Rect       rect;
+    var   bool            redim?;
+    var   _SDL_Color[]    bg_clr;
+
     var   int             align_x;
     var   int             align_y;
-
-    var   _SDL_Rect      bg_rect;
-    var   bool           bg_redim?;
-    var   _SDL_Color[]   bg_clr;
+    var   int             align_bg_x;
+    var   int             align_bg_y;
 
     function @rec (SDL_Rect* rect)=>void go;
-    function @rec (SDL_Rect* bg  )=>void go_bg;
+    function @rec (_SDL_Rect* bg, bool redim?)=>void go_bg;
 end
 
 #endif

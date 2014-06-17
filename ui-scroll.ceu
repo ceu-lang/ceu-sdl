@@ -9,11 +9,13 @@ input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
 
 class UIScroll with
     interface UI;
-    var bool         bg_redim?  = true;
+    var bool         redim?     = true;
     var _SDL_Color[] bg_clr     = null;
 
-    var int          align_x   = _UI_ALIGN_LEFT;
-    var int          align_y   = _UI_ALIGN_TOP;
+    var int align_x    = _UI_ALIGN_LEFT;
+    var int align_y    = _UI_ALIGN_TOP;
+    var int align_bg_x = _UI_ALIGN_CENTER;
+    var int align_bg_y = _UI_ALIGN_MIDDLE;
 
     var UI&          ui;
     var _SDL_Color[] clr_scroll = null;
@@ -21,20 +23,23 @@ do
     /* METHODS */
 
     function @rec (_SDL_Rect* r)=>void go do
-        if (r != null) then
-            this.rect.x = _UI_align(r:x, r:w, this.align_x);
-            this.rect.y = _UI_align(r:y, r:h, this.align_y);
-            this.rect.w = (u16) r:w;
-            this.rect.h = (u16) r:h;
+        if r != null then
+            this.rect.w = r:w;
+            this.rect.h = r:h;
+            this.rect.x = _UI_align(r:x, rect.w, this.align_x);
+            this.rect.y = _UI_align(r:y, rect.h, this.align_y);
         end
-        call/rec this.ui.go_bg(&this.rect);
+        call/rec this.ui.go(r);
     end
 
-    function @rec (_SDL_Rect* bg)=>void go_bg do
-        this.bg_rect = *bg;
-        if (this.bg_redim_) then
-            this.rect = *bg;
+    function @rec (_SDL_Rect* bg, bool redim?)=>void go_bg do
+        _assert(bg != null);
+        if redim? then
+            this.rect.w = bg:w;
+            this.rect.h = bg:h;
         end
+        this.rect.x = _UI_align_bg(bg:x, bg:w, this.rect.w, this.align_bg_x);
+        this.rect.y = _UI_align_bg(bg:y, bg:h, this.rect.h, this.align_bg_y);
         call/rec this.go(null);
     end
 
@@ -248,11 +253,12 @@ with
     end;
 
     var _SDL_Rect r;
-        r.x = win_r.w / 2;
-        r.y = win_r.h / 2;
+        r.x = 0;
+        r.y = 0;
         r.w = 2*win_r.w;
         r.h = 2*win_r.h;
     call/rec grid.go(&r);
+    grid.redim? = false;
 
     par do
         loop do

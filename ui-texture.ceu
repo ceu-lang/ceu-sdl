@@ -2,6 +2,7 @@
 #define _UI_TEXTURE_CEU
 
 #include "sdl.ceu"
+#include "sdl-gfx.ceu"
 #include "ui.ceu"
 
 input void SDL_REDRAW;
@@ -10,36 +11,41 @@ input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONUP;
 class UITexture with
     interface UI;
     var   _SDL_Renderer[] ren       = null;
-    var   int             align_x   = _UI_ALIGN_CENTER;
-    var   int             align_y   = _UI_ALIGN_MIDDLE;
-    var   bool            bg_redim? = false;
+    var   bool            redim?    = false;
     var   _SDL_Color[]    bg_clr    = null;
+
+    var int align_x    = _UI_ALIGN_LEFT;
+    var int align_y    = _UI_ALIGN_TOP;
+    var int align_bg_x = _UI_ALIGN_CENTER;
+    var int align_bg_y = _UI_ALIGN_MIDDLE;
+
+    var   float           rect_mul  = 1;     // for ok_clicked
 
     var   _SDL_Texture[]  tex     = null;
     var   int             w, h;  // original dimensions
 
+    var int pad_x = 0;
+    var int pad_y = 0;
+
     function (_SDL_Rect* r)=>void go;
-    function (_SDL_Rect* bg)=>void go_bg;
+    function (_SDL_Rect* bg, bool redim?)=>void go_bg;
 do
     /* METHODS */
 
     function (_SDL_Rect* r)=>void go do
-        if (r != null) then
-            // ignoring r:w / r:h (no redim)
-            this.rect.x = _UI_align(r:x, this.w, this.align_x);
-            this.rect.y = _UI_align(r:y, this.h, this.align_y);
-            this.rect.w = this.w;
-            this.rect.h = this.h;
-        end
+        _assert(r != null);
+        _assert(not this.redim?);
+        // ignoring r:w / r:h (no redim)
+        this.rect.x = _UI_align(r:x, rect.w, this.align_x);
+        this.rect.y = _UI_align(r:y, rect.h, this.align_y);
     end
 
-    function (_SDL_Rect* bg)=>void go_bg do
-        _assert(not this.bg_redim?);
-        this.bg_rect = *bg;
-        this.rect.x = _UI_align_bg(bg:x, bg:w, this.w, this.align_x);
-        this.rect.y = _UI_align_bg(bg:y, bg:h, this.h, this.align_y);
-        this.rect.w = this.w;
-        this.rect.h = this.h;
+    function @rec (_SDL_Rect* bg, bool redim?)=>void go_bg do
+        //ui_go_bg(this, bg);
+        _assert(bg != null);
+        //_assert(not redim?);
+        this.rect.x = _UI_align_bg(bg:x, bg:w, this.rect.w, this.align_bg_x);
+        this.rect.y = _UI_align_bg(bg:y, bg:h, this.rect.h, this.align_bg_y);
     end
 
     /* BODY */
@@ -48,21 +54,35 @@ do
     _assert(this.tex != null);
 
     _SDL_QueryTexture(tex, null, null, &this.w, &this.h);
+    this.rect.w = this.w;
+    this.rect.h = this.h;
 
     par do
         // OK_CLICKED
         loop do
             var _SDL_MouseButtonEvent* but = await SDL_MOUSEBUTTONUP;
-            if _SDL_Rect_vs_Mouse(&this.rect, but) then
+            var _SDL_Rect r = this.rect;
+            if this.rect_mul != 1 then
+                r.w = rect.w * this.rect_mul;
+                r.h = rect.h * this.rect_mul;
+                r.x = rect.x - (r.w-rect.w)/2;
+                r.y = rect.y - (r.h-rect.h)/2;
+            end
+            if _SDL_Rect_vs_Mouse(&r, but) then
                 emit ok_clicked;
             end
         end
     with
         every SDL_REDRAW do
             if bg_clr != null then
+/*
                 _SDL_SetRenderDrawColor(ren,
                     bg_clr:r,bg_clr:g,bg_clr:b,bg_clr:a);
                 _SDL_RenderFillRect(ren, &this.bg_rect);
+*/
+                _boxColor(ren, rect.x-pad_x/2,rect.y-pad_y/2,
+                               rect.x+rect.w+pad_x/2,rect.y+rect.h+pad_y/2,
+                               *bg_clr);
             end
             //emit ok_redraw_pre;
 
@@ -97,7 +117,9 @@ end
 
 #ifdef __UI_TEXTURE_CEU
 
+#include "c.ceu"
 #include "sdl-colors.ceu"
+
 input void SDL_QUIT;
 
 var int win_w;
@@ -112,6 +134,8 @@ var _SDL_Window[] win;
 
 _SDL_GetWindowSize(win, &win_w, &win_h);
 var _SDL_Rect win_r;
+    win_r.x = 0;
+    win_r.y = 0;
     win_r.w = win_w;
     win_r.h = win_h;
 
@@ -151,10 +175,11 @@ par/or do
     await SDL_QUIT;
 with
     every SDL_REDRAW do
-        _SDL_SetRenderDrawColor(ren, 0x00,0x00,0x00, 0);
+        _SDL_SetRenderDrawColor(ren, 0x00,0x00,0x00, 0xFF);
         _SDL_RenderFillRect(ren, &win_r);
-        _SDL_SetRenderDrawColor(ren, 0xFF,0xFF,0xFF, 0);
+        _SDL_SetRenderDrawColor(ren, 0xFF,0xFF,0xFF, 0xFF);
         _SDL_RenderFillRect(ren, &r2);
+        _circleRGBA(ren, win_r.w/2, win_r.h/2, 2, 0xFF,0xFF,0xFF,0xFF);
     end
 with
     var _SDL_Texture[] tex;
@@ -163,6 +188,23 @@ with
     with
         _SDL_DestroyTexture(tex);
     end
+
+    var UITexture ui_txt with
+        this.ren = ren;
+        this.tex = tex_txt;
+        this.align_x = _UI_ALIGN_LEFT;
+        this.align_y = _UI_ALIGN_TOP;
+    end;
+
+    var _SDL_Rect r_txt;
+        r_txt.x = 0;
+        r_txt.y = 0;
+    ui_txt.go(&r_txt);
+
+    await 1s;
+    ui_txt.align_bg_x = _UI_ALIGN_RIGHT;
+    ui_txt.align_bg_y = _UI_ALIGN_BOTTOM;
+    ui_txt.go_bg(&win_r, false);
 
     var UITexture ui1 with
         this.ren = ren;
@@ -174,19 +216,6 @@ with
         this.ren = ren;
         this.tex = tex;
     end;
-
-    var UITexture ui_txt with
-        this.ren = ren;
-        this.tex = tex_txt;
-        this.align_x = _UI_ALIGN_LEFT;
-        this.align_y = _UI_ALIGN_TOP;
-    end;
-
-    var _SDL_Rect r_txt;
-        r_txt.x = 10;
-        r_txt.y = 10;
-
-    ui_txt.go(&r_txt);
 
     par do
         r1.x = 10;
@@ -207,7 +236,7 @@ with
                 if r1.w < 5 then r1.w = 5; end
                 r1.h = r1.h + _rand() % 3 - 1;
                 if r1.h < 5 then r1.h = 5; end
-                ui1.go_bg(&r1);
+                ui1.go_bg(&r1, false);
                 await 10ms;
             end
 
@@ -217,7 +246,7 @@ with
                 if r1.w < 5 then r1.w = 5; end
                 r1.h = r1.h + _rand() % 3 - 1;
                 if r1.h < 5 then r1.h = 5; end
-                ui1.go_bg(&r1);
+                ui1.go_bg(&r1, false);
                 await 10ms;
             end
 
@@ -227,7 +256,7 @@ with
                 if r1.w < 5 then r1.w = 5; end
                 r1.h = r1.h + _rand() % 3 - 1;
                 if r1.h < 5 then r1.h = 5; end
-                ui1.go_bg(&r1);
+                ui1.go_bg(&r1, false);
                 await 10ms;
             end
 
@@ -237,21 +266,37 @@ with
                 if r1.w < 5 then r1.w = 5; end
                 r1.h = r1.h + _rand() % 3 - 1;
                 if r1.h < 5 then r1.h = 5; end
-                ui1.go_bg(&r1);
+                ui1.go_bg(&r1, false);
                 await 10ms;
             end
         end
     with
         loop do
+            ui2.align_x = _UI_ALIGN_CENTER;
+            ui2.align_y = _UI_ALIGN_MIDDLE;
             loop i in 3 do
                 loop j in 3 do
-                    ui1.align_x = i;
-                    ui1.align_y = j;
-                    ui1.go_bg(&r1);
+                    ui1.align_bg_x = i;
+                    ui1.align_bg_y = j;
+                    ui1.go_bg(&r1, false);
 
+                    ui2.align_bg_x = i;
+                    ui2.align_bg_y = j;
+                    ui2.go_bg(&r2, false);
+
+                    await 1s;
+                end
+            end
+
+            var _SDL_Rect r;
+                r.x = win_r.w / 2;
+                r.y = win_r.h / 2;
+
+            loop i in 3 do
+                loop j in 3 do
                     ui2.align_x = i;
                     ui2.align_y = j;
-                    ui2.go_bg(&r2);
+                    ui2.go(&r);
                     await 1s;
                 end
             end
