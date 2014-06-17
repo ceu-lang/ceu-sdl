@@ -16,15 +16,15 @@ demo:
 
 ui-scroll:
 	ceu --cpp-args "-D __UI_SCROLL_CEU" ui-scroll.ceu
-	gcc -g main.c $(CFLAGS) -lSDL2 -lSDL2_image -lSDL2_ttf -lm
+	gcc -g main.c $(CFLAGS) -lSDL2 -lSDL2_gfx -lSDL2_image -lSDL2_ttf -lm
 
 ui-grid:
 	ceu --cpp-args "-D __UI_GRID_CEU" ui-grid.ceu
-	gcc -g main.c $(CFLAGS) -lSDL2 -lm
+	gcc -g main.c $(CFLAGS) -lSDL2 -lSDL2_gfx -lm
 
 ui-texture:
 	ceu --cpp-args "-D __UI_TEXTURE_CEU" ui-texture.ceu
-	gcc main.c $(CFLAGS) -lSDL2 -lSDL2_image -lSDL2_ttf -lm
+	gcc main.c $(CFLAGS) -lSDL2 -lSDL2_image -lSDL2_gfx -lSDL2_ttf -lm
 
 clean:
 	find . -name "*.exe"  | xargs rm -f
