@@ -28,7 +28,7 @@ class UITexture with
     var int pad_y = 0;
 
     function (_SDL_Rect* r)=>void go;
-    function (_SDL_Rect* bg, bool redim?)=>void go_bg;
+    function (_SDL_Rect* bg, bool redim??)=>void go_bg;
 do
     /* METHODS */
 
@@ -40,10 +40,10 @@ do
         this.rect.y = _UI_align(r:y, rect.h, this.align_y);
     end
 
-    function @rec (_SDL_Rect* bg, bool redim?)=>void go_bg do
+    function @rec (_SDL_Rect* bg, bool redim??)=>void go_bg do
         //ui_go_bg(this, bg);
         _assert(bg != null);
-        //_assert(not redim?);
+        //_assert(not redim??);
         this.rect.x = _UI_align_bg(bg:x, bg:w, this.rect.w, this.align_bg_x);
         this.rect.y = _UI_align_bg(bg:y, bg:h, this.rect.h, this.align_bg_y);
     end

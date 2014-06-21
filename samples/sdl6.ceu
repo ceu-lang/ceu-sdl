@@ -138,17 +138,17 @@ with
 /*
             do
                 var Rect[500] _ with
-                    _.vel   = 50 + _rand()%20;
-                    _.rct.x = 50 + _rand()%930;
-                    _.rct.y = _rand()%750;
-                    _.ren = ren;
+                    this.vel   = 50 + _rand()%20;
+                    this.rct.x = 50 + _rand()%930;
+                    this.rct.y = _rand()%750;
+                    this.ren   = ren;
                 end;
                 loop i in 10000 do
                     spawn Rect in rs with
-                        _.vel   = 50 + _rand()%20;
-                        _.rct.x = 50 + _rand()%930;
-                        _.rct.y = _rand()%750;
-                        _.ren := ren;
+                        this.vel   = 50 + _rand()%20;
+                        this.rct.x = 50 + _rand()%930;
+                        this.rct.y = _rand()%750;
+                        this.ren   = ren;
                     end;
                 end
                 await FOREVER;
@@ -158,10 +158,10 @@ with
                 every 40ms do
                     loop i in 30 do       // create 30 rectangles every 40ms
                         spawn Rect in rs with
-                            _.vel   = 50 + _rand()%20;
-                            _.rct.x = 50;
-                            _.rct.y = _rand()%750;
-                            _.ren = ren;
+                            this.vel   = 50 + _rand()%20;
+                            this.rct.x = 50;
+                            this.rct.y = _rand()%750;
+                            this.ren   = ren;
                         end;
                     end
                 end

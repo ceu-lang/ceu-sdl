@@ -71,19 +71,19 @@ with
 with
     loop do
         var Rect r1 with
-            _.rect.x = 100;
-            _.rect.y = 100;
-            _.rect.w = 20;
-            _.rect.h = 20;
-            _.v      = 100;
+            this.rect.x = 100;
+            this.rect.y = 100;
+            this.rect.w = 20;
+            this.rect.h = 20;
+            this.v      = 100;
         end;
 
         var Rect r2 with
-            _.rect.x = 100;
-            _.rect.y = 200;
-            _.rect.w = 40;
-            _.rect.h = 40;
-            _.v      = 25;
+            this.rect.x = 100;
+            this.rect.y = 200;
+            this.rect.w = 40;
+            this.rect.h = 40;
+            this.v      = 25;
         end;
 
         await 10s;

@@ -72,7 +72,7 @@ interface UI with
     var   int             align_bg_y;
 
     function @rec (SDL_Rect* rect)=>void go;
-    function @rec (_SDL_Rect* bg, bool redim?)=>void go_bg;
+    function @rec (_SDL_Rect* bg, bool redim??)=>void go_bg;
 end
 
 #endif

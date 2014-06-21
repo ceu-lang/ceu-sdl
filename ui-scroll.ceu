@@ -32,9 +32,9 @@ do
         call/rec this.ui.go(r);
     end
 
-    function @rec (_SDL_Rect* bg, bool redim?)=>void go_bg do
+    function @rec (_SDL_Rect* bg, bool redim??)=>void go_bg do
         _assert(bg != null);
-        if redim? then
+        if redim?? then
             this.rect.w = bg:w;
             this.rect.h = bg:h;
         end

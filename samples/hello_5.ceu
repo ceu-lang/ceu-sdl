@@ -15,7 +15,7 @@ loop do
             var int i = 1;
             every 1s do
                 spawn HelloWorld in hs with
-                    _.id = i;
+                    this.id = i;
                 end;
                 i = i + 1;
             end

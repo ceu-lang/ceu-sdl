@@ -1,6 +1,10 @@
 #ifndef _UI_GRID_CEU
 #define _UI_GRID_CEU
 
+#define UI_GRID_MAX_LINS 20
+#define UI_GRID_MAX_COLS 20
+#define UI_GRID_MAX_UIS  400
+
 #include "c.ceu"
 #include "sdl.ceu"
 #include "sdl-gfx.ceu"
@@ -89,7 +93,7 @@ do
         var int cur = -1;
         var int x, y;
 
-        loop l in this.lay_lins do
+        loop/UI_GRID_MAX_LINS l in this.lay_lins do
             x = x0 + this.spc_x;     // starts from spc_x
             if (l == 0) then
                 y = y0 + this.spc_y; // starts from spc_y
@@ -97,7 +101,7 @@ do
                 y = y + this.pad_y + one_y + this.pad_y + this.spc_y;
             end
 
-            loop c in this.lay_cols do
+            loop/UI_GRID_MAX_COLS c in this.lay_cols do
                 if (c != 0) then
                     x = x + this.pad_x + one_x
                           + this.pad_x + this.spc_x;
@@ -123,7 +127,7 @@ do
                         ui_rect:h = one_y;
 
                     // colspan
-                    loop j in this.lay_cols-c-1 do
+                    loop/UI_GRID_MAX_COLS j in this.lay_cols-c-1 do
                         var int lay2 = this.lay[i1 + j+1];
                         if (lay1 == lay2) then
                             cell_rect:w = cell_rect:w + this.spc_x
@@ -136,7 +140,7 @@ do
                     end
 
                     // linspan
-                    loop j in this.lay_lins-l-1 do
+                    loop/UI_GRID_MAX_LINS j in this.lay_lins-l-1 do
                         var int lay2 = this.lay[i1 + (j+1)*this.lay_cols];
                         if (lay1 == lay2) then
                             cell_rect:h = cell_rect:h + this.spc_y +
@@ -160,10 +164,10 @@ do
         end
     end
 
-    function @rec (_SDL_Rect* bg, bool redim?)=>void go_bg do
+    function @rec (_SDL_Rect* bg, bool redim??)=>void go_bg do
         //ui_go_bg(this, bg);
         _assert(bg != null);
-        if redim? then
+        if redim?? then
             this.rect.w = bg:w;
             this.rect.h = bg:h;
         end
@@ -194,7 +198,7 @@ do
         loop do
             var _SDL_MouseButtonEvent* but := await SDL_MOUSEBUTTONUP;
                                             // TODO: loop is tight
-            loop i in uis_n do
+            loop/UI_GRID_MAX_UIS i in uis_n do
                 if _SDL_Rect_vs_Mouse(&ui_rects[i], but) then
                     emit ok_uiclicked => i;
                 end
@@ -220,16 +224,13 @@ do
                 _boxColor(ren, rect.x,rect.y,rect.x+rect.w,rect.y+rect.h, *clr_bg);
             end
 /*
-clr_cell_fr? = true;
-clr_cell_fr.r = 0xFF;
-clr_cell_fr.g = 0x00;
-clr_cell_fr.b = 0x00;
-clr_ui_fr? = true;
-clr_ui_fr.r = 0xFF;
-clr_ui_fr.g = 0xFF;
-clr_ui_fr.b = 0x00;
+//clr_cell_bg := &_colors.white;
+//clr_ui_bg := &_colors.white;
+clr_cell_fr := &_colors.white;
+clr_ui_fr := &_colors.black;
+clr_fr := &_colors.red;
 */
-            loop i in uis_n do
+            loop/UI_GRID_MAX_UIS i in uis_n do
                 if clr_cell_bg != null then
                     _SDL_SetRenderDrawColor(ren,
                         clr_cell_bg:r,clr_cell_bg:g,clr_cell_bg:b,clr_cell_bg:a);

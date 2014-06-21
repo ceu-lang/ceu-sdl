@@ -79,11 +79,11 @@ with
                 loop do
                     await 1s;
                     spawn Rect in rs with
-                        _.rect.x = 100;
-                        _.rect.y = 100 + _rand()%300;
-                        _.rect.w = 20;
-                        _.rect.h = 20;
-                        _.v      = 5 + _rand()%100;
+                        this.rect.x = 100;
+                        this.rect.y = 100 + _rand()%300;
+                        this.rect.w = 20;
+                        this.rect.h = 20;
+                        this.v      = 5 + _rand()%100;
                     end;
                 end
             end
