@@ -63,9 +63,9 @@ par/or do
 with
     var int i = 1;
     var Rect4[20] a with
-        _.r.y = 20 * i;
-        _.dt  = 10 + i;
-        _.ren := ren;
+        this.r.y = 20 * i;
+        this.dt  = 10 + i;
+        this.ren = ren;
         i = i + 1;
     end;
     await FOREVER;
