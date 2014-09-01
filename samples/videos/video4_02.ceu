@@ -71,9 +71,9 @@ with
                 pool Rect9[] rs;
                 loop do
                     spawn Rect9 in rs with
-                        _.r.y = 20 + _rand()%400;
-                        _.dt  = 10 + _rand()%10;
-                        _.ren := ren;
+                        this.r.y = 20 + _rand()%400;
+                        this.dt  = 10 + _rand()%10;
+                        this.ren = ren;
                     end;
                     await 1s;
                 end
