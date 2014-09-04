@@ -1,0 +1,155 @@
+#ifndef ALL
+
+#include "sdl.ceu"
+
+input void SDL_QUIT;
+input void SDL_REDRAW;
+input int  SDL_DT;
+input void SDL_MOUSEBUTTONDOWN;
+
+var _SDL_Window[] win;
+finalize
+    win = _SDL_CreateWindow("Birds", 200,200, 640,480, 0);
+with
+    _SDL_DestroyWindow(win);
+end
+
+var _SDL_Renderer[] ren;
+finalize
+    ren = _SDL_CreateRenderer(win, -1, 0);
+with
+    _SDL_DestroyRenderer(ren);
+end
+
+#else
+
+_SDL_SetWindowTitle(win, "Birds");
+
+#endif
+
+native do
+    SDL_Texture* TEX_UP, *TEX_DOWN;
+end
+    finalize
+        _TEX_UP = _IMG_LoadTexture(ren, "birds/clumsy_up.png");
+    with
+        _SDL_DestroyTexture(_TEX_UP);
+    end
+    finalize
+        _TEX_DOWN = _IMG_LoadTexture(ren, "birds/clumsy_down.png");
+    with
+        _SDL_DestroyTexture(_TEX_DOWN);
+    end
+
+#define PI 3.14
+
+class Bird with
+    var _SDL_Renderer[] ren;
+    var _SDL_Rect r;
+    var int speed;
+    event void go_collide;
+do
+    this.r.w = 50;
+    this.r.h = 45;
+    this.r.x = 20;
+
+    var _SDL_Texture[] tex = _TEX_DOWN;
+    var bool visible? = true;
+
+    par/or do
+        var int dead? =
+            par do
+                var float sin = 0;
+                var int y = r.y;
+                var int dt;
+                var float x = r.x;
+                every dt in SDL_DT do
+                    var float v = dt*speed;
+                    x = x + v/1000;
+                    r.x = x;
+                    r.y = y + speed/5*_sin(sin);
+
+                    sin = sin + PI*v/100000;
+                    if ((int)((sin+PI/2)/PI)) % 2 == 0 then
+                        tex = _TEX_DOWN;
+                    else
+                        tex = _TEX_UP;
+                    end
+
+                    if r.x > 580 then
+                        escape false;
+                    end
+                end
+            with
+                await this.go_collide;
+                escape true;
+            end;
+
+        if dead? then
+            var int dt;
+            var float y = r.y;
+            every dt in SDL_DT do
+                y = y + dt*0.5;
+                r.y = y;
+                if r.y >= 400 then
+                    r.y = 400;
+                    break;
+                end
+            end
+
+            par/or do
+                await 1s;
+            with
+                every 100ms do
+                    visible? = not visible?;
+                end
+            end
+        end
+    with
+        loop do
+            await SDL_REDRAW;
+            if visible? then
+                _SDL_RenderCopy(ren, tex, null, &r);
+            end
+        end
+    end
+end
+
+par/or do
+    loop do
+        await SDL_REDRAW;
+        _SDL_SetRenderDrawColor(ren, 0x00,0x00,0x00, 0);
+        _SDL_RenderFillRect(ren, null);
+    end
+with
+    native _rand();
+    pool Bird[3] birds;
+    par do
+        every 1s do
+            spawn Bird in birds with
+                this.r.y   = 20  + _rand()%350;
+                this.speed = 100 + _rand()%100;
+                this.ren   = ren;
+            end;
+        end
+    with
+        every SDL_DT do
+            loop (Bird*)b1 in birds do
+                loop (Bird*)b2 in birds do
+                    if b1!=b2 and _SDL_HasIntersection(&b1:r,&b2:r) then
+                        emit b1:go_collide;
+                    end
+                end
+            end
+        end
+    end
+with
+    loop do
+        await SDL_REDRAW;
+        _SDL_RenderPresent(ren);
+    end
+with
+    await SDL_QUIT;
+end
+
+escape 0;
