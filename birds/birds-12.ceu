@@ -9,7 +9,7 @@ input void SDL_MOUSEBUTTONDOWN;
 
 var _SDL_Window[] win;
 finalize
-    win = _SDL_CreateWindow("Birds", 200,200, 640,480, 0);
+    win = _SDL_CreateWindow("Birds - 12 (blinking)", 200,200, 640,480, 0);
 with
     _SDL_DestroyWindow(win);
 end
@@ -23,7 +23,7 @@ end
 
 #else
 
-_SDL_SetWindowTitle(win, "Birds");
+_SDL_SetWindowTitle(win, "Birds - 12 (blinking)");
 
 #endif
 
@@ -115,35 +115,38 @@ do
 end
 
 par/or do
-    loop do
-        await SDL_REDRAW;
+    every SDL_REDRAW do
         _SDL_SetRenderDrawColor(ren, 0x00,0x00,0x00, 0);
         _SDL_RenderFillRect(ren, null);
     end
 with
-    pool Bird[5] birds;
-    par do
-        every 1s do
-            spawn Bird in birds with
-                this.ren   = ren;
-                this.r.y   = 20  + _rand()%350;
-                this.speed = 100 + _rand()%100;
-            end;
-        end
-    with
-        every SDL_DT do
-            loop (Bird*)b1 in birds do
-                loop (Bird*)b2 in birds do
-                    if b1!=b2 and _SDL_HasIntersection(&b1:r,&b2:r) then
-                        emit b1:go_collide;
+    loop do
+        pool Bird[] birds;
+        par/or do
+            every 1s do
+                spawn Bird in birds with
+                    this.ren   = ren;
+                    this.r.y   =  20 + _rand()%350;
+                    this.speed = 100 + _rand()%100;
+                end;
+            end
+        with
+            every SDL_DT do
+                loop (Bird*)b1 in birds do
+                    loop (Bird*)b2 in birds do
+                        if b1!=b2 and _SDL_HasIntersection(&b1:r,&b2:r) then
+                            emit b1:go_collide;
+                            emit b2:go_collide;
+                        end
                     end
                 end
             end
+        with
+            await SDL_MOUSEBUTTONDOWN;
         end
     end
 with
-    loop do
-        await SDL_REDRAW;
+    every SDL_REDRAW do
         _SDL_RenderPresent(ren);
     end
 with

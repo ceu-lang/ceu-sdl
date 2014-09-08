@@ -1,0 +1,50 @@
+#ifndef ALL
+
+#include "sdl.ceu";
+
+input void SDL_QUIT;
+input void SDL_REDRAW;
+
+var _SDL_Window[] win;
+finalize
+    win = _SDL_CreateWindow("SDL 01", 200,200, 640,480, 0);
+with
+    _SDL_DestroyWindow(win);
+end
+
+var _SDL_Renderer[] ren;
+finalize
+    ren = _SDL_CreateRenderer(win, -1, 0);
+with
+    _SDL_DestroyRenderer(ren);
+end
+
+#else
+
+_SDL_SetWindowTitle(win, "SDL 01");
+
+#endif
+
+var _SDL_Rect r;
+    r.x = 100;
+    r.y = 100;
+    r.w =  20;
+    r.h =  20;
+
+par/or do
+    every 20ms do
+        r.x = r.x + 1;
+    end
+with
+    every SDL_REDRAW do
+        _SDL_SetRenderDrawColor(ren, 0x00,0x00,0x00, 0);
+        _SDL_RenderFillRect(ren, null);
+        _SDL_SetRenderDrawColor(ren, 0xFF,0xFF,0xFF,0);
+        _SDL_RenderFillRect(ren, &r);
+        _SDL_RenderPresent(ren);
+    end
+with
+    await SDL_QUIT;
+end
+
+escape 0;
