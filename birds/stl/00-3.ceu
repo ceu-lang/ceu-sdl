@@ -5,14 +5,15 @@
 
 input void SDL_REDRAW;
 input void SDL_QUIT;
+input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
 
 var int win_w;
 var int win_h;
 var _SDL_Window* win;
     finalize
-        win = _SDL_CreateWindow("(00-3) Blinking a LED",
+        win = _SDL_CreateWindow("LED - 03 (repeat)",
                 _SDL_WINDOWPOS_UNDEFINED, _SDL_WINDOWPOS_UNDEFINED,
-                2000, 2000, _SDL_WINDOW_SHOWN);
+                640, 480, _SDL_WINDOW_SHOWN);
     with
         _SDL_DestroyWindow(win);
     end
@@ -28,7 +29,7 @@ var _SDL_Renderer* ren;
 
 #else
 
-_SDL_SetWindowTitle(win, "(00-3) Blinking a LED");
+_SDL_SetWindowTitle(win, "LED - 03 (repeat)");
 
 #endif
 

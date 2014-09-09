@@ -7,7 +7,7 @@ input void SDL_REDRAW;
 
 var _SDL_Window[] win;
 finalize
-    win = _SDL_CreateWindow("SDL 03", 200,200, 640,480, 0);
+    win = _SDL_CreateWindow("SDL - 03 (class)", 200,200, 640,480, 0);
 with
     _SDL_DestroyWindow(win);
 end
@@ -21,7 +21,7 @@ end
 
 #else
 
-_SDL_SetWindowTitle(win, "SDL 03");
+_SDL_SetWindowTitle(win, "SDL - 03 (class)");
 
 #endif
 

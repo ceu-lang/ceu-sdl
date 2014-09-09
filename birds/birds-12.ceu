@@ -5,7 +5,7 @@
 input void SDL_QUIT;
 input void SDL_REDRAW;
 input int  SDL_DT;
-input void SDL_MOUSEBUTTONDOWN;
+input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
 
 var _SDL_Window[] win;
 finalize

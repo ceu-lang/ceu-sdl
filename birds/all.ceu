@@ -1,0 +1,143 @@
+#define ALL
+
+#include "sdl.ceu"
+#include "sdl-gfx.ceu"
+
+input void SDL_QUIT;
+input void SDL_REDRAW;
+input int  SDL_DT;
+input _SDL_KeyboardEvent*    SDL_KEYDOWN;
+input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
+
+var int win_w;
+var int win_h;
+var _SDL_Window* win;
+    finalize
+        win = _SDL_CreateWindow("DEMO",
+                _SDL_WINDOWPOS_UNDEFINED, _SDL_WINDOWPOS_UNDEFINED,
+                640, 480, _SDL_WINDOW_SHOWN);
+    with
+        _SDL_DestroyWindow(win);
+    end
+
+_SDL_GetWindowSize(win, &win_w, &win_h);
+
+var _SDL_Renderer[] ren;
+    finalize
+        ren = _SDL_CreateRenderer(win, -1, 0);
+    with
+        _SDL_DestroyRenderer(ren);
+    end
+
+var int ex = 1;
+
+#define MAX 20
+
+par/or do
+    loop do
+        do
+            // show blank screen
+            _SDL_SetWindowTitle(win, "-- blank --");
+            _SDL_SetRenderDrawColor(ren, 0x00,0x00,0x00, 0);
+            _SDL_RenderFillRect(ren, null);
+            _SDL_RenderPresent(ren);
+            await SDL_KEYDOWN;
+        end
+        par/or do
+            if ex == 1 then
+                #include "birds/stl/00-1.ceu"
+            else/if ex == 2 then
+                #include "birds/stl/00-2.ceu"
+            else/if ex == 3 then
+                #include "birds/stl/00-3.ceu"
+            else/if ex == 4 then
+                #include "birds/stl/sdl-01.ceu"
+            else/if ex == 5 then
+                #include "birds/stl/sdl-02.ceu"
+            else/if ex == 6 then
+                #define Rect Rect1
+                #include "birds/stl/sdl-03.ceu"
+            else/if ex == 7 then
+                #define Bird Bird1
+                #include "birds/birds-01.ceu"
+            else/if ex == 8 then
+                #undef Bird
+                #define Bird Bird2
+                #include "birds/birds-02.ceu"
+            else/if ex == 9 then
+                #undef Bird
+                #define Bird Bird3
+                #include "birds/birds-03.ceu"
+            else/if ex == 10 then
+                #undef Bird
+                #define Bird Bird4
+                #include "birds/birds-04.ceu"
+            else/if ex == 11 then
+                #undef Bird
+                #define Bird Bird5
+                #include "birds/birds-05.ceu"
+            else/if ex == 12 then
+                #undef Bird
+                #define Bird Bird6
+                #include "birds/birds-06.ceu"
+            else/if ex == 13 then
+                #undef Bird
+                #define Bird Bird7
+                #include "birds/birds-07.ceu"
+            else/if ex == 14 then
+                #undef Bird
+                #define Bird Bird8
+                #include "birds/birds-08.ceu"
+            else/if ex == 15 then
+                #undef Bird
+                #define Bird Bird9
+                #include "birds/birds-09.ceu"
+            else/if ex == 16 then
+                #undef Bird
+                #define Bird Bird10
+                #include "birds/birds-10.ceu"
+            else/if ex == 17 then
+                #undef Bird
+                #define Bird Bird11
+                #include "birds/birds-11.ceu"
+            else/if ex == 18 then
+                #undef Bird
+                #define Bird Bird12
+                #include "birds/birds-12.ceu"
+            else/if ex == 19 then
+                #undef Bird
+                #define Bird Bird13
+                #include "birds/birds-13.ceu"
+            else/if ex == 20 then
+                #undef Rect
+                #define Rect Rect2
+                #include "samples/sdl6.ceu"
+            else
+                await FOREVER;
+            end
+        with
+            var _SDL_KeyboardEvent* key;
+            every key in SDL_KEYDOWN do
+                if key:keysym.sym == _SDLK_r then
+                    ex = ex;
+                    break;
+                else/if key:keysym.sym == _SDLK_p then
+                    ex = ex - 1;
+                    break;
+                else/if key:keysym.sym == _SDLK_n then
+                    ex = ex + 1;
+                    break;
+                end
+            end
+            if ex < 1 then
+                ex = MAX;
+            else/if ex > MAX then
+                ex = 1;
+            end
+        end
+    end
+with
+    await SDL_QUIT;
+end
+
+escape 0;
