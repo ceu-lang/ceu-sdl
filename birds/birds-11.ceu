@@ -112,7 +112,7 @@ with
     loop do
         pool Bird[] birds;
         par/or do
-            every 1s do
+            every 750ms do
                 spawn Bird in birds with
                     this.ren   = ren;
                     this.r.y   =  20 + _rand()%350;

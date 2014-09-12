@@ -118,13 +118,14 @@ par/or do
         with
             var _SDL_KeyboardEvent* key;
             every key in SDL_KEYDOWN do
-                if key:keysym.sym == _SDLK_r then
+                if key:keysym.sym==_SDLK_r or key:keysym.sym==_SDLK_DOWN or
+                                              key:keysym.sym==_SDLK_UP then
                     ex = ex;
                     break;
-                else/if key:keysym.sym == _SDLK_p then
+                else/if key:keysym.sym==_SDLK_p or key:keysym.sym==_SDLK_LEFT then
                     ex = ex - 1;
                     break;
-                else/if key:keysym.sym == _SDLK_n then
+                else/if key:keysym.sym==_SDLK_n or key:keysym.sym==_SDLK_RIGHT then
                     ex = ex + 1;
                     break;
                 end

@@ -9,7 +9,7 @@ input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
 
 var _SDL_Window[] win;
 finalize
-    win = _SDL_CreateWindow("Birds - 12 (blinking)", 200,200, 640,480, 0);
+    win = _SDL_CreateWindow("Birds - 13 (watching)", 200,200, 640,480, 0);
 with
     _SDL_DestroyWindow(win);
 end
@@ -23,7 +23,7 @@ end
 
 #else
 
-_SDL_SetWindowTitle(win, "Birds - 12 (blinking)");
+_SDL_SetWindowTitle(win, "Birds - 13 (watching)");
 
 #endif
 
@@ -123,7 +123,7 @@ with
     loop do
         pool Bird[] birds;
         par/or do
-            every 1s do
+            every 750ms do
                 spawn Bird in birds with
                     this.ren   = ren;
                     this.r.y   =  20 + _rand()%350;
