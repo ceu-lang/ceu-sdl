@@ -5,11 +5,10 @@
 input void SDL_QUIT;
 input void SDL_REDRAW;
 input int  SDL_DT;
-input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
 
 var _SDL_Window[] win;
 finalize
-    win = _SDL_CreateWindow("Birds - 10 (iterators)", 200,200, 640,480, 0);
+    win = _SDL_CreateWindow("Birds - 02 (vectors)", 200,200, 640,480, 0);
 with
     _SDL_DestroyWindow(win);
 end
@@ -23,7 +22,7 @@ end
 
 #else
 
-_SDL_SetWindowTitle(win, "Birds - 10 (iterators)");
+_SDL_SetWindowTitle(win, "Birds - 02 (vectors)");
 
 #endif
 
@@ -31,12 +30,12 @@ native do
     SDL_Texture* TEX_UP, *TEX_DOWN;
 end
     finalize
-        _TEX_UP = _IMG_LoadTexture(ren, "birds/clumsy_up.png");
+        _TEX_UP = _IMG_LoadTexture(ren, "strangeloop-14/clumsy_up.png");
     with
         _SDL_DestroyTexture(_TEX_UP);
     end
     finalize
-        _TEX_DOWN = _IMG_LoadTexture(ren, "birds/clumsy_down.png");
+        _TEX_DOWN = _IMG_LoadTexture(ren, "strangeloop-14/clumsy_down.png");
     with
         _SDL_DestroyTexture(_TEX_DOWN);
     end
@@ -47,7 +46,6 @@ class Bird with
     var _SDL_Renderer[] ren;
     var _SDL_Rect r;
     var int speed;
-    event void go_collide;
 do
     this.r.x = 20;
     this.r.w = 50;
@@ -55,7 +53,7 @@ do
 
     var _SDL_Texture[] tex = _TEX_DOWN;
 
-    par/or do
+    par do
         var float sin = 0;
         var int y = r.y;
         var int dt;
@@ -72,13 +70,7 @@ do
             else
                 tex = _TEX_UP;
             end
-
-            if r.x > 580 then
-                break;
-            end
         end
-    with
-        await this.go_collide;
     with
         every SDL_REDRAW do
             _SDL_RenderCopy(ren, tex, null, &r);
@@ -92,31 +84,14 @@ par/or do
         _SDL_RenderFillRect(ren, null);
     end
 with
-    loop do
-        pool Bird[] birds;
-        par/or do
-            every 750ms do
-                spawn Bird in birds with
-                    this.ren   = ren;
-                    this.r.y   =  20 + _rand()%350;
-                    this.speed = 100 + _rand()%100;
-                end;
-            end
-        with
-            every SDL_DT do
-                loop (Bird*)b1 in birds do
-                    loop (Bird*)b2 in birds do
-                        if b1!=b2 and _SDL_HasIntersection(&b1:r,&b2:r) then
-                            emit b1:go_collide;
-                            emit b2:go_collide;
-                        end
-                    end
-                end
-            end
-        with
-            await SDL_MOUSEBUTTONDOWN;
-        end
-    end
+    var int i = 1;
+    var Bird[5] bs with
+        this.ren   = ren;
+        this.r.y   = 20  *  4*i;
+        this.speed = 100 + 10*i;
+        i = i + 1;
+    end;
+    await FOREVER;
 with
     every SDL_REDRAW do
         _SDL_RenderPresent(ren);

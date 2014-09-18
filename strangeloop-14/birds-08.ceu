@@ -8,7 +8,7 @@ input int  SDL_DT;
 
 var _SDL_Window[] win;
 finalize
-    win = _SDL_CreateWindow("Birds - 01 (class)", 200,200, 640,480, 0);
+    win = _SDL_CreateWindow("Birds - 08 (pools-undounded)", 200,200, 640,480, 0);
 with
     _SDL_DestroyWindow(win);
 end
@@ -22,7 +22,7 @@ end
 
 #else
 
-_SDL_SetWindowTitle(win, "Birds - 01 (class)");
+_SDL_SetWindowTitle(win, "Birds - 08 (pools-unbounded)");
 
 #endif
 
@@ -30,12 +30,12 @@ native do
     SDL_Texture* TEX_UP, *TEX_DOWN;
 end
     finalize
-        _TEX_UP = _IMG_LoadTexture(ren, "birds/clumsy_up.png");
+        _TEX_UP = _IMG_LoadTexture(ren, "strangeloop-14/clumsy_up.png");
     with
         _SDL_DestroyTexture(_TEX_UP);
     end
     finalize
-        _TEX_DOWN = _IMG_LoadTexture(ren, "birds/clumsy_down.png");
+        _TEX_DOWN = _IMG_LoadTexture(ren, "strangeloop-14/clumsy_down.png");
     with
         _SDL_DestroyTexture(_TEX_DOWN);
     end
@@ -53,7 +53,7 @@ do
 
     var _SDL_Texture[] tex = _TEX_DOWN;
 
-    par do
+    par/or do
         var float sin = 0;
         var int y = r.y;
         var int dt;
@@ -70,6 +70,10 @@ do
             else
                 tex = _TEX_UP;
             end
+
+            if r.x > 580 then
+                break;
+            end
         end
     with
         every SDL_REDRAW do
@@ -84,17 +88,14 @@ par/or do
         _SDL_RenderFillRect(ren, null);
     end
 with
-    var Bird b1 with
-        this.ren   = ren;
-        this.r.y   = 100;
-        this.speed = 100;
-    end;
-    var Bird b2 with
-        this.ren   = ren;
-        this.r.y   = 300;
-        this.speed = 200;
-    end;
-    await FOREVER;
+    pool Bird[] birds;
+    every 1s do
+        spawn Bird in birds with
+            this.ren   = ren;
+            this.r.y   =  20 + _rand()%350;
+            this.speed = 100 + _rand()%100;
+        end;
+    end
 with
     every SDL_REDRAW do
         _SDL_RenderPresent(ren);

@@ -9,7 +9,7 @@ input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
 
 var _SDL_Window[] win;
 finalize
-    win = _SDL_CreateWindow("Birds - 13 (watching)", 200,200, 640,480, 0);
+    win = _SDL_CreateWindow("Birds - 11 (falling)", 200,200, 640,480, 0);
 with
     _SDL_DestroyWindow(win);
 end
@@ -23,7 +23,7 @@ end
 
 #else
 
-_SDL_SetWindowTitle(win, "Birds - 13 (watching)");
+_SDL_SetWindowTitle(win, "Birds - 11 (falling)");
 
 #endif
 
@@ -31,12 +31,12 @@ native do
     SDL_Texture* TEX_UP, *TEX_DOWN;
 end
     finalize
-        _TEX_UP = _IMG_LoadTexture(ren, "birds/clumsy_up.png");
+        _TEX_UP = _IMG_LoadTexture(ren, "strangeloop-14/clumsy_up.png");
     with
         _SDL_DestroyTexture(_TEX_UP);
     end
     finalize
-        _TEX_DOWN = _IMG_LoadTexture(ren, "birds/clumsy_down.png");
+        _TEX_DOWN = _IMG_LoadTexture(ren, "strangeloop-14/clumsy_down.png");
     with
         _SDL_DestroyTexture(_TEX_DOWN);
     end
@@ -54,7 +54,6 @@ do
     this.r.h = 45;
 
     var _SDL_Texture[] tex = _TEX_DOWN;
-    var bool visible? = true;
 
     par/or do
         var bool dead? =
@@ -96,20 +95,10 @@ do
                     break;
                 end
             end
-
-            par/or do
-                await 1s;
-            with
-                every 100ms do
-                    visible? = not visible?;
-                end
-            end
         end
     with
         every SDL_REDRAW do
-            if visible? then
-                _SDL_RenderCopy(ren, tex, null, &r);
-            end
+            _SDL_RenderCopy(ren, tex, null, &r);
         end
     end
 end
@@ -142,28 +131,7 @@ with
                 end
             end
         with
-            loop do
-                var _SDL_MouseButtonEvent* mse = await SDL_MOUSEBUTTONDOWN;
-                var Bird* ptr = null;
-                loop (Bird*) b in birds do
-                    if _SDL_Rect_vs_Mouse(&b:r,mse) then
-                        ptr = b;
-                        break;
-                    end
-                end
-                if ptr != null then
-                    watching ptr do
-                        every SDL_REDRAW do
-                            _SDL_SetRenderDrawColor(ren, 0xFF,0xFF,0xFF, 0);
-                            _SDL_RenderDrawLine(ren, 320,480,
-                                                     ptr:r.x+20,ptr:r.y+20);
-                        end
-                    end
-                end
-            end
-        with
             await SDL_MOUSEBUTTONDOWN;
-            await FOREVER;
         end
     end
 with

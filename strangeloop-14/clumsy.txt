@@ -1,1 +1,2 @@
+Credits:
 https://github.com/ellisonleao/clumsy-bird/blob/gh-pages/data/img/clumsy.png

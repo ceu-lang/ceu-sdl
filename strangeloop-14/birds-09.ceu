@@ -5,10 +5,11 @@
 input void SDL_QUIT;
 input void SDL_REDRAW;
 input int  SDL_DT;
+input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
 
 var _SDL_Window[] win;
 finalize
-    win = _SDL_CreateWindow("Birds - 02 (vectors)", 200,200, 640,480, 0);
+    win = _SDL_CreateWindow("Birds - 09 (pools-scope)", 200,200, 640,480, 0);
 with
     _SDL_DestroyWindow(win);
 end
@@ -22,7 +23,7 @@ end
 
 #else
 
-_SDL_SetWindowTitle(win, "Birds - 02 (vectors)");
+_SDL_SetWindowTitle(win, "Birds - 09 (pools-scope)");
 
 #endif
 
@@ -30,12 +31,12 @@ native do
     SDL_Texture* TEX_UP, *TEX_DOWN;
 end
     finalize
-        _TEX_UP = _IMG_LoadTexture(ren, "birds/clumsy_up.png");
+        _TEX_UP = _IMG_LoadTexture(ren, "strangeloop-14/clumsy_up.png");
     with
         _SDL_DestroyTexture(_TEX_UP);
     end
     finalize
-        _TEX_DOWN = _IMG_LoadTexture(ren, "birds/clumsy_down.png");
+        _TEX_DOWN = _IMG_LoadTexture(ren, "strangeloop-14/clumsy_down.png");
     with
         _SDL_DestroyTexture(_TEX_DOWN);
     end
@@ -53,7 +54,7 @@ do
 
     var _SDL_Texture[] tex = _TEX_DOWN;
 
-    par do
+    par/or do
         var float sin = 0;
         var int y = r.y;
         var int dt;
@@ -70,6 +71,10 @@ do
             else
                 tex = _TEX_UP;
             end
+
+            if r.x > 580 then
+                break;
+            end
         end
     with
         every SDL_REDRAW do
@@ -84,14 +89,20 @@ par/or do
         _SDL_RenderFillRect(ren, null);
     end
 with
-    var int i = 1;
-    var Bird[5] bs with
-        this.ren   = ren;
-        this.r.y   = 20  *  4*i;
-        this.speed = 100 + 10*i;
-        i = i + 1;
-    end;
-    await FOREVER;
+    loop do
+        par/or do
+            pool Bird[] birds;
+            every 1s do
+                spawn Bird in birds with
+                    this.ren   = ren;
+                    this.r.y   =  20 + _rand()%350;
+                    this.speed = 100 + _rand()%100;
+                end;
+            end
+        with
+            await SDL_MOUSEBUTTONDOWN;
+        end
+    end
 with
     every SDL_REDRAW do
         _SDL_RenderPresent(ren);

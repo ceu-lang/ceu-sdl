@@ -8,7 +8,7 @@ input int  SDL_DT;
 
 var _SDL_Window[] win;
 finalize
-    win = _SDL_CreateWindow("Birds - 05 (animation-break)", 200,200, 640,480, 0);
+    win = _SDL_CreateWindow("Birds - 07 (pools-bounded)", 200,200, 640,480, 0);
 with
     _SDL_DestroyWindow(win);
 end
@@ -22,7 +22,7 @@ end
 
 #else
 
-_SDL_SetWindowTitle(win, "Birds - 05 (animation-break)");
+_SDL_SetWindowTitle(win, "Birds - 07 (pools-bounded)");
 
 #endif
 
@@ -30,12 +30,12 @@ native do
     SDL_Texture* TEX_UP, *TEX_DOWN;
 end
     finalize
-        _TEX_UP = _IMG_LoadTexture(ren, "birds/clumsy_up.png");
+        _TEX_UP = _IMG_LoadTexture(ren, "strangeloop-14/clumsy_up.png");
     with
         _SDL_DestroyTexture(_TEX_UP);
     end
     finalize
-        _TEX_DOWN = _IMG_LoadTexture(ren, "birds/clumsy_down.png");
+        _TEX_DOWN = _IMG_LoadTexture(ren, "strangeloop-14/clumsy_down.png");
     with
         _SDL_DestroyTexture(_TEX_DOWN);
     end
@@ -53,7 +53,7 @@ do
 
     var _SDL_Texture[] tex = _TEX_DOWN;
 
-    par/and do
+    par/or do
         var float sin = 0;
         var int y = r.y;
         var int dt;
@@ -88,7 +88,7 @@ par/or do
         _SDL_RenderFillRect(ren, null);
     end
 with
-    pool Bird[] birds;
+    pool Bird[2] birds;
     every 1s do
         spawn Bird in birds with
             this.ren   = ren;
