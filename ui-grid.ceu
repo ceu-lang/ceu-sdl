@@ -196,8 +196,7 @@ do
         // OK_UICLICKED
         // OK_CLICKED
         loop do
-            var _SDL_MouseButtonEvent* but := await SDL_MOUSEBUTTONUP;
-                                            // TODO: loop is tight
+            var _SDL_MouseButtonEvent* but = await SDL_MOUSEBUTTONUP;
             loop/UI_GRID_MAX_UIS i in uis_n do
                 if _SDL_Rect_vs_Mouse(&ui_rects[i], but) then
                     emit ok_uiclicked => i;
@@ -224,11 +223,11 @@ do
                 _boxColor(ren, rect.x,rect.y,rect.x+rect.w,rect.y+rect.h, *clr_bg);
             end
 /*
-//clr_cell_bg := &_colors.white;
-//clr_ui_bg := &_colors.white;
-clr_cell_fr := &_colors.white;
-clr_ui_fr := &_colors.black;
-clr_fr := &_colors.red;
+//clr_cell_bg = &_colors.white;
+//clr_ui_bg = &_colors.white;
+clr_cell_fr = &_colors.white;
+clr_ui_fr = &_colors.black;
+clr_fr = &_colors.red;
 */
             loop/UI_GRID_MAX_UIS i in uis_n do
                 if clr_cell_bg != null then
@@ -312,7 +311,7 @@ with
         this.spc_y        = 10;
         this.lay_lins     = 4;
         this.lay_cols     = 4;
-        this.lay          := _lay1;
+        this.lay          = _lay1;
         this.uis_n        = 3;
     end;
 
@@ -325,7 +324,7 @@ with
         this.pad_y        = 5;
         this.lay_lins     = 1;
         this.lay_cols     = 3;
-        this.lay          := _lay2;
+        this.lay          = _lay2;
         this.uis_n        = 3;
     end;
 

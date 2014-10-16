@@ -233,7 +233,7 @@ with
         this.ren = ren;
         this.lay_lins = 4;
         this.lay_cols = 4;
-        this.lay := _UI_SCROLL_grid;
+        this.lay = _UI_SCROLL_grid;
         this.uis_n = 16;
         native do
             int UI_SCROLL_grid[] = {
