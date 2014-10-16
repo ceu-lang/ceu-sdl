@@ -3,20 +3,32 @@
 input void SDL_REDRAW;
 input void SDL_QUIT;
 
-var _SDL_Window* win;
+#ifndef CEU_TIMEMACHINE
+
+native do
+    SDL_Renderer* REN = NULL;
+    int REN_W, REN_H;
+end
+
+var _SDL_Window[] win;
     finalize
-        win = _SDL_CreateWindow("SDL 5",
-                            500, 1300, 640, 480, _SDL_WINDOW_SHOWN);
+        win = _SDL_CreateWindow("SDL 5", _SDL_WINDOWPOS_CENTERED,
+                                         _SDL_WINDOWPOS_CENTERED,
+                                         800, 480,
+                                         _SDL_WINDOW_SHOWN);
     with
         _SDL_DestroyWindow(win);
     end
 
-var _SDL_Renderer* ren;
-    finalize
-        ren = _SDL_CreateRenderer(win, -1, 0);
-    with
-        _SDL_DestroyRenderer(ren);
-    end
+_SDL_GetWindowSize(win, &_REN_W, &_REN_H);
+
+finalize
+    _REN = _SDL_CreateRenderer(win, -1, 0);
+with
+    _SDL_DestroyRenderer(_REN);
+end
+
+#endif
 
 var _SDL_Rect bg;
     bg.x = 0;
@@ -24,9 +36,9 @@ var _SDL_Rect bg;
     bg.w = 640;
     bg.h = 480;
 
-var _SDL_Texture* tex;
+var _SDL_Texture[] tex;
     finalize
-        tex = _IMG_LoadTexture(ren, "samples/img.png");
+        tex = _IMG_LoadTexture(_REN, "samples/img.png");
     with
         _SDL_DestroyTexture(tex);
     end
@@ -41,7 +53,7 @@ _TTF_Init();
         _TTF_Quit();
     end
 
-var _TTF_Font* fnt;
+var _TTF_Font[] fnt;
     finalize
         fnt = _TTF_OpenFont("samples/Deutsch.ttf", 40);
     with
@@ -49,7 +61,7 @@ var _TTF_Font* fnt;
     end
 
 var _char[5] str;
-var _SDL_Texture* str_tex;
+var _SDL_Texture[] str_tex;
 var _SDL_Rect str_r;
     str_r.x = 10;
     str_r.y = 10;
@@ -67,7 +79,7 @@ do
         _SDL_FreeSurface(sfc);
     end
     finalize
-        str_tex = _SDL_CreateTextureFromSurface(ren, sfc);
+        str_tex = _SDL_CreateTextureFromSurface(_REN, sfc);
     with
         _SDL_DestroyTexture(str_tex);
     end
@@ -77,7 +89,7 @@ _Mix_OpenAudio(22050, _AUDIO_S16SYS, 2, 4096);
     finalize with
         _Mix_CloseAudio();
     end
-var _Mix_Chunk* snd;
+var _Mix_Chunk[] snd;
     finalize
         snd = _Mix_LoadWAV("samples/click1.wav");
     with
@@ -92,11 +104,13 @@ with
     end
 with
     every SDL_REDRAW do
-        _SDL_SetRenderDrawColor(ren, 0x00,0x00,0x00,0xFF);
-        _SDL_RenderFillRect(ren, &bg);
-        _SDL_RenderCopy(ren, tex, null, &tex_r);
-        _SDL_RenderCopy(ren, str_tex, null, &str_r);
-        _SDL_RenderPresent(ren);
+        _SDL_SetRenderDrawColor(_REN, 0x00,0x00,0x00,0xFF);
+        _SDL_RenderFillRect(_REN, &bg);
+        _SDL_RenderCopy(_REN, tex, null, &tex_r);
+        _SDL_RenderCopy(_REN, str_tex, null, &str_r);
+#ifndef CEU_TIMEMACHINE
+        _SDL_RenderPresent(_REN);
+#endif
     end
 end
 

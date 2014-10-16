@@ -11,28 +11,38 @@ input int  SDL_DT;
 
 #ifndef ALL
 
-/* Create SDL_Window (Destroy on finalization) */
+#ifndef CEU_TIMEMACHINE
 
-var _SDL_Window* win;
+native do
+    SDL_Renderer* REN = NULL;
+    int REN_W, REN_H;
+end
+
+var _SDL_Window[] win;
     finalize
-        win = _SDL_CreateWindow("SDL 6",
-                            500, 1300, 1024, 768, _SDL_WINDOW_SHOWN);
+        win = _SDL_CreateWindow("SDL 6", _SDL_WINDOWPOS_CENTERED,
+                                         _SDL_WINDOWPOS_CENTERED,
+                                         1024, 768,
+                                         _SDL_WINDOW_SHOWN);
     with
         _SDL_DestroyWindow(win);
     end
 
-/* Create SDL_Renderer (Destroy on finalization) */
+_SDL_GetWindowSize(win, &_REN_W, &_REN_H);
 
-var _SDL_Renderer[] ren;
-    finalize
-        ren = _SDL_CreateRenderer(win, -1, 0);
-    with
-        _SDL_DestroyRenderer(ren);
-    end
+finalize
+    _REN = _SDL_CreateRenderer(win, -1, 0);
+with
+    _SDL_DestroyRenderer(_REN);
+end
+
+#endif
 
 #else
 
 _SDL_SetWindowTitle(win, "40k trails");
+
+#define _REN ren
 
 #endif
 
@@ -115,8 +125,8 @@ par/or do
     await SDL_QUIT;                     // terminates everything
 with
     every SDL_REDRAW do
-        _SDL_SetRenderDrawColor(ren, 0,0,0, 0xFF);
-        _SDL_RenderFillRect(ren, null);  // DRAW 1: clear screen
+        _SDL_SetRenderDrawColor(_REN, 0,0,0, 0xFF);
+        _SDL_RenderFillRect(_REN, null);  // DRAW 1: clear screen
     end
 with
     loop do
@@ -132,14 +142,14 @@ with
                     this.vel   = 50 + _rand()%20;
                     this.rct.x = 50 + _rand()%930;
                     this.rct.y = _rand()%750;
-                    this.ren   = ren;
+                    this.ren   = _REN;
                 end;
                 loop i in 10000 do
                     spawn Rect in rs with
                         this.vel   = 50 + _rand()%20;
                         this.rct.x = 50 + _rand()%930;
                         this.rct.y = _rand()%750;
-                        this.ren   = ren;
+                        this.ren   = _REN;
                     end;
                 end
                 await FOREVER;
@@ -152,7 +162,7 @@ with
                             this.vel   = 50 + _rand()%20;
                             this.rct.x = 50;
                             this.rct.y = _rand()%750;
-                            this.ren   = ren;
+                            this.ren   = _REN;
                         end;
                     end
                 end
@@ -161,10 +171,12 @@ with
     end
 /*
 */
+#ifndef CEU_TIMEMACHINE
 with
     every SDL_REDRAW do
-        _SDL_RenderPresent(ren);        // DRAW 3: update screen
+        _SDL_RenderPresent(_REN);        // DRAW 3: update screen
     end
+#endif
 with
     /* calculate FPS */
     loop do

@@ -4,28 +4,36 @@
 input void SDL_REDRAW;
 input void SDL_QUIT;
 
-var int win_w;
-var int win_h;
-var _SDL_Window* win;
+#ifndef CEU_TIMEMACHINE
+
+native do
+    SDL_Renderer* REN = NULL;
+    int REN_W, REN_H;
+end
+
+var _SDL_Window[] win;
     finalize
-        win = _SDL_CreateWindow("SDL 1",
-                            500, 1300, 800, 480, _SDL_WINDOW_SHOWN);
+        win = _SDL_CreateWindow("SDL 7", _SDL_WINDOWPOS_CENTERED,
+                                         _SDL_WINDOWPOS_CENTERED,
+                                         800, 480,
+                                         _SDL_WINDOW_SHOWN);
     with
         _SDL_DestroyWindow(win);
     end
 
-_SDL_GetWindowSize(win, &win_w, &win_h);
+_SDL_GetWindowSize(win, &_REN_W, &_REN_H);
 
-var _SDL_Renderer* ren;
-    finalize
-        ren = _SDL_CreateRenderer(win, -1, 0);
-    with
-        _SDL_DestroyRenderer(ren);
-    end
+finalize
+    _REN = _SDL_CreateRenderer(win, -1, 0);
+with
+    _SDL_DestroyRenderer(_REN);
+end
+
+#endif
 
 var _SDL_Rect bg;
-    bg.w = win_w;
-    bg.h = win_h;
+    bg.w = _REN_W;
+    bg.h = _REN_H;
     bg.x = 0;
     bg.y = 0;
 
@@ -48,23 +56,21 @@ var _SDL_Color fg_clr;
 par/or do
     await SDL_QUIT;
 with
-    loop do
-        await 1s;
+    every 1s do
         fg.x = fg.x + 10;
         fg.y = fg.y + 10;
     end
 with
-    loop do
-        await SDL_REDRAW;
+    every SDL_REDRAW do
 
-        _SDL_SetRenderDrawColor(ren, bg_clr.r,bg_clr.g,bg_clr.b,0xFF);
-        _SDL_RenderFillRect(ren, &bg);
+        _SDL_SetRenderDrawColor(_REN, bg_clr.r,bg_clr.g,bg_clr.b,0xFF);
+        _SDL_RenderFillRect(_REN, &bg);
 
-        _SDL_SetRenderDrawColor(ren, fg_clr.r,fg_clr.g,fg_clr.b,0xFF);
-        _SDL_RenderFillRect(ren, &fg);
+        _SDL_SetRenderDrawColor(_REN, fg_clr.r,fg_clr.g,fg_clr.b,0xFF);
+        _SDL_RenderFillRect(_REN, &fg);
 
         loop i in 30 do
-            _pixelRGBA(ren, 10+_rand()%50, 10+_rand()%50, 100,100,100, 0xFF);
+            _pixelRGBA(_REN, 10+_rand()%50, 10+_rand()%50, 100,100,100, 0xFF);
         end
 
         native do
@@ -72,13 +78,15 @@ with
             short t[5] = { 200, 210, 250, 225, 300 };
         end
 
-        _filledPolygonRGBA(ren, _s, _t, 5, 0,0xFF,0x00, 0xFF);
+        _filledPolygonRGBA(_REN, _s, _t, 5, 0,0xFF,0x00, 0xFF);
 
-        _boxRGBA(ren, 500,200, 550,250, 0,0,0xFF, 0xBB);
-        _roundedBoxRGBA(ren, 520,220, 570,270, 4, 0,0xFF,0, 0xBB);
-        _roundedRectangleRGBA(ren, 540,240, 590,290, 8, 0xFF,0x0,0, 0x99);
+        _boxRGBA(_REN, 500,200, 550,250, 0,0,0xFF, 0xBB);
+        _roundedBoxRGBA(_REN, 520,220, 570,270, 4, 0,0xFF,0, 0xBB);
+        _roundedRectangleRGBA(_REN, 540,240, 590,290, 8, 0xFF,0x0,0, 0x99);
 
-        _SDL_RenderPresent(ren);
+#ifndef CEU_TIMEMACHINE
+        _SDL_RenderPresent(_REN);
+#endif
     end
 end
 

@@ -3,30 +3,36 @@
 input void SDL_REDRAW;
 input void SDL_QUIT;
 
-var int win_w;
-var int win_h;
-var _SDL_Window* win;
+#ifndef CEU_TIMEMACHINE
+
+native do
+    SDL_Renderer* REN = NULL;
+    int REN_W, REN_H;
+end
+
+var _SDL_Window[] win;
     finalize
-        win = _SDL_CreateWindow("SDL 3",
-                            500, 1300, 800, 480, _SDL_WINDOW_SHOWN);
+        win = _SDL_CreateWindow("SDL 3", _SDL_WINDOWPOS_CENTERED,
+                                         _SDL_WINDOWPOS_CENTERED,
+                                         800, 480,
+                                         _SDL_WINDOW_SHOWN);
     with
         _SDL_DestroyWindow(win);
     end
 
-_SDL_GetWindowSize(win, &win_w, &win_h);
+_SDL_GetWindowSize(win, &_REN_W, &_REN_H);
 
-native do
-    SDL_Renderer* REN = NULL;
-end
 finalize
     _REN = _SDL_CreateRenderer(win, -1, 0);
 with
     _SDL_DestroyRenderer(_REN);
 end
 
+#endif
+
 var _SDL_Rect bg;
-    bg.w = win_w;
-    bg.h = win_h;
+    bg.w = _REN_W;
+    bg.h = _REN_H;
     bg.x = 0;
     bg.y = 0;
 
@@ -45,17 +51,15 @@ do
         clr.b = 0xFF;
 
     par/or do
-        loop do
-            await (1000/this.v) ms;
+        every (1000/this.v) ms do
             rect.x = rect.x + 1;
             if rect.x > 500 then
                 break;
             end
         end
     with
-        loop do
-            await SDL_REDRAW;
-            _SDL_SetRenderDrawColor(_REN, clr.r,clr.g,clr.b,0);
+        every SDL_REDRAW do
+            _SDL_SetRenderDrawColor(_REN, clr.r,clr.g,clr.b,0xFF);
             _SDL_RenderFillRect(_REN, &rect);
         end
     end
@@ -64,9 +68,8 @@ end
 par/or do
     await SDL_QUIT;
 with
-    loop do
-        await SDL_REDRAW;
-        _SDL_SetRenderDrawColor(_REN, bg_clr.r,bg_clr.g,bg_clr.b,0);
+    every SDL_REDRAW do
+        _SDL_SetRenderDrawColor(_REN, bg_clr.r,bg_clr.g,bg_clr.b,0xFF);
         _SDL_RenderFillRect(_REN, &bg);
     end
 with
@@ -76,8 +79,7 @@ with
         with
             do
                 pool Rect[5] rs;
-                loop do
-                    await 1s;
+                every 1s do
                     spawn Rect in rs with
                         this.rect.x = 100;
                         this.rect.y = 100 + _rand()%300;
@@ -89,11 +91,12 @@ with
             end
         end
     end
+#ifndef CEU_TIMEMACHINE
 with
-    loop do
-        await SDL_REDRAW;
+    every SDL_REDRAW do
         _SDL_RenderPresent(_REN);
     end
+#endif
 end
 
 escape 0;

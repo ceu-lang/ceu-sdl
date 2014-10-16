@@ -3,28 +3,36 @@
 input void SDL_REDRAW;
 input void SDL_QUIT;
 
-var int win_w;
-var int win_h;
-var _SDL_Window* win;
+#ifndef CEU_TIMEMACHINE
+
+native do
+    SDL_Renderer* REN = NULL;
+    int REN_W, REN_H;
+end
+
+var _SDL_Window[] win;
     finalize
-        win = _SDL_CreateWindow("SDL 1",
-                            500, 1300, 800, 480, _SDL_WINDOW_SHOWN);
+        win = _SDL_CreateWindow("SDL 1", _SDL_WINDOWPOS_CENTERED,
+                                         _SDL_WINDOWPOS_CENTERED,
+                                         800, 480,
+                                         _SDL_WINDOW_SHOWN);
     with
         _SDL_DestroyWindow(win);
     end
 
-_SDL_GetWindowSize(win, &win_w, &win_h);
+_SDL_GetWindowSize(win, &_REN_W, &_REN_H);
 
-var _SDL_Renderer* ren;
-    finalize
-        ren = _SDL_CreateRenderer(win, -1, 0);
-    with
-        _SDL_DestroyRenderer(ren);
-    end
+finalize
+    _REN = _SDL_CreateRenderer(win, -1, 0);
+with
+    _SDL_DestroyRenderer(_REN);
+end
+
+#endif
 
 var _SDL_Rect bg;
-    bg.w = win_w;
-    bg.h = win_h;
+    bg.w = _REN_W;
+    bg.h = _REN_H;
     bg.x = 0;
     bg.y = 0;
 
@@ -47,22 +55,21 @@ var _SDL_Color fg_clr;
 par/or do
     await SDL_QUIT;
 with
-    loop do
-        await 1s;
+    every 1s do
         fg.x = fg.x + 10;
         fg.y = fg.y + 10;
     end
 with
-    loop do
-        await SDL_REDRAW;
+    every SDL_REDRAW do
+        _SDL_SetRenderDrawColor(_REN, bg_clr.r,bg_clr.g,bg_clr.b,0xFF);
+        _SDL_RenderFillRect(_REN, &bg);
 
-        _SDL_SetRenderDrawColor(ren, bg_clr.r,bg_clr.g,bg_clr.b,0);
-        _SDL_RenderFillRect(ren, &bg);
+        _SDL_SetRenderDrawColor(_REN, fg_clr.r,fg_clr.g,fg_clr.b,0xFF);
+        _SDL_RenderFillRect(_REN, &fg);
 
-        _SDL_SetRenderDrawColor(ren, fg_clr.r,fg_clr.g,fg_clr.b,0);
-        _SDL_RenderFillRect(ren, &fg);
-
-        _SDL_RenderPresent(ren);
+#ifndef CEU_TIMEMACHINE
+        _SDL_RenderPresent(_REN);
+#endif
     end
 end
 

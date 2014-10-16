@@ -1,0 +1,166 @@
+// - bug play no inicio
+// - async vs async_ (testar async no jogo!)
+// - tests para pause/async
+// - outros jogos
+
+// BUG tempo
+// BUG pause/if
+
+input void SDL_QUIT_;
+input int  SDL_DT_;
+input _SDL_KeyboardEvent* SDL_KEYDOWN_;
+input _SDL_KeyboardEvent* SDL_KEYUP_;
+
+native do
+    SDL_Renderer* REN = NULL;
+    int REN_W, REN_H;
+end
+
+var _SDL_Window[] win;
+    finalize
+        win = _SDL_CreateWindow("CEU-SDL", _SDL_WINDOWPOS_CENTERED,
+                                           _SDL_WINDOWPOS_CENTERED,
+                                           800, 480,
+                                           _SDL_WINDOW_SHOWN);
+    with
+        _SDL_DestroyWindow(win);
+    end
+_SDL_GetWindowSize(win, &_REN_W, &_REN_H);
+
+finalize
+    _REN = _SDL_CreateRenderer(win, -1, 0);
+with
+    _SDL_DestroyRenderer(_REN);
+end
+
+native do
+    unsigned int* RAND_SEED;
+    #define rand() rand_r(RAND_SEED)
+end
+
+class App with
+    event int ok;
+do
+    var uint seed = 0;
+    _RAND_SEED := &seed;
+    _srand(seed);
+
+    var int ret = do
+        #define _STRINGIFY(X) #X
+        #define STRINGIFY(X) _STRINGIFY(X)
+        #include STRINGIFY(CEUFILE)
+    end;
+    emit this.ok => ret;
+end
+var App app;
+_printf("APP %d\n", sizeof(_CEU_App));
+
+/* The "Time Machine" must be declared after "The Application".
+ * The "tm" must record the events *after* the "app" reacts to them.
+ */
+#include "timemachine.ceu"
+#include "ui-timemachine.ceu"
+var TimeMachine tm with
+    this.app = app;
+end;
+var UITimeMachine uitm with
+    this.tm = tm;
+end;
+
+event bool in_tm?;
+var   bool blur? = false;
+
+par/or do
+    await SDL_QUIT_;
+with
+    loop do
+        var _SDL_KeyboardEvent* key = await SDL_KEYDOWN_;
+        var int sym = key:keysym.sym;
+        if sym == _SDLK_ESCAPE then
+            emit in_tm? => true;
+            emit tm.go_on;
+            emit uitm.go_on;
+            key = await SDL_KEYDOWN_ until key:keysym.sym == _SDLK_ESCAPE;
+            emit uitm.go_off;
+            emit tm.go_off;
+            emit in_tm? => false;
+        else/if sym==_SDLK_LALT then
+            blur? = true;
+            emit in_tm? => true;
+            emit tm.go_on;
+
+            par/or do
+                var _SDL_KeyboardEvent* key = await SDL_KEYUP_
+                                              until key:keysym.sym == _SDLK_LALT;
+            with
+                loop do
+                    var _SDL_KeyboardEvent* key = await SDL_KEYDOWN_;
+                    var int sym2 = key:keysym.sym;
+                    if sym2 == _SDLK_LEFT then
+                        emit tm.go_backward => 2;
+                    else/if sym2 == _SDLK_RIGHT then
+                        emit tm.go_forward => 2;
+                    end
+                    key = await SDL_KEYUP_ until key:keysym.sym == sym2;
+                    emit tm.go_pause;
+                end
+            end
+
+            TM_AWAIT_SEEK(tm);
+            emit tm.go_off;
+            emit in_tm? => false;
+            blur? = false;
+        end
+    end
+with
+    every SDL_REDRAW do
+        emit uitm.go_redraw;
+        if blur? then
+            _boxRGBA(_REN, 0, 0, _REN_W, _REN_H, 0xAA,0x88,0x88,0x88);
+        end
+        _SDL_RenderPresent(_REN);
+    end
+#if 0
+with
+    loop do
+        var _SDL_KeyboardEvent* key = await SDL_KEYDOWN_
+                                      until key:keysym.sym == _SDLK_LCTRL;
+        var bool ok? =
+            par do
+                key = await SDL_KEYUP_ until key:keysym.sym == _SDLK_LCTRL;
+                escape false;
+            with
+                await 1s;
+                escape true;
+            end;
+        if not ok? then
+            continue;
+        end
+
+        _CEU_TIMEMACHINE_ON = _CEU_TIMEMACHINE_ON + 1;
+        finalize with
+            _CEU_TIMEMACHINE_ON = _CEU_TIMEMACHINE_ON - 1;
+        end
+
+        pause/if in_tm? do
+            par/or do
+                loop do
+                    key = await SDL_KEYDOWN_
+                          until key:keysym.sym == _SDLK_LCTRL;
+                    par/or do
+                        key = await SDL_KEYUP_
+                              until key:keysym.sym == _SDLK_LCTRL;
+                    with
+                        await 1s;
+                        break;
+                    end
+                end
+            with
+                #include "input.ceu"
+            end
+        end
+    end
+#endif
+end
+
+escape 0;
