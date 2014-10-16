@@ -60,7 +60,6 @@ var _TTF_Font[] fnt;
         _TTF_CloseFont(fnt);
     end
 
-var _char[5] str;
 var _SDL_Texture[] str_tex;
 var _SDL_Rect str_r;
     str_r.x = 10;

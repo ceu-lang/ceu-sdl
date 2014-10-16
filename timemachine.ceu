@@ -93,16 +93,19 @@ do
                         time_req = tmp;
                         this.time_now = _snap_get(time_req);
                         speed = 0;
+//_printf("=== SEEK: [%d] => [%d]\n", time_now, time_req);
                         //emit this.ok_restart;
                         //_queue_reset();
                     with
                         await this.go_pause;
                         TM_AWAIT_SEEK(this);
+//_printf("=== PAUSE ===\n");
                         time_req = _TM_REQ_PAUSE;
                     with
                         var int s = await this.go_backward;
                         TM_AWAIT_SEEK(this);
                         speed = s;
+//_printf("=== BACKWARDS: [%d] => ??\n", time_now);
                         emit e_backward => s;
                         await FOREVER;          // e_backward emits go_seek
                     with
@@ -110,27 +113,34 @@ do
                         TM_AWAIT_SEEK(this);
                         speed    = s;
                         time_req = this.time_total;
+//_printf("=== FORWARD: [%d] => [%d]\n", time_now, time_req);
                     with
                         if speed == 0 then
                             this.seeking? = true;
                         end
                         async (&time_now, speed, time_req, time_total) do
+//_printf("=== seek (%d => %d || %d) ===\n", time_now, time_req, time_total);
                             loop do
                                 if time_req == _TM_REQ_PAUSE then
+//_printf("=== break: pause ===\n");
                                     break;  // already there
                                 end
                                 var int get = _QUEUE_get;
                                 var _tceu_queue[] qu = _queue_get();
                                 if qu == null then
+//_printf("=== break: e=null ===\n");
                                     break;
                                 end
+//_printf("|\t[get=%d]  evt=%d v=%d\n", get, (int)qu:evt, (int)qu:param.v);
                                 //_assert(qu != null);
                                 if qu:evt == _CEU_IN_SDL_DT then
                                     var int dt = qu:param.v;
                                     if time_now+dt > time_req then
                                         _QUEUE_get = get;   // undo get
+//_printf("=== break: >time_req ===\n");
                                         break;  // stop before this emission
                                     end
+//_printf("[%d] => dt=%d , %d-%d\n", time_now, dt, get, _QUEUE_get);
                                     time_now = time_now + dt;
                                     emit (dt)ms;
                                     emit SDL_DT => dt;
@@ -140,8 +150,10 @@ do
                                         _SDL_Delay(dt*-speed);
                                     end
                                 else/if qu:evt == _CEU_IN_SDL_KEYDOWN then
+//_printf("[%d] => dw=%d , %d-%d\n", time_now, 0, get, _QUEUE_get);
                                     emit SDL_KEYDOWN => qu:param.ptr;
                                 else/if qu:evt == _CEU_IN_SDL_KEYUP then
+//_printf("[%d] => up=%d , %d-%d\n", time_now, 0, get, _QUEUE_get);
                                     emit SDL_KEYUP => qu:param.ptr;
                                 else
                                     _assert(0);
@@ -152,6 +164,7 @@ do
                             end
                             emit SDL_REDRAW;
                         end
+//_printf("=== EO-Seek ===\n");
                         if this.seeking? then
                             this.seeking? = false;
                             emit this.ok;
@@ -183,6 +196,7 @@ do
                             await FOREVER;
                         end
                         var int now = this.time_now;
+//_printf("=======back from now [%d]\n", now);
                         loop i do
                             now = now - 30;
                             if now < 0 then
@@ -334,5 +348,25 @@ do
             }
             assert(0);
         }
+/*
+        void dump () {
+            int i;
+            for (i=0; i<SNAP_put; i++) {
+                tceu_snap snap = SNAP[i];
+                snap_get(snap.time);
+                printf("SNAP[%d]  time=%d  queue=%d\n", i, snap.time, snap.queue);
+                tceu_queue* qu;
+                u32 get = QUEUE_get;
+                int time = snap.time;
+                while (qu = queue_get()) {
+                    printf("|\t[get=%d] [now=%d]  %d=>%d\n",
+                            get, time, qu->evt, qu->param);
+                    if (qu->evt == CEU_IN_SDL_DT)
+                        time += qu->param.v;
+                    get = QUEUE_get;
+                }
+            }
+        }
+*/
     end
 end

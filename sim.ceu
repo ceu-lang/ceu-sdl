@@ -72,6 +72,7 @@ var   bool blur? = false;
 
 par/or do
     await SDL_QUIT_;
+    //_dump();
 with
     loop do
         var _SDL_KeyboardEvent* key = await SDL_KEYDOWN_;
@@ -90,11 +91,11 @@ with
             emit tm.go_on;
 
             par/or do
-                var _SDL_KeyboardEvent* key = await SDL_KEYUP_
-                                              until key:keysym.sym == _SDLK_LALT;
+                key = await SDL_KEYUP_
+                      until key:keysym.sym == _SDLK_LALT;
             with
                 loop do
-                    var _SDL_KeyboardEvent* key = await SDL_KEYDOWN_;
+                    key = await SDL_KEYDOWN_;
                     var int sym2 = key:keysym.sym;
                     if sym2 == _SDLK_LEFT then
                         emit tm.go_backward => 2;

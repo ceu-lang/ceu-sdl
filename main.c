@@ -12,7 +12,7 @@ int CEU_TIMEMACHINE_ON = 0;
 #define CEU_TIMEMACHINE_ON 0
 #endif
 
-#define CEU_SDL_FPS 10
+#define CEU_FPS 50
 
 // definitely lost: 2,478 bytes in 17 blocks
 
@@ -132,7 +132,11 @@ if (!CEU_TIMEMACHINE_ON) {
          * Without SDL_DT, 'tm=?' respects the timers.
          */
 #if defined(CEU_IN_SDL_DT) || defined(CEU_IN_SDL_DT_)
-        s32 tm = (CEU_TIMEMACHINE_ON ? 0 : 30);
+#ifdef CEU_FPS
+        s32 tm = (CEU_TIMEMACHINE_ON ? 0 : (1000/CEU_FPS));
+#else
+        s32 tm = 0;     // as fast as possible
+#endif
 #else
         s32 tm = -1;
 #ifdef CEU_WCLOCKS
@@ -164,13 +168,16 @@ if (!CEU_TIMEMACHINE_ON) {
         old = now;
 
         // DT/WCLOCK/REDRAW respecting FPS (at most)
+        int fps_ok = 1;
+/*
         int fps_ok = !SDL_PollEvent(NULL);
         if (! fps_ok) {
-            if (old >= fps_old+1000/CEU_SDL_FPS) {
+            if (old >= fps_old+1000/CEU_FPS) {
                 fps_old = old;
                 fps_ok = 1;
             }
         }
+*/
 
 #ifdef CEU_THREADS
         // just before executing CEU code
