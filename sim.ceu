@@ -55,6 +55,26 @@ end
 var App app;
 _printf("APP %d\n", sizeof(_CEU_App));
 
+#define TM_INPUT_DT    SDL_DT
+#define TM_INPUT_FRAME SDL_REDRAW
+#define TM_DELAY(v)    _SDL_Delay(v)
+
+#define TM_QUEUE_MAX 60*60*1000        \
+                  * sizeof(tceu_queue) \
+                  / 30 * 2
+/*
+                            // 60min*60sec*1000ms=(1h in ms)
+                            // * minimum size of an event
+                            // 30FPS * 2events/frame
+            // 1h of events with 2 events/frame
+            // 3600*1000 = 3600000 =>/30 = 120000 =>2 = 240000 = 240K events
+*/
+
+#define TM_SNAP
+#define TM_SNAP_MS 2000  /* 10s = 30*10 = at most 300 frames to traverse */
+                         /* 0 means "do not take snaps" */
+#define TM_SNAP_N  6*60  /* 10s*6*60=1h  (360*56K-rocks = 1.8Mb) */
+
 /* The "Time Machine" must be declared after "The Application".
  * The "tm" must record the events *after* the "app" reacts to them.
  */

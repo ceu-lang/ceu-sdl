@@ -18,6 +18,21 @@ var App app;
 #define TM_INPUT_FRAME SDL_REDRAW
 #define TM_DELAY(v)    _SDL_Delay(v)
 
+#define TM_QUEUE_MAX 60*60*1000        \
+                  * sizeof(tceu_queue) \
+                  / 30 * 2
+/*
+                            // 60min*60sec*1000ms=(1h in ms)
+                            // * minimum size of an event
+                            // 30FPS * 2events/frame
+            // 1h of events with 2 events/frame
+            // 3600*1000 = 3600000 =>/30 = 120000 =>2 = 240000 = 240K events
+*/
+
+#define TM_SNAP
+#define TM_SNAP_MS  200
+#define TM_SNAP_N  6*60
+
 #include "timemachine.ceu"
 
 class IOTimeMachine with
@@ -123,6 +138,10 @@ _assert(app.v == 1);
 
 await 500ms_;
 _printf("= -1.5: %d\n", app.v);
+_assert(app.v == 0);
+
+await 1s_;
+_printf("= -2.5: %d\n", app.v);
 _assert(app.v == 0);
 
 escape 0;
