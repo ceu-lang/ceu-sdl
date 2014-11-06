@@ -162,10 +162,20 @@ if (!CEU_TIMEMACHINE_ON) {
             has = SDL_WaitEventTimeout(&evt, tm);
         }
 
+/* TODO: o 1o faz mas sentido, mas so o 2o funciona! */
+/*
+        u32 now = SDL_GetTicks();
+        while (now <= old) {
+            now = SDL_GetTicks();
+        }
+        s32 dt = now - old;
+        old = now;
+*/
         u32 now = SDL_GetTicks();
         if (old == now) now++;      // force a minimum change
         s32 dt = now - old;
         old = now;
+
 
         // DT/WCLOCK/REDRAW respecting FPS (at most)
         int fps_ok = 1;
@@ -189,7 +199,7 @@ if (!CEU_TIMEMACHINE_ON) {
 #endif
         if (fps_ok) {
 #ifdef CEU_WCLOCKS
-#if ! (defined(CEU_IN_SDL_DT) || defined(CEU_IN_SDL_DT))
+#if ! (defined(CEU_IN_SDL_DT) || defined(CEU_IN_SDL_DT_))
             if (WCLOCK_nxt != CEU_WCLOCK_INACTIVE)
             {
                 //redraw = WCLOCK_nxt <= 1000*dt;
@@ -413,7 +423,7 @@ if (!CEU_TIMEMACHINE_ON) {
         }
 
 #ifdef CEU_IN_SDL_REDRAW_
-        //if (redraw && !SDL_PollEvent(NULL)) {
+        //if (redraw && !SDL_PollEvent(NULL))
         if (fps_ok) {
             ceu_sys_go(&app, CEU_IN_SDL_REDRAW_, (tceu_evtp)NULL);
 #ifdef CEU_RET
@@ -424,7 +434,7 @@ if (!CEU_TIMEMACHINE_ON) {
 #endif
 #ifdef CEU_IN_SDL_REDRAW
 if (!CEU_TIMEMACHINE_ON) {
-        //if (redraw && !SDL_PollEvent(NULL)) {
+        //if (redraw && !SDL_PollEvent(NULL))
         if (fps_ok) {
             ceu_sys_go(&app, CEU_IN_SDL_REDRAW, (tceu_evtp)NULL);
 #ifdef CEU_RET

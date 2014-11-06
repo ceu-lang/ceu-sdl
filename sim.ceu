@@ -8,8 +8,8 @@
 
 input void SDL_QUIT_;
 input int  SDL_DT_;
-input _SDL_KeyboardEvent* SDL_KEYDOWN_;
-input _SDL_KeyboardEvent* SDL_KEYUP_;
+input _SDL_KeyboardEvent* SDL_KEYDOWN, SDL_KEYDOWN_;
+input _SDL_KeyboardEvent* SDL_KEYUP,   SDL_KEYUP_;
 
 native do
     SDL_Renderer* REN = NULL;
