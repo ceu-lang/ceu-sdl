@@ -33,18 +33,9 @@ with
     _SDL_DestroyRenderer(_REN);
 end
 
-native do
-    unsigned int* RAND_SEED;
-    #define rand() rand_r(RAND_SEED)
-end
-
 class App with
     event int ok;
 do
-    var uint seed = 0;
-    _RAND_SEED := &seed;
-    _srand(seed);
-
     var int ret = do
         #define _STRINGIFY(X) #X
         #define STRINGIFY(X) _STRINGIFY(X)
