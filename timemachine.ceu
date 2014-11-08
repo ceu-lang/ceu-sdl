@@ -10,8 +10,8 @@ end
 #ifndef TM_INPUT_DT
 #error Missing "TM_INPUT_DT"
 #endif
-#ifndef TM_INPUT_FRAME
-#error Missing "TM_INPUT_FRAME"
+#ifndef TM_INPUT_REDRAW
+#error Missing "TM_INPUT_REDRAW"
 #endif
 #ifndef TM_QUEUE_MAX
 #error Missing "TM_QUEUE_MAX"
@@ -149,7 +149,7 @@ do
                             this.ticking? = true;
                             //_assert(qu != null);
                             if qu:evt == _CEU_IN__WCLOCK then
-                                var int dt = qu:param.v;
+                                var int dt = ((_tceu_queue_dt*)qu):dt;
                                 _assert(dt >= 0);
                                 if time_now+dt > time_req then
                                     _QUEUE_get = get;   // undo get
@@ -166,6 +166,7 @@ do
                                         awt = dt*-speed;
                                     end
 #ifdef TM_DELAY
+#error Are you sure?
                                     TM_DELAY(awt);
 #else
                                     if awt > late then
@@ -187,14 +188,14 @@ do
                             end
                             if speed != 0 then
                                 async do
-                                    emit TM_INPUT_FRAME;
+                                    emit TM_INPUT_REDRAW;
                                 end
                             end
                             this.ticking? = false;
                             emit this.ok_tick;
                         end
                         async do
-                            emit TM_INPUT_FRAME;
+                            emit TM_INPUT_REDRAW;
                         end
                         if this.seeking? then
                             this.seeking? = false;
@@ -266,6 +267,10 @@ do
     native do
         typedef struct {
             tceu_nevt evt;
+            u8        dt;
+        } tceu_queue_dt;
+        typedef struct {
+            tceu_nevt evt;
             tceu_evtp param;
             s32       sz;
             byte      buf[0];
@@ -278,25 +283,15 @@ do
 
         int queue_put (tceu_nevt evt, tceu_evtp param,
                                int sz, byte* buf) {
-            int n = sizeof(tceu_queue) + sz;
+            int n = (evt==CEU_IN__WCLOCK) ?  sizeof(tceu_queue_dt) :
+                                             sizeof(tceu_queue) + sz;
+            assert(QUEUE_tot+n <= TM_QUEUE_MAX);
 
-            if (QUEUE_tot+n > TM_QUEUE_MAX) {
-                assert(0);
-                /*return 0;   TODO: add event FULL when TM_QUEUE_MAX-1 */
-            }
-
-            /* An event+data must be continuous in the QUEUE. */
-            if (QUEUE_put+n+sizeof(tceu_queue)>=TM_QUEUE_MAX && evt!=CEU_IN__NONE) {
-                assert(0);
-                int fill = TM_QUEUE_MAX - QUEUE_put - sizeof(tceu_queue);
-                tceu_queue* qu = (tceu_queue*) &QUEUE[QUEUE_put];
-                qu->evt = CEU_IN__NONE;
-                qu->sz  = fill;
-                QUEUE_put += sizeof(tceu_queue) + fill;
-                QUEUE_tot += sizeof(tceu_queue) + fill;
-            }
-
-            {
+            if (evt == CEU_IN__WCLOCK) {
+                tceu_queue_dt* qu = (tceu_queue_dt*) &QUEUE[QUEUE_put];
+                qu->evt = evt;
+                qu->dt  = param.v;
+            } else {
                 tceu_queue* qu = (tceu_queue*) &QUEUE[QUEUE_put];
                 qu->evt = evt;
                 qu->sz  = sz;
@@ -310,6 +305,7 @@ do
                     memcpy(qu->buf, buf, sz);
                 }
             }
+
             QUEUE_put += n;
             QUEUE_tot += n;
 
@@ -322,7 +318,11 @@ do
             } else {
                 assert(QUEUE_tot > 0);
                 tceu_queue* qu = (tceu_queue*) &QUEUE[QUEUE_get];
-                QUEUE_get += sizeof(tceu_queue) + qu->sz;
+                if (qu->evt == CEU_IN__WCLOCK) {
+                    QUEUE_get += sizeof(tceu_queue_dt);
+                } else {
+                    QUEUE_get += sizeof(tceu_queue) + qu->sz;
+                }
                 return qu;
             }
         }
@@ -376,6 +376,7 @@ do
                 }
             }
             assert(0);
+            return 0;
         }
     end
 end

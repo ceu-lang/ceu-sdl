@@ -14,9 +14,8 @@ do
 end
 var App app;
 
-#define TM_INPUT_DT    SDL_DT
-#define TM_INPUT_FRAME SDL_REDRAW
-#define TM_DELAY(v)    _SDL_Delay(v)
+#define TM_INPUT_DT     SDL_DT
+#define TM_INPUT_REDRAW SDL_REDRAW
 
 #define TM_QUEUE_MAX 60*60*1000        \
                   * sizeof(tceu_queue) \
@@ -106,6 +105,7 @@ _printf("= TM ON\n");
 
 emit tm.go_seek => 0;
 TM_AWAIT_SEEK(tm);
+_assert(_QUEUE_get == 0);
 _printf("= seek: %d\n", app.v);
 _assert(app.v == 0);
 

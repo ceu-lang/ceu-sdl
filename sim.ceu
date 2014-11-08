@@ -55,9 +55,9 @@ end
 var App app;
 _printf("APP %d\n", sizeof(_CEU_App));
 
-#define TM_INPUT_DT    SDL_DT
-#define TM_INPUT_FRAME SDL_REDRAW
-#define TM_DELAY(v)    _SDL_Delay(v)
+#define TM_INPUT_DT     SDL_DT
+#define TM_INPUT_REDRAW SDL_REDRAW
+//#define TM_DELAY(v)    _SDL_Delay(v)
 
 #define TM_QUEUE_MAX 60*60*1000        \
                   * sizeof(tceu_queue) \
