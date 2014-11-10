@@ -3,8 +3,6 @@
 input void SDL_REDRAW;
 input void SDL_QUIT;
 
-#ifndef CEU_TIMEMACHINE
-
 native do
     SDL_Renderer* REN = NULL;
     int REN_W, REN_H;
@@ -27,8 +25,6 @@ finalize
 with
     _SDL_DestroyRenderer(_REN);
 end
-
-#endif
 
 var _SDL_Rect bg;
     bg.w = _REN_W;

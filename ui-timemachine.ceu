@@ -67,10 +67,12 @@ class UITimeMachine with
 
     event void go_redraw;
 do
-    var int x = _REN_W/4;
-    var int w = _REN_W - x*2;
-    var int h = _REN_H/80;
-    var int y = _REN_H - h*2;
+    var int ren_w, ren_h;
+    _SDL_GetRendererOutputSize(_REN, &ren_w, &ren_h);
+    var int x = ren_w/4;
+    var int w = ren_w - x*2;
+    var int h = ren_h/80;
+    var int y = ren_h - h*2;
 
     var _SDL_Rect r;
         r.x = x;
@@ -80,9 +82,9 @@ do
 
     var _SDL_Rect rc;
         rc.w = w*2 / 3;
-        rc.x = _REN_W/2 - rc.w/2;
-        rc.y = y - _REN_H/10 - _REN_H/80;
-        rc.h = _REN_H/10;
+        rc.x = ren_w/2 - rc.w/2;
+        rc.y = y - ren_h/10 - ren_h/80;
+        rc.h = ren_h/10;
 
     var _SDL_Rect[_TEX_N] rcs;
     do

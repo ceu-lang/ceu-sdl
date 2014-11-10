@@ -6,36 +6,27 @@
 // BUG tempo
 // BUG pause/if
 
-input void SDL_QUIT_;
-input int  SDL_DT_;
+input void SDL_QUIT, SDL_QUIT_;
+input int  SDL_DT, SDL_DT_;
 input _SDL_KeyboardEvent* SDL_KEYDOWN, SDL_KEYDOWN_;
 input _SDL_KeyboardEvent* SDL_KEYUP,   SDL_KEYUP_;
+input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN,   SDL_MOUSEBUTTONDOWN_;
 
+#include "c.ceu"
 native do
-    SDL_Renderer* REN = NULL;
-    int REN_W, REN_H;
-end
-
-var _SDL_Window[] win;
-    finalize
-        win = _SDL_CreateWindow("CEU-SDL", _SDL_WINDOWPOS_CENTERED,
-                                           _SDL_WINDOWPOS_CENTERED,
-                                           800, 480,
-                                           _SDL_WINDOW_SHOWN);
-    with
-        _SDL_DestroyWindow(win);
-    end
-_SDL_GetWindowSize(win, &_REN_W, &_REN_H);
-
-finalize
-    _REN = _SDL_CreateRenderer(win, -1, 0);
-with
-    _SDL_DestroyRenderer(_REN);
+    ##include <time.h>
+    unsigned int* RAND_SEED;
+    #define rand() rand_r(RAND_SEED)
 end
 
 class App with
     event int ok;
 do
+    var uint seed = _time(null);
+    _RAND_SEED := &seed;
+    _srand(seed);
+    #define srand(x)
+
     var int ret = do
         #define _STRINGIFY(X) #X
         #define STRINGIFY(X) _STRINGIFY(X)
@@ -66,13 +57,67 @@ _printf("APP %d\n", sizeof(_CEU_App));
                          /* 0 means "do not take snaps" */
 #define TM_SNAP_N  6*60  /* 10s*6*60=1h  (360*56K-rocks = 1.8Mb) */
 
+#include "timemachine.ceu"
+#include "ui-timemachine.ceu"
+
+class IOTimeMachine with
+    interface IIOTimeMachine;
+do
+    par do
+        loop do
+            // starts off
+            watching this.go_on do
+                par do
+                    var _SDL_KeyboardEvent* key;
+                    every key in SDL_KEYDOWN do
+                        _queue_put(_CEU_IN_SDL_KEYDOWN, _CEU_EVTP(null),
+                                   sizeof(_SDL_KeyboardEvent), (byte*)key);
+                    end
+                with
+                    var _SDL_KeyboardEvent* key;
+                    every key in SDL_KEYUP do
+                        _queue_put(_CEU_IN_SDL_KEYUP, _CEU_EVTP(null),
+                                   sizeof(_SDL_KeyboardEvent), (byte*)key);
+                    end
+                with
+                    var _SDL_MouseButtonEvent* mse;
+                    every mse in SDL_MOUSEBUTTONDOWN do
+                        _queue_put(_CEU_IN_SDL_MOUSEBUTTONDOWN, _CEU_EVTP(null),
+                                   sizeof(_SDL_MouseButtonEvent), (byte*)mse);
+                    end
+                end
+            end
+            await this.go_off;
+        end
+    with
+        var _tceu_queue[] qu;   // TODO: ptr across await p/ else/if
+        every qu in this.go_queue do
+            if qu:evt == _CEU_IN_SDL_KEYDOWN then
+                async(qu) do
+                    emit SDL_KEYDOWN => qu:param.ptr;
+                end
+            else/if qu:evt == _CEU_IN_SDL_KEYUP then
+                async(qu) do
+                    emit SDL_KEYUP => qu:param.ptr;
+                end
+            else/if qu:evt == _CEU_IN_SDL_MOUSEBUTTONDOWN then
+                async(qu) do
+                    emit SDL_MOUSEBUTTONDOWN => qu:param.ptr;
+                end
+            else
+                _assert(0);
+            end
+        end
+    end
+end
+var IOTimeMachine io;
+
 /* The "Time Machine" must be declared after "The Application".
  * The "tm" must record the events *after* the "app" reacts to them.
  */
-#include "timemachine.ceu"
-#include "ui-timemachine.ceu"
 var TimeMachine tm with
     this.app = app;
+    this.io  = io;
 end;
 var UITimeMachine uitm with
     this.tm = tm;
@@ -125,10 +170,12 @@ with
         end
     end
 with
+    var int ren_w, ren_h;
+    _SDL_GetRendererOutputSize(_REN, &ren_w, &ren_h);
     every SDL_REDRAW do
         emit uitm.go_redraw;
         if blur? then
-            _boxRGBA(_REN, 0, 0, _REN_W, _REN_H, 0xAA,0x88,0x88,0x88);
+            _boxRGBA(_REN, 0, 0, ren_w, ren_h, 0xAA,0x88,0x88,0x88);
         end
         _SDL_RenderPresent(_REN);
     end
