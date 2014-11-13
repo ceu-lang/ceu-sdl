@@ -11,8 +11,6 @@ input int  SDL_DT;
 
 #ifndef ALL
 
-#ifndef CEU_TIMEMACHINE
-
 native do
     SDL_Renderer* REN = NULL;
     int REN_W, REN_H;
@@ -35,8 +33,6 @@ finalize
 with
     _SDL_DestroyRenderer(_REN);
 end
-
-#endif
 
 #else
 
