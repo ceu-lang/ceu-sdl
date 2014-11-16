@@ -80,9 +80,7 @@ with
         _roundedBoxRGBA(_REN, 520,220, 570,270, 4, 0,0xFF,0, 0xBB);
         _roundedRectangleRGBA(_REN, 540,240, 590,290, 8, 0xFF,0x0,0, 0x99);
 
-#ifndef CEU_TIMEMACHINE
         _SDL_RenderPresent(_REN);
-#endif
     end
 end
 

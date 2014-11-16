@@ -63,9 +63,7 @@ with
         _SDL_SetRenderDrawColor(_REN, fg_clr.r,fg_clr.g,fg_clr.b,0xFF);
         _SDL_RenderFillRect(_REN, &fg);
 
-#ifndef CEU_TIMEMACHINE
         _SDL_RenderPresent(_REN);
-#endif
     end
 end
 

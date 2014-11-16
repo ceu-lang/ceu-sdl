@@ -96,7 +96,7 @@ with
         par/or do
             pause/if go_pause_all do
                 do
-                    pool Rect[] rs;
+                    pool Rect[50] rs;
                     every 1s do
                         native _rand();
                         spawn Rect in rs with
@@ -120,12 +120,10 @@ with
             end
         end
     end
-#ifndef CEU_TIMEMACHINE
 with
     every SDL_REDRAW do
         _SDL_RenderPresent(_REN);
     end
-#endif
 end
 
 escape 0;

@@ -8,14 +8,14 @@ all:
 		-o $(basename $(CEUFILE)).exe
 
 sim:
-	ceu --cpp-args "-I . -DCEU_TIMEMACHINE -DCEUFILE=$(CEUFILE)" sim.ceu
+	ceu --timemachine --cpp-args "-I . -DCEUFILE=$(CEUFILE)" sim.ceu
 	#gcc main.c $(CFLAGS) -lSDL2
 	gcc -g -Os -DCEU_TIMEMACHINE $(CFLAGS) main.c -lpthread -lm \
 		-lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lSDL2_net -lSDL2_gfx \
 		-o $(basename $(CEUFILE)).exe
 
 sim-tst:
-	ceu --cpp-args "-I . -DCEU_TIMEMACHINE" sim-tst.ceu
+	ceu ---timemachine -cpp-args "-I . -DCEU_TIMEMACHINE" sim-tst.ceu
 	#gcc main.c $(CFLAGS) -lSDL2
 	gcc -g -Os -DCEU_TIMEMACHINE $(CFLAGS) main.c -lpthread -lm \
 		-lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lSDL2_net -lSDL2_gfx \

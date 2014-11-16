@@ -103,9 +103,7 @@ with
         _SDL_RenderFillRect(_REN, &bg);
         _SDL_RenderCopy(_REN, tex, null, &tex_r);
         _SDL_RenderCopy(_REN, str_tex, null, &str_r);
-#ifndef CEU_TIMEMACHINE
         _SDL_RenderPresent(_REN);
-#endif
     end
 end
 

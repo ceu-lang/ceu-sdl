@@ -43,9 +43,7 @@ int CEU_TIMEMACHINE_ON = 0;
 #include "_ceu_app.h"
 
 s32 WCLOCK_nxt;
-#if ! (defined(CEU_IN_SDL_DT) || defined(CEU_IN_SDL_DT_))
 #define ceu_out_wclock_set(us) WCLOCK_nxt = us;
-#endif
 
 #include "_ceu_app.c"
 
@@ -162,7 +160,7 @@ if (!CEU_TIMEMACHINE_ON) {
             has = SDL_WaitEventTimeout(&evt, tm);
         }
 
-/* TODO: o 1o faz mas sentido, mas so o 2o funciona! */
+/* TODO: o 1o faz mais sentido, mas so o 2o funciona! */
 /*
         u32 now = SDL_GetTicks();
         while (now <= old) {
@@ -172,8 +170,8 @@ if (!CEU_TIMEMACHINE_ON) {
         old = now;
 */
         u32 now = SDL_GetTicks();
-        if (old == now) now++;      // force a minimum change
         s32 dt = now - old;
+        assert(dt >= 0);
         old = now;
 
 

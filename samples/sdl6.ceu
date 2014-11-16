@@ -167,12 +167,10 @@ with
     end
 /*
 */
-#ifndef CEU_TIMEMACHINE
 with
     every SDL_REDRAW do
         _SDL_RenderPresent(_REN);        // DRAW 3: update screen
     end
-#endif
 with
     /* calculate FPS */
     loop do

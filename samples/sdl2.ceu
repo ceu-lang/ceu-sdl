@@ -88,12 +88,10 @@ with
 
         await 10s;
     end
-#ifndef CEU_TIMEMACHINE
 with
     every SDL_REDRAW do
         _SDL_RenderPresent(_REN);
     end
-#endif
 end
 
 escape 0;
