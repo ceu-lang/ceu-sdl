@@ -47,6 +47,8 @@ s32 WCLOCK_nxt;
 
 #include "_ceu_app.c"
 
+static char CEU_DATA[sizeof(CEU_Main)];
+
 #ifdef __ANDROID__
 int SDL_main (int argc, char *argv[])
 #else
@@ -68,7 +70,6 @@ int main (int argc, char *argv[])
     CEU_THREADS_MUTEX_LOCK(&CEU.threads_mutex);
 #endif
 
-    char CEU_DATA[sizeof(CEU_Main)];
     tceu_app app;
         app.data = (tceu_org*) &CEU_DATA;
         app.init = &ceu_app_init;
