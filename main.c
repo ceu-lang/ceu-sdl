@@ -81,7 +81,7 @@ int main (int argc, char *argv[])
 #endif
 
 #ifdef CEU_IN_OS_START_
-    ceu_sys_go(&app, CEU_IN_OS_START_, (tceu_evtp)NULL);
+    ceu_sys_go(&app, CEU_IN_OS_START_, NULL);
 #ifdef CEU_RET
     if (! app.isAlive)
         goto END;
@@ -89,7 +89,7 @@ int main (int argc, char *argv[])
 #endif
 #ifdef CEU_IN_OS_START
 if (!CEU_TIMEMACHINE_ON) {
-    ceu_sys_go(&app, CEU_IN_OS_START, (tceu_evtp)NULL);
+    ceu_sys_go(&app, CEU_IN_OS_START, NULL);
 #ifdef CEU_RET
     if (! app.isAlive)
         goto END;
@@ -98,7 +98,7 @@ if (!CEU_TIMEMACHINE_ON) {
 #endif
 
 #ifdef CEU_IN_SDL_REDRAW_
-    ceu_sys_go(&app, CEU_IN_SDL_REDRAW_, (tceu_evtp)NULL);
+    ceu_sys_go(&app, CEU_IN_SDL_REDRAW_, NULL);
 #ifdef CEU_RET
     if (! app.isAlive)
         goto END;
@@ -106,7 +106,7 @@ if (!CEU_TIMEMACHINE_ON) {
 #endif
 #ifdef CEU_IN_SDL_REDRAW
 if (!CEU_TIMEMACHINE_ON) {
-    ceu_sys_go(&app, CEU_IN_SDL_REDRAW, (tceu_evtp)NULL);
+    ceu_sys_go(&app, CEU_IN_SDL_REDRAW, NULL);
 #ifdef CEU_RET
     if (! app.isAlive)
         goto END;
@@ -171,8 +171,9 @@ if (!CEU_TIMEMACHINE_ON) {
         old = now;
 */
         u32 now = SDL_GetTicks();
-        s32 dt = now - old;
-        assert(dt >= 0);
+        s32 dt_ms = now - old;
+        s32 dt_us = dt_ms*1000;
+        assert(dt_ms >= 0);
         old = now;
 
 
@@ -201,17 +202,18 @@ if (!CEU_TIMEMACHINE_ON) {
 #if ! (defined(CEU_IN_SDL_DT) || defined(CEU_IN_SDL_DT_))
             if (WCLOCK_nxt != CEU_WCLOCK_INACTIVE)
             {
-                //redraw = WCLOCK_nxt <= 1000*dt;
+                //redraw = WCLOCK_nxt <= dt_us;
 #endif
 #ifdef CEU_TIMEMACHINE
 //#ifdef CEU_IN__WCLOCK_ (TODO: always defined)
-                ceu_sys_go(&app, CEU_IN__WCLOCK_, (tceu_evtp)(1000*dt));
+                ceu_sys_go(&app, CEU_IN__WCLOCK_, &dt_us);
 #ifdef CEU_RET
                 if (! app.isAlive)
                     goto END;
 #endif
                 while (WCLOCK_nxt <= 0) {
-                    ceu_sys_go(&app, CEU_IN__WCLOCK_, (tceu_evtp)0);
+                    s32 dt_us = 0;
+                    ceu_sys_go(&app, CEU_IN__WCLOCK_, &dt_us);
 #ifdef CEU_RET
                     if (! app.isAlive)
                         goto END;
@@ -219,13 +221,14 @@ if (!CEU_TIMEMACHINE_ON) {
                 }
 #endif
 if (!CEU_TIMEMACHINE_ON) {
-                ceu_sys_go(&app, CEU_IN__WCLOCK, (tceu_evtp)(1000*dt));
+                ceu_sys_go(&app, CEU_IN__WCLOCK, &dt_us);
 #ifdef CEU_RET
                 if (! app.isAlive)
                     goto END;
 #endif
                 while (WCLOCK_nxt <= 0) {
-                    ceu_sys_go(&app, CEU_IN__WCLOCK, (tceu_evtp)0);
+                    s32 dt_us = 0;
+                    ceu_sys_go(&app, CEU_IN__WCLOCK, &dt_us);
 #ifdef CEU_RET
                     if (! app.isAlive)
                         goto END;
@@ -239,7 +242,7 @@ if (!CEU_TIMEMACHINE_ON) {
 
 #ifdef CEU_IN_SDL_DT_
             if (fps_ok) {
-                ceu_sys_go(&app, CEU_IN_SDL_DT_, (tceu_evtp)dt);
+                ceu_sys_go(&app, CEU_IN_SDL_DT_, &dt_ms);
             }
 #ifdef CEU_RET
             if (! app.isAlive)
@@ -250,7 +253,7 @@ if (!CEU_TIMEMACHINE_ON) {
 #ifdef CEU_IN_SDL_DT
 if (!CEU_TIMEMACHINE_ON) {
             if (fps_ok) {
-                ceu_sys_go(&app, CEU_IN_SDL_DT, (tceu_evtp)dt);
+                ceu_sys_go(&app, CEU_IN_SDL_DT, &dt_ms);
             }
 #ifdef CEU_RET
             if (! app.isAlive)
@@ -265,125 +268,125 @@ if (!CEU_TIMEMACHINE_ON) {
         if (has)
         {
             int handled = 1;        // =1 for defined events
-            tceu_evtp evtp = (tceu_evtp)(void*)&evt;
+            SDL_Event* evtp = &evt;
             switch (evt.type) {
                 case SDL_QUIT:
 #ifdef CEU_IN_SDL_QUIT_
-                    ceu_sys_go(&app, CEU_IN_SDL_QUIT_, evtp);
+                    ceu_sys_go(&app, CEU_IN_SDL_QUIT_, &evtp);
 #endif
 #ifdef CEU_IN_SDL_QUIT
 if (!CEU_TIMEMACHINE_ON) {
-                    ceu_sys_go(&app, CEU_IN_SDL_QUIT, evtp);
+                    ceu_sys_go(&app, CEU_IN_SDL_QUIT, &evtp);
 }
 #endif
                     break;
                 case SDL_WINDOWEVENT:
 #ifdef CEU_IN_SDL_WINDOWEVENT_
-                    ceu_sys_go(&app, CEU_IN_SDL_WINDOWEVENT_, evtp);
+                    ceu_sys_go(&app, CEU_IN_SDL_WINDOWEVENT_, &evtp);
 #endif
 #ifdef CEU_IN_SDL_WINDOWEVENT
 if (!CEU_TIMEMACHINE_ON) {
-                    ceu_sys_go(&app, CEU_IN_SDL_WINDOWEVENT, evtp);
+                    ceu_sys_go(&app, CEU_IN_SDL_WINDOWEVENT, &evtp);
 }
 #endif
                     break;
                 case SDL_KEYDOWN:
 #ifdef CEU_IN_SDL_KEYDOWN_
-                    ceu_sys_go(&app, CEU_IN_SDL_KEYDOWN_, evtp);
+                    ceu_sys_go(&app, CEU_IN_SDL_KEYDOWN_, &evtp);
 #endif
 #ifdef CEU_IN_SDL_KEYDOWN
 if (!CEU_TIMEMACHINE_ON) {
-                    ceu_sys_go(&app, CEU_IN_SDL_KEYDOWN, evtp);
+                    ceu_sys_go(&app, CEU_IN_SDL_KEYDOWN, &evtp);
 }
 #endif
                     break;
                 case SDL_KEYUP:
 #ifdef CEU_IN_SDL_KEYUP_
-                    ceu_sys_go(&app, CEU_IN_SDL_KEYUP_, evtp);
+                    ceu_sys_go(&app, CEU_IN_SDL_KEYUP_, &evtp);
 #endif
 #ifdef CEU_IN_SDL_KEYUP
 if (!CEU_TIMEMACHINE_ON) {
-                    ceu_sys_go(&app, CEU_IN_SDL_KEYUP, evtp);
+                    ceu_sys_go(&app, CEU_IN_SDL_KEYUP, &evtp);
 }
 #endif
                     break;
                 case SDL_TEXTINPUT:
 #ifdef CEU_IN_SDL_TEXTINPUT_
-                    ceu_sys_go(&app, CEU_IN_SDL_TEXTINPUT_, evtp);
+                    ceu_sys_go(&app, CEU_IN_SDL_TEXTINPUT_, &evtp);
 #endif
 #ifdef CEU_IN_SDL_TEXTINPUT
 if (!CEU_TIMEMACHINE_ON) {
-                    ceu_sys_go(&app, CEU_IN_SDL_TEXTINPUT, evtp);
+                    ceu_sys_go(&app, CEU_IN_SDL_TEXTINPUT, &evtp);
 }
 #endif
                     break;
                 case SDL_TEXTEDITING:
 #ifdef CEU_IN_SDL_TEXTEDITING_
-                    ceu_sys_go(&app, CEU_IN_SDL_TEXTEDITING_, evtp);
+                    ceu_sys_go(&app, CEU_IN_SDL_TEXTEDITING_, &evtp);
 #endif
 #ifdef CEU_IN_SDL_TEXTEDITING
 if (!CEU_TIMEMACHINE_ON) {
-                    ceu_sys_go(&app, CEU_IN_SDL_TEXTEDITING, evtp);
+                    ceu_sys_go(&app, CEU_IN_SDL_TEXTEDITING, &evtp);
 }
 #endif
                     break;
                 case SDL_MOUSEMOTION:
 #ifdef CEU_IN_SDL_MOUSEMOTION_
-                    ceu_sys_go(&app, CEU_IN_SDL_MOUSEMOTION_, evtp);
+                    ceu_sys_go(&app, CEU_IN_SDL_MOUSEMOTION_, &evtp);
 #endif
 #ifdef CEU_IN_SDL_MOUSEMOTION
 if (!CEU_TIMEMACHINE_ON) {
-                    ceu_sys_go(&app, CEU_IN_SDL_MOUSEMOTION, evtp);
+                    ceu_sys_go(&app, CEU_IN_SDL_MOUSEMOTION, &evtp);
 }
 #endif
                     break;
                 case SDL_MOUSEBUTTONDOWN:
 #ifdef CEU_IN_SDL_MOUSEBUTTONDOWN_
-                    ceu_sys_go(&app, CEU_IN_SDL_MOUSEBUTTONDOWN_, evtp);
+                    ceu_sys_go(&app, CEU_IN_SDL_MOUSEBUTTONDOWN_, &evtp);
 #endif
 #ifdef CEU_IN_SDL_MOUSEBUTTONDOWN
 if (!CEU_TIMEMACHINE_ON) {
-                    ceu_sys_go(&app, CEU_IN_SDL_MOUSEBUTTONDOWN, evtp);
+                    ceu_sys_go(&app, CEU_IN_SDL_MOUSEBUTTONDOWN, &evtp);
 }
 #endif
                     break;
                 case SDL_MOUSEBUTTONUP:
 #ifdef CEU_IN_SDL_MOUSEBUTTONUP_
-                    ceu_sys_go(&app, CEU_IN_SDL_MOUSEBUTTONUP_, evtp);
+                    ceu_sys_go(&app, CEU_IN_SDL_MOUSEBUTTONUP_, &evtp);
 #endif
 #ifdef CEU_IN_SDL_MOUSEBUTTONUP
 if (!CEU_TIMEMACHINE_ON) {
-                    ceu_sys_go(&app, CEU_IN_SDL_MOUSEBUTTONUP, evtp);
+                    ceu_sys_go(&app, CEU_IN_SDL_MOUSEBUTTONUP, &evtp);
 }
 #endif
                     break;
                 case SDL_FINGERDOWN:
 #ifdef CEU_IN_SDL_FINGERDOWN_
-                    ceu_sys_go(&app, CEU_IN_SDL_FINGERDOWN_, evtp);
+                    ceu_sys_go(&app, CEU_IN_SDL_FINGERDOWN_, &evtp);
 #endif
 #ifdef CEU_IN_SDL_FINGERDOWN
 if (!CEU_TIMEMACHINE_ON) {
-                    ceu_sys_go(&app, CEU_IN_SDL_FINGERDOWN, evtp);
+                    ceu_sys_go(&app, CEU_IN_SDL_FINGERDOWN, &evtp);
 }
 #endif
                     break;
                 case SDL_FINGERUP:
 #ifdef CEU_IN_SDL_FINGERUP_
-                    ceu_sys_go(&app, CEU_IN_SDL_FINGERUP_, evtp);
+                    ceu_sys_go(&app, CEU_IN_SDL_FINGERUP_, &evtp);
 #endif
 #ifdef CEU_IN_SDL_FINGERUP
 if (!CEU_TIMEMACHINE_ON) {
-                    ceu_sys_go(&app, CEU_IN_SDL_FINGERUP, evtp);
+                    ceu_sys_go(&app, CEU_IN_SDL_FINGERUP, &evtp);
 }
 #endif
                     break;
                 case SDL_FINGERMOTION:
 #ifdef CEU_IN_SDL_FINGERMOTION_
-                    ceu_sys_go(&app, CEU_IN_SDL_FINGERMOTION_, evtp);
+                    ceu_sys_go(&app, CEU_IN_SDL_FINGERMOTION_, &evtp);
 #endif
 #ifdef CEU_IN_SDL_FINGERMOTION
 if (!CEU_TIMEMACHINE_ON) {
-                    ceu_sys_go(&app, CEU_IN_SDL_FINGERMOTION, evtp);
+                    ceu_sys_go(&app, CEU_IN_SDL_FINGERMOTION, &evtp);
 }
 #endif
                     break;
@@ -396,7 +399,7 @@ if (!CEU_TIMEMACHINE_ON) {
                     isPaused = 1;
 #endif
 #ifdef CEU_IN_SDL_APP_WILLENTERBACKGROUND
-                    ceu_sys_go(&app, CEU_IN_SDL_APP_WILLENTERBACKGROUND, evtp);
+                    ceu_sys_go(&app, CEU_IN_SDL_APP_WILLENTERBACKGROUND, &evtp);
 #endif
                     break;
 #endif
@@ -408,7 +411,7 @@ if (!CEU_TIMEMACHINE_ON) {
                     old = SDL_GetTicks();   // ignores previous 'old' on resume
 #endif
 #ifdef CEU_IN_SDL_APP_WILLENTERFOREGROUND
-                    ceu_sys_go(&app, CEU_IN_SDL_APP_WILLENTERFOREGROUND, evtp);
+                    ceu_sys_go(&app, CEU_IN_SDL_APP_WILLENTERFOREGROUND, &evtp);
 #endif
                     break;
 #endif
@@ -424,7 +427,7 @@ if (!CEU_TIMEMACHINE_ON) {
 #ifdef CEU_IN_SDL_REDRAW_
         //if (redraw && !SDL_PollEvent(NULL))
         if (fps_ok) {
-            ceu_sys_go(&app, CEU_IN_SDL_REDRAW_, (tceu_evtp)NULL);
+            ceu_sys_go(&app, CEU_IN_SDL_REDRAW_, NULL);
 #ifdef CEU_RET
             if (! app.isAlive)
                 goto END;
@@ -435,7 +438,7 @@ if (!CEU_TIMEMACHINE_ON) {
 if (!CEU_TIMEMACHINE_ON) {
         //if (redraw && !SDL_PollEvent(NULL))
         if (fps_ok) {
-            ceu_sys_go(&app, CEU_IN_SDL_REDRAW, (tceu_evtp)NULL);
+            ceu_sys_go(&app, CEU_IN_SDL_REDRAW, NULL);
 #ifdef CEU_RET
             if (! app.isAlive)
                 goto END;
@@ -447,7 +450,7 @@ if (!CEU_TIMEMACHINE_ON) {
 /* TODO: "_" events */
 #ifdef CEU_ASYNCS
         if (app.pendingAsyncs) {
-            ceu_sys_go(&app, CEU_IN__ASYNC, (tceu_evtp)NULL);
+            ceu_sys_go(&app, CEU_IN__ASYNC, NULL);
 #ifdef CEU_RET
             if (! app.isAlive)
                 goto END;

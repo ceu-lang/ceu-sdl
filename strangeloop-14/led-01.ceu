@@ -8,7 +8,7 @@ input void SDL_QUIT;
 
 var int win_w;
 var int win_h;
-var _SDL_Window* win;
+var _SDL_Window[] win;
     finalize
         win = _SDL_CreateWindow("LED - 01 (blinking)",
                 _SDL_WINDOWPOS_UNDEFINED, _SDL_WINDOWPOS_UNDEFINED,

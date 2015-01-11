@@ -11,7 +11,7 @@ input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
 
 var int win_w;
 var int win_h;
-var _SDL_Window* win;
+var _SDL_Window[] win;
     finalize
         win = _SDL_CreateWindow("DEMO",
                 _SDL_WINDOWPOS_UNDEFINED, _SDL_WINDOWPOS_UNDEFINED,
