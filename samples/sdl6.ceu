@@ -16,27 +16,27 @@ native do
     int REN_W, REN_H;
 end
 
-var _SDL_Window[] win;
+var _SDL_Window& win;
     finalize
         win = _SDL_CreateWindow("SDL 6", _SDL_WINDOWPOS_CENTERED,
                                          _SDL_WINDOWPOS_CENTERED,
                                          1024, 768,
                                          _SDL_WINDOW_SHOWN);
     with
-        _SDL_DestroyWindow(win);
+        _SDL_DestroyWindow(&win);
     end
 
-_SDL_GetWindowSize(win, &_REN_W, &_REN_H);
+_SDL_GetWindowSize(&win, &_REN_W, &_REN_H);
 
 finalize
-    _REN = _SDL_CreateRenderer(win, -1, 0);
+    _REN = _SDL_CreateRenderer(&win, -1, 0);
 with
     _SDL_DestroyRenderer(_REN);
 end
 
 #else
 
-_SDL_SetWindowTitle(win, "40k trails");
+_SDL_SetWindowTitle(&win, "40k trails");
 
 #define _REN ren
 
@@ -45,9 +45,9 @@ _SDL_SetWindowTitle(win, "40k trails");
 /* Maximum of 10k Rectangles on a dedicated memory pool */
 
 class Rect with
-    var _SDL_Rect  rct;         // My initial values
-    var int        vel;         // I have a speed set from outside
-    var _SDL_Renderer[] ren;    // I redraw myself
+    var _SDL_Rect  rct;        // My initial values
+    var int        vel;        // I have a speed set from outside
+    var _SDL_Renderer& ren;    // I redraw myself
 do
     this.rct.w = 25;
     this.rct.h = 25;
@@ -111,8 +111,8 @@ do
     with
         /* redraw myself every frame */
         every SDL_REDRAW do
-            _SDL_SetRenderDrawColor(ren, clr.r,clr.g,clr.b,0xFF);
-            _SDL_RenderFillRect(ren, &rct);
+            _SDL_SetRenderDrawColor(&ren, clr.r,clr.g,clr.b,0xFF);
+            _SDL_RenderFillRect(&ren, &rct);
         end
     end
 end

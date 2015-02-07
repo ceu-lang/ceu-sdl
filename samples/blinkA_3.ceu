@@ -1,3 +1,5 @@
+OSOLETE EXAMPLE
+
 native @nohold _printf();
 
 input void SDL_QUIT;
