@@ -30,8 +30,8 @@ class UIGrid with
     interface UI;
 
     var _SDL_Renderer&  ren;
-    var   bool          redim?    = true;
-    var   _SDL_Color&   bg_clr    = *(_SDL_Color*)null;  // TODO
+    var   bool          redim?  = true;
+    var   _SDL_Color&?  bg_clr? = nil;
 
     var int align_x    = _UI_ALIGN_LEFT;
     var int align_y    = _UI_ALIGN_TOP;
@@ -41,12 +41,12 @@ class UIGrid with
     event int           ok_uiclicked;
 
     // TODO: clr_bg vs bg_clr
-    var   _SDL_Color&  clr_bg      = *(_SDL_Color*)null; // whole UI background
-    var   _SDL_Color&  clr_fr      = *(_SDL_Color*)null; // whole UI frame
-    var   _SDL_Color&  clr_cell_bg = *(_SDL_Color*)null; // each cell background
-    var   _SDL_Color&  clr_cell_fr = *(_SDL_Color*)null; // each cell frame
-    var   _SDL_Color&  clr_ui_bg   = *(_SDL_Color*)null; // each UI background (if existent)
-    var   _SDL_Color&  clr_ui_fr   = *(_SDL_Color*)null; // each UI frame (if existent)
+    var   _SDL_Color&? clr_bg?      = nil; // whole UI background
+    var   _SDL_Color&? clr_fr?      = nil; // whole UI frame
+    var   _SDL_Color&? clr_cell_bg? = nil; // each cell background
+    var   _SDL_Color&? clr_cell_fr? = nil; // each cell frame
+    var   _SDL_Color&? clr_ui_bg?   = nil; // each UI background (if existent)
+    var   _SDL_Color&? clr_ui_fr?   = nil; // each UI frame (if existent)
 
     //var   int           one_x=0, one_y=0;
     var   int            spc_x=0, spc_y=0;
@@ -59,21 +59,19 @@ class UIGrid with
     pool  UIGridItem[]   uis;
     var   int            uis_n = 0;
 do
-    var _SDL_Rect& cell_rects;
+    var _SDL_Rect&? cell_rects;
     finalize
         this.cell_rects = _malloc(uis_n * sizeof(_SDL_Rect));
     with
         _free(&this.cell_rects);
     end
-    _assert(&cell_rects != null);
 
-    var _SDL_Rect& ui_rects;
+    var _SDL_Rect&? ui_rects;
     finalize
         this.ui_rects = _malloc(uis_n * sizeof(_SDL_Rect));
     with
         _free(&this.ui_rects);
     end
-    _assert(&ui_rects != null);
 
     /* METHODS */
 
@@ -208,18 +206,19 @@ do
     with
         every SDL_REDRAW do
             // TODO: clr_bg vs bg_clr
-            if &bg_clr != null then
+            if bg_clr? != nil then
                 _SDL_SetRenderDrawColor(&ren,
-                    bg_clr.r,bg_clr.g,bg_clr.b,bg_clr.a);
+                    bg_clr?.r,bg_clr?.g,bg_clr?.b,bg_clr?.a);
                 _SDL_RenderFillRect(&ren, &this.rect);
             end
-            if &clr_bg != null then
+            if clr_bg? != nil then
 /*
+_printf("oioi %d %d %d\n", clr_bg?.r, clr_bg?.g, clr_bg?.b);
                 _SDL_SetRenderDrawColor(ren,
                         clr_bg:r,clr_bg:g,clr_bg:b,clr_bg:a);
                 _SDL_RenderFillRect(ren, &rect);
 */
-                _boxColor(&ren, rect.x,rect.y,rect.x+rect.w,rect.y+rect.h, clr_bg);
+                _boxColor(&ren, rect.x,rect.y,rect.x+rect.w,rect.y+rect.h, &clr_bg?);
             end
 /*
 //clr_cell_bg = &_colors.white;
@@ -229,31 +228,31 @@ clr_ui_fr = &_colors.black;
 clr_fr = &_colors.red;
 */
             loop/UI_GRID_MAX_UIS i in uis_n do
-                if &clr_cell_bg != null then
+                if clr_cell_bg? != nil then
                     _SDL_SetRenderDrawColor(&ren,
-                        clr_cell_bg.r,clr_cell_bg.g,clr_cell_bg.b,clr_cell_bg.a);
+                        clr_cell_bg?.r,clr_cell_bg?.g,clr_cell_bg?.b,clr_cell_bg?.a);
                     _SDL_RenderFillRect(&ren, &(&cell_rects)[i]);
                 end
-                if &clr_ui_bg != null then
+                if clr_ui_bg? != nil then
                     _SDL_SetRenderDrawColor(&ren,
-                        clr_ui_bg.r,clr_ui_bg.g,clr_ui_bg.b,clr_ui_bg.a);
+                        clr_ui_bg?.r,clr_ui_bg?.g,clr_ui_bg?.b,clr_ui_bg?.a);
                     _SDL_RenderFillRect(&ren, &(&ui_rects)[i]);
                 end
-                if &clr_cell_fr != null then
+                if clr_cell_fr? != nil then
                     _SDL_SetRenderDrawColor(&ren,
-                        clr_cell_fr.r,clr_cell_fr.g,clr_cell_fr.b,clr_cell_fr.a);
+                        clr_cell_fr?.r,clr_cell_fr?.g,clr_cell_fr?.b,clr_cell_fr?.a);
                     _SDL_RenderDrawRect(&ren, &(&cell_rects)[i]);
                 end
-                if &clr_ui_fr != null then
+                if clr_ui_fr? != nil then
                     _SDL_SetRenderDrawColor(&ren,
-                        clr_ui_fr.r,clr_ui_fr.g,clr_ui_fr.b,clr_ui_fr.a);
+                        clr_ui_fr?.r,clr_ui_fr?.g,clr_ui_fr?.b,clr_ui_fr?.a);
                     _SDL_RenderDrawRect(&ren, &(&ui_rects)[i]);
                 end
             end
 
-            if &clr_fr != null then
+            if clr_fr? != nil then
                 _SDL_SetRenderDrawColor(&ren,
-                        clr_fr.r,clr_fr.g,clr_fr.b,clr_fr.a);
+                        clr_fr?.r,clr_fr?.g,clr_fr?.b,clr_fr?.a);
                 _SDL_RenderDrawRect(&ren, &rect);
             end
         end
@@ -266,22 +265,22 @@ end
 
 input void SDL_QUIT;
 
-var _SDL_Window& win;
+var _SDL_Window&? win?;
     finalize
-        win = _SDL_CreateWindow("UI - Grid",
+        win? = _SDL_CreateWindow("UI - Grid",
                             500, 1300, 800, 480, _SDL_WINDOW_SHOWN);
     with
-        _SDL_DestroyWindow(&win);
+        _SDL_DestroyWindow(win?);
     end
 var int win_w;
 var int win_h;
-    _SDL_GetWindowSize(&win, &win_w, &win_h);
+    _SDL_GetWindowSize(&win?, &win_w, &win_h);
 
-var _SDL_Renderer& ren;
+var _SDL_Renderer&? ren?;
     finalize
-        ren = _SDL_CreateRenderer(&win, -1, 0);
+        ren? = _SDL_CreateRenderer(&win?, -1, 0);
     with
-        _SDL_DestroyRenderer(&ren);
+        _SDL_DestroyRenderer(ren?);
     end
 
 native _lay1, _lay2;
@@ -301,11 +300,11 @@ par/or do
     await SDL_QUIT;
 with
     var UIGrid g1 with
-        this.ren          = ren;
-        this.clr_bg       = &_colors.gray;
-        this.clr_fr       = &_colors.red;
-        this.clr_cell_bg  = &_colors.white;
-        this.clr_cell_fr  = &_colors.black;
+        this.ren          = ren?;
+        this.clr_bg?      = &_colors.gray;
+        this.clr_fr?      = &_colors.red;
+        this.clr_cell_bg? = &_colors.white;
+        this.clr_cell_fr? = &_colors.black;
         this.spc_x        = 10;
         this.spc_y        = 10;
         this.lay_lins     = 4;
@@ -315,10 +314,10 @@ with
     end;
 
     var UIGrid g2 with
-        this.ren          = ren;
-        this.clr_cell_fr  = &_colors.black;
-        this.clr_ui_bg    = &_colors.yellow;
-        this.clr_ui_fr    = &_colors.red;
+        this.ren          = ren?;
+        this.clr_cell_fr? = &_colors.black;
+        this.clr_ui_bg?   = &_colors.yellow;
+        this.clr_ui_fr?   = &_colors.red;
         this.pad_x        = 5;
         this.pad_y        = 5;
         this.lay_lins     = 1;
@@ -374,7 +373,7 @@ with
     end
 with
     every SDL_REDRAW do
-        _SDL_RenderPresent(&ren);
+        _SDL_RenderPresent(&ren?);
     end
 end
 

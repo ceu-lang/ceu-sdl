@@ -9,8 +9,8 @@ input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
 
 class UIScroll with
     interface UI;
-    var bool         redim?     = true;
-    var _SDL_Color&  bg_clr     = *(_SDL_Color*)null;  // TODO
+    var bool         redim?  = true;
+    var _SDL_Color&? bg_clr? = nil;
 
     var int align_x    = _UI_ALIGN_LEFT;
     var int align_y    = _UI_ALIGN_TOP;
@@ -195,26 +195,26 @@ input void SDL_QUIT;
 
 var int win_w;
 var int win_h;
-var _SDL_Window* win;
+var _SDL_Window&? win?;
     finalize
-        win = _SDL_CreateWindow("UI - Scroll",
+        win? = _SDL_CreateWindow("UI - Scroll",
                             500, 1300, 400, 200, _SDL_WINDOW_SHOWN);
     with
-        _SDL_DestroyWindow(win);
+        _SDL_DestroyWindow(win?);
     end
 
-_SDL_GetWindowSize(win, &win_w, &win_h);
+_SDL_GetWindowSize(&win?, &win_w, &win_h);
 var _SDL_Rect win_r;
     win_r.x = 0;
     win_r.y = 0;
     win_r.w = win_w;
     win_r.h = win_h;
 
-var _SDL_Renderer& ren;
+var _SDL_Renderer&? ren?;
     finalize
-        ren = _SDL_CreateRenderer(win, -1, 0);
+        ren? = _SDL_CreateRenderer(&win?, -1, 0);
     with
-        _SDL_DestroyRenderer(&ren);
+        _SDL_DestroyRenderer(ren?);
     end
 
 par/or do
@@ -222,12 +222,12 @@ par/or do
 with
     every SDL_REDRAW do
 
-        _SDL_SetRenderDrawColor(&ren, 0x00,0x00,0x00, 0);
-        _SDL_RenderFillRect(&ren, &win_r);
+        _SDL_SetRenderDrawColor(&ren?, 0x00,0x00,0x00, 0);
+        _SDL_RenderFillRect(&ren?, &win_r);
     end
 with
     var UIGrid grid with
-        this.ren = ren;
+        this.ren = ren?;
         this.lay_lins = 4;
         this.lay_cols = 4;
         this.lay = _UI_SCROLL_grid;
@@ -241,12 +241,12 @@ with
             };
         end
 
-        this.spc_x     = 10;
-        this.spc_y     = 10;
-        this.pad_x     = 10;
-        this.pad_y     = 10;
-        this.clr_bg    = &_colors.white;
-        this.clr_ui_bg = &_colors.gray;
+        this.spc_x      = 10;
+        this.spc_y      = 10;
+        this.pad_x      = 10;
+        this.pad_y      = 10;
+        this.clr_bg?    = &_colors.white;
+        this.clr_ui_bg? = &_colors.gray;
     end;
 
     var _SDL_Rect r;
@@ -270,7 +270,7 @@ with
             c.a = 0x77;
 
         var UIScroll scroll with
-            this.ren = ren;
+            this.ren = ren?;
             this.ui  = grid;
             this.clr_scroll = c;
         end;
@@ -281,7 +281,7 @@ with
 
 with
     every SDL_REDRAW do
-        _SDL_RenderPresent(&ren);
+        _SDL_RenderPresent(&ren?);
     end
 end
 

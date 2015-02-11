@@ -64,7 +64,7 @@ interface UI with
     var   _SDL_Renderer& ren;
     var   _SDL_Rect      rect;
     var   bool           redim?;
-    var   _SDL_Color&    bg_clr;
+    var   _SDL_Color&?   bg_clr?;
 
     var   int            align_x;
     var   int            align_y;
