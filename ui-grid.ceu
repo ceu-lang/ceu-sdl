@@ -212,13 +212,13 @@ do
                 _SDL_RenderFillRect(&ren, &this.rect);
             end
             if clr_bg? != nil then
+                _SDL_SetRenderDrawColor(&ren,
+                        clr_bg?.r,clr_bg?.g,clr_bg?.b,clr_bg?.a);
+                _SDL_RenderFillRect(&ren, &rect);
 /*
 _printf("oioi %d %d %d\n", clr_bg?.r, clr_bg?.g, clr_bg?.b);
-                _SDL_SetRenderDrawColor(ren,
-                        clr_bg:r,clr_bg:g,clr_bg:b,clr_bg:a);
-                _SDL_RenderFillRect(ren, &rect);
-*/
                 _boxColor(&ren, rect.x,rect.y,rect.x+rect.w,rect.y+rect.h, &clr_bg?);
+*/
             end
 /*
 //clr_cell_bg = &_colors.white;
@@ -336,6 +336,7 @@ with
         this.ui  = &g2;
         this.idx = 1;
     end;
+    call/rec g1.go_bg(&r, true);
 
     par do
         loop do
