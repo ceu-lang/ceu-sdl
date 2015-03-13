@@ -8,7 +8,7 @@ native do
     int REN_W, REN_H;
 end
 
-var _SDL_Window& win;
+var _SDL_Window&? win;
     finalize
         win = _SDL_CreateWindow("SDL 1", _SDL_WINDOWPOS_CENTERED,
                                          _SDL_WINDOWPOS_CENTERED,

@@ -2,7 +2,7 @@ CFLAGS = -DCEU_DEBUG #-DCEU_DEBUG_TRAILS
 
 all:
 	ceu --cpp-args "-I ." $(CEUFILE)
-	gcc main.c $(CFLAGS) -lSDL2
+	#gcc main.c $(CFLAGS) -lSDL2
 	gcc -g -Os main.c $(CFLAGS) -lpthread -lm \
 		-lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lSDL2_net -lSDL2_gfx \
 		-o $(basename $(CEUFILE)).exe
