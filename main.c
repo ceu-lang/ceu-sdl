@@ -171,7 +171,8 @@ if (!CEU_TIMEMACHINE_ON) {
         old = now;
 */
         u32 now = SDL_GetTicks();
-        s32 dt_ms = now - old;
+        s32 dt_ms = (CEU_TIMEMACHINE_ON ? (now - old) : 1000/CEU_FPS);
+            /* TODO: forcing fixed DT but still need to count deltas for extra DTs */
         s32 dt_us = dt_ms*1000;
         assert(dt_ms >= 0);
         old = now;
