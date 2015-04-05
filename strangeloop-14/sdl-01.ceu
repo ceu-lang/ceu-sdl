@@ -1,3 +1,8 @@
+#ifdef CEU_TIMEMACHINE
+input int SDL_DT;
+global do
+#endif
+
 #ifndef ALL
 
 #include "sdl.ceu";
@@ -5,24 +10,36 @@
 input void SDL_QUIT;
 input void SDL_REDRAW;
 
-var _SDL_Window[] win;
-finalize
-    win = _SDL_CreateWindow("SDL - 01 (one)", 200,200, 640,480, 0);
-with
-    _SDL_DestroyWindow(win);
+native do
+    SDL_Renderer* REN = NULL;
+    int REN_W, REN_H;
 end
 
-var _SDL_Renderer[] ren;
+var _SDL_Window&? win;
+    finalize
+        win = _SDL_CreateWindow("SDL - 01 (one)",
+                _SDL_WINDOWPOS_UNDEFINED, _SDL_WINDOWPOS_UNDEFINED,
+                640, 480, _SDL_WINDOW_SHOWN);
+    with
+        _SDL_DestroyWindow(&win);
+    end
+
+_SDL_GetWindowSize(&win, &_REN_W, &_REN_H);
+
 finalize
-    ren = _SDL_CreateRenderer(win, -1, 0);
+    _REN = _SDL_CreateRenderer(&win, -1, 0);
 with
-    _SDL_DestroyRenderer(ren);
+    _SDL_DestroyRenderer(_REN);
 end
 
 #else
 
-_SDL_SetWindowTitle(win, "SDL - 01 (one)");
+_SDL_SetWindowTitle(&win, "SDL - 01 (one)");
 
+#endif
+
+#ifdef CEU_TIMEMACHINE
+end
 #endif
 
 var _SDL_Rect r;
@@ -37,11 +54,11 @@ par/or do
     end
 with
     every SDL_REDRAW do
-        _SDL_SetRenderDrawColor(ren, 0x00,0x00,0x00, 0);
-        _SDL_RenderFillRect(ren, null);
-        _SDL_SetRenderDrawColor(ren, 0xFF,0xFF,0xFF,0);
-        _SDL_RenderFillRect(ren, &r);
-        _SDL_RenderPresent(ren);
+        _SDL_SetRenderDrawColor(_REN, 0x00,0x00,0x00, 0xFF);
+        _SDL_RenderFillRect(_REN, null);
+        _SDL_SetRenderDrawColor(_REN, 0xFF,0xFF,0xFF,0xFF);
+        _SDL_RenderFillRect(_REN, &r);
+        _SDL_RenderPresent(_REN);
     end
 with
     await SDL_QUIT;
