@@ -6,44 +6,64 @@ input void SDL_QUIT;
 input void SDL_REDRAW;
 input int  SDL_DT;
 
-var _SDL_Window[] win;
+native do
+    SDL_Renderer* REN = NULL;
+    int REN_W, REN_H;
+end
+
+#ifdef CEU_TIMEMACHINE
+global do
+#endif
+
+var _SDL_Window&? win;
 finalize
     win = _SDL_CreateWindow("Birds - 04 (dynamic)", 200,200, 640,480, 0);
 with
-    _SDL_DestroyWindow(win);
+    _SDL_DestroyWindow(&win);
 end
 
-var _SDL_Renderer[] ren;
 finalize
-    ren = _SDL_CreateRenderer(win, -1, 0);
+    _REN = _SDL_CreateRenderer(&win, -1, 0);
 with
-    _SDL_DestroyRenderer(ren);
+    _SDL_DestroyRenderer(_REN);
 end
+
+#ifdef CEU_TIMEMACHINE
+end
+#endif
 
 #else
 
-_SDL_SetWindowTitle(win, "Birds - 04 (dynamic)");
+_SDL_SetWindowTitle(&win, "Birds - 04 (dynamic)");
 
+#endif
+
+#ifdef CEU_TIMEMACHINE
+global do
 #endif
 
 native do
     SDL_Texture* TEX_UP, *TEX_DOWN;
 end
     finalize
-        _TEX_UP = _IMG_LoadTexture(ren, "strangeloop-14/clumsy_up.png");
+        _TEX_UP = _IMG_LoadTexture(_REN, "strangeloop-14/clumsy_up.png");
     with
         _SDL_DestroyTexture(_TEX_UP);
     end
     finalize
-        _TEX_DOWN = _IMG_LoadTexture(ren, "strangeloop-14/clumsy_down.png");
+        _TEX_DOWN = _IMG_LoadTexture(_REN, "strangeloop-14/clumsy_down.png");
     with
         _SDL_DestroyTexture(_TEX_DOWN);
     end
 
+#ifdef CEU_TIMEMACHINE
+end
+#endif
+
 #define PI 3.14
 
 class Bird with
-    var _SDL_Renderer[] ren;
+    var _SDL_Renderer& ren;
     var _SDL_Rect r;
     var int speed;
 do
@@ -51,10 +71,8 @@ do
     this.r.w = 50;
     this.r.h = 45;
 
-    var _SDL_Texture[] tex = _TEX_DOWN;
-
+    var float sin = 0;
     par do
-        var float sin = 0;
         var int y = r.y;
         var int dt;
         var float x = r.x;
@@ -63,38 +81,45 @@ do
             x = x + v/1000;
             r.x = x;
             r.y = y + speed/5*_sin(sin);
-
             sin = sin + PI*v/100000;
-            if ((int)((sin+PI/2)/PI)) % 2 == 0 then
-                tex = _TEX_DOWN;
-            else
-                tex = _TEX_UP;
-            end
         end
     with
         every SDL_REDRAW do
-            _SDL_RenderCopy(ren, tex, null, &r);
+            if ((int)((sin+PI/2)/PI)) % 2 == 0 then
+                _SDL_RenderCopy(&ren, _TEX_DOWN, null, &r);
+            else
+                _SDL_RenderCopy(&ren, _TEX_UP, null, &r);
+            end
         end
     end
 end
 
 par/or do
     every SDL_REDRAW do
-        _SDL_SetRenderDrawColor(ren, 0x00,0x00,0x00, 0);
-        _SDL_RenderFillRect(ren, null);
+        _SDL_SetRenderDrawColor(_REN, 0x00,0x00,0x00, 0xFF);
+        _SDL_RenderFillRect(_REN, null);
     end
 with
+#ifdef CEU_TIMEMACHINE
+    pool Bird[100] birds;
+#else
     pool Bird[] birds;
+#endif
     every 1s do
         spawn Bird in birds with
-            this.ren   = ren;
+            this.ren   = _REN;
+#ifdef CEU_TIMEMACHINE
+            this.r.y   =  20 + _drand()%350;
+            this.speed = 100 + _drand()%100;
+#else
             this.r.y   =  20 + _rand()%350;
             this.speed = 100 + _rand()%100;
+#endif
         end;
     end
 with
     every SDL_REDRAW do
-        _SDL_RenderPresent(ren);
+        _SDL_RenderPresent(_REN);
     end
 with
     await SDL_QUIT;

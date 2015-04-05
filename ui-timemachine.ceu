@@ -6,58 +6,64 @@ input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONUP_;
 input _SDL_MouseMotionEvent* SDL_MOUSEMOTION_;
 
 native do
-    #define TEX_N 6
-    SDL_Texture* TEX_FIRST   = NULL;
-    SDL_Texture* TEX_REWIND  = NULL;
-    SDL_Texture* TEX_PAUSE   = NULL;
-    SDL_Texture* TEX_PLAY    = NULL;
-    SDL_Texture* TEX_FORWARD = NULL;
-    SDL_Texture* TEX_LAST    = NULL;
-    SDL_Texture* TEXS[TEX_N];
+    /* must be assigned externally */
+    #define UITM_TEX_N 6
+
+    SDL_Texture* UITM_TEX_FIRST   = NULL;
+    SDL_Texture* UITM_TEX_REWIND  = NULL;
+    SDL_Texture* UITM_TEX_PAUSE   = NULL;
+    SDL_Texture* UITM_TEX_PLAY    = NULL;
+    SDL_Texture* UITM_TEX_FORWARD = NULL;
+    SDL_Texture* UITM_TEX_LAST    = NULL;
+    SDL_Texture* UITM_TEXS[UITM_TEX_N];
 end
 
+#ifndef _UITM_REN
+#error "_UITM_REN is not defined!"
+#endif
+
 finalize
-   _TEX_FIRST = _IMG_LoadTexture(_REN, "tm/first.png");
+   _UITM_TEX_FIRST = _IMG_LoadTexture(_UITM_REN, "tm/first.png");
 with
-   _SDL_DestroyTexture(_TEX_FIRST);
+   _SDL_DestroyTexture(_UITM_TEX_FIRST);
 end
 finalize
-   _TEX_REWIND = _IMG_LoadTexture(_REN, "tm/rewind.png");
+   _UITM_TEX_REWIND = _IMG_LoadTexture(_UITM_REN, "tm/rewind.png");
 with
-   _SDL_DestroyTexture(_TEX_REWIND);
+   _SDL_DestroyTexture(_UITM_TEX_REWIND);
 end
 finalize
-   _TEX_PAUSE = _IMG_LoadTexture(_REN, "tm/pause.png");
+   _UITM_TEX_PAUSE = _IMG_LoadTexture(_UITM_REN, "tm/pause.png");
 with
-   _SDL_DestroyTexture(_TEX_PAUSE);
+   _SDL_DestroyTexture(_UITM_TEX_PAUSE);
 end
 finalize
-   _TEX_PLAY = _IMG_LoadTexture(_REN, "tm/play.png");
+   _UITM_TEX_PLAY = _IMG_LoadTexture(_UITM_REN, "tm/play.png");
 with
-   _SDL_DestroyTexture(_TEX_PLAY);
+   _SDL_DestroyTexture(_UITM_TEX_PLAY);
 end
 finalize
-   _TEX_FORWARD = _IMG_LoadTexture(_REN, "tm/forward.png");
+   _UITM_TEX_FORWARD = _IMG_LoadTexture(_UITM_REN, "tm/forward.png");
 with
-   _SDL_DestroyTexture(_TEX_FORWARD);
+   _SDL_DestroyTexture(_UITM_TEX_FORWARD);
 end
 finalize
-   _TEX_LAST = _IMG_LoadTexture(_REN, "tm/last.png");
+   _UITM_TEX_LAST = _IMG_LoadTexture(_UITM_REN, "tm/last.png");
 with
-   _SDL_DestroyTexture(_TEX_LAST);
+   _SDL_DestroyTexture(_UITM_TEX_LAST);
 end
-_assert(_TEX_FIRST   != null);
-_assert(_TEX_REWIND  != null);
-_assert(_TEX_PAUSE   != null);
-_assert(_TEX_PLAY    != null);
-_assert(_TEX_FORWARD != null);
-_assert(_TEX_LAST    != null);
-_TEXS[0] = _TEX_FIRST;
-_TEXS[1] = _TEX_REWIND;
-_TEXS[2] = _TEX_PAUSE;
-_TEXS[3] = _TEX_PLAY;
-_TEXS[4] = _TEX_FORWARD;
-_TEXS[5] = _TEX_LAST;
+_assert(_UITM_TEX_FIRST   != null);
+_assert(_UITM_TEX_REWIND  != null);
+_assert(_UITM_TEX_PAUSE   != null);
+_assert(_UITM_TEX_PLAY    != null);
+_assert(_UITM_TEX_FORWARD != null);
+_assert(_UITM_TEX_LAST    != null);
+_UITM_TEXS[0] = _UITM_TEX_FIRST;
+_UITM_TEXS[1] = _UITM_TEX_REWIND;
+_UITM_TEXS[2] = _UITM_TEX_PAUSE;
+_UITM_TEXS[3] = _UITM_TEX_PLAY;
+_UITM_TEXS[4] = _UITM_TEX_FORWARD;
+_UITM_TEXS[5] = _UITM_TEX_LAST;
 
 class UITimeMachine with
     var TimeMachine& tm;
@@ -68,7 +74,7 @@ class UITimeMachine with
     event void go_redraw;
 do
     var int ren_w, ren_h;
-    _SDL_GetRendererOutputSize(_REN, &ren_w, &ren_h);
+    _SDL_GetRendererOutputSize(_UITM_REN, &ren_w, &ren_h);
     var int x = ren_w/6;
     var int w = ren_w - x*2;
     var int h = ren_h/80;
@@ -86,12 +92,12 @@ do
         rc.y = y - ren_h/10 - ren_h/80;
         rc.h = ren_h/10;
 
-    var _SDL_Rect[_TEX_N] rcs;
+    var _SDL_Rect[_UITM_TEX_N] rcs;
     do
-        var int dx = rc.w / (_TEX_N+1);
-        loop i in _TEX_N do
+        var int dx = rc.w / (_UITM_TEX_N+1);
+        loop i in _UITM_TEX_N do
             var _SDL_Rect ri;
-            _SDL_QueryTexture(_TEXS[i], null, null, &ri.w, &ri.h);
+            _SDL_QueryTexture(_UITM_TEXS[i], null, null, &ri.w, &ri.h);
             ri.x = rc.x + (i+1)*dx - ri.w/2;
             ri.y = rc.y + (rc.h-ri.h)/2;
             rcs[i] = ri;
@@ -131,7 +137,7 @@ do
             loop do
                 var _SDL_MouseButtonEvent* e = await SDL_MOUSEBUTTONDOWN_;
                 var int i = -1;
-                loop ii in _TEX_N do
+                loop ii in _UITM_TEX_N do
                     if _SDL_Rect_vs_Mouse(&rcs[ii], e) then
                         i = ii;
                         break;
@@ -172,16 +178,16 @@ do
             every this.go_redraw do
                 do
                     var int dx = tm.time_now/(float)tm.time_total * w;
-                    _boxRGBA(_REN, x, y, x+w, y+h,
+                    _boxRGBA(_UITM_REN, x, y, x+w, y+h,
                                    0x88,0x88,0x88,0x88);
-                    _filledCircleRGBA(_REN, x+dx-h/2, y+h/2, h,
+                    _filledCircleRGBA(_UITM_REN, x+dx-h/2, y+h/2, h,
                                             0xFF,0xFF,0xFF,0x88);
                 end
                 do
-                    _boxRGBA(_REN, rc.x, rc.y, rc.x+rc.w, rc.y+rc.h,
+                    _boxRGBA(_UITM_REN, rc.x, rc.y, rc.x+rc.w, rc.y+rc.h,
                              0xAA,0xAA,0xAA,0xAA);
-                    loop i in _TEX_N do
-                        _SDL_RenderCopy(_REN, _TEXS[i], null, &rcs[i]);
+                    loop i in _UITM_TEX_N do
+                        _SDL_RenderCopy(_UITM_REN, _UITM_TEXS[i], null, &rcs[i]);
                     end
                 end
             end
