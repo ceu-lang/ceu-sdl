@@ -64,7 +64,7 @@ int main (int argc, char *argv[])
     WCLOCK_nxt = CEU_WCLOCK_INACTIVE;
     u32 old = SDL_GetTicks();
 #ifdef CEU_FPS
-    u32 fps_old = old;
+    int fps_next = (1000/CEU_FPS);
 #endif
 
 #ifdef CEU_THREADS
@@ -132,13 +132,16 @@ if (!CEU_TIMEMACHINE_ON) {
          * With    SDL_DT, 'tm=0' (update as fast as possible).
          * Without SDL_DT, 'tm=?' respects the timers.
          */
-#if defined(CEU_IN_SDL_DT) || defined(CEU_IN_SDL_DT_)
+#if defined(CEU_IN_SDL_DT) || defined(CEU_IN_SDL_DT_) || defined(CEU_FPS)
+
 #ifdef CEU_FPS
-        s32 tm = (CEU_TIMEMACHINE_ON ? 0 : (1000/CEU_FPS));
+        s32 tm = (CEU_TIMEMACHINE_ON ? 0 : fps_next);
 #else
         s32 tm = 0;     // as fast as possible
 #endif
-#else
+
+#else /* !(defined(CEU_IN_SDL_DT) || defined(CEU_IN_SDL_DT_) || defined(CEU_FPS)) */
+
         s32 tm = -1;
 #ifdef CEU_WCLOCKS
         if (WCLOCK_nxt != CEU_WCLOCK_INACTIVE)
@@ -149,7 +152,8 @@ if (!CEU_TIMEMACHINE_ON) {
             tm = 0;
         }
 #endif
-#endif  // CEU_IN_SDL_DT
+
+#endif /* defined(CEU_IN_SDL_DT) || defined(CEU_IN_SDL_DT_) || defined(CEU_FPS) */
 
         //SDL_EventState(SDL_FINGERMOTION, SDL_IGNORE);
 
@@ -164,21 +168,26 @@ if (!CEU_TIMEMACHINE_ON) {
         }
 
         u32 now = SDL_GetTicks();
-        s32 dt_ms = (CEU_TIMEMACHINE_ON ? (now - old) : 1000/CEU_FPS);
-            /* TODO: forcing fixed DT but still need to count deltas for extra DTs */
-        s32 dt_us = dt_ms*1000;
+        s32 dt_ms = (now - old);
         assert(dt_ms >= 0);
         old = now;
 
 #ifdef CEU_FPS
+        /* force dt_ms=(1000/CEU_FPS) */
         int fps_ok = 0;
-        if (old >= fps_old+1000/CEU_FPS) {
-            fps_old = old;
+        int togo = (fps_next - dt_ms);
+        if (togo <= 0) {
             fps_ok = 1;
+            dt_ms = (1000/CEU_FPS);
+            fps_next = (dt_ms + togo);
+        } else {
+            fps_next = togo;
         }
 #else
         int fps_ok = 1;
 #endif
+
+        s32 dt_us = dt_ms*1000;
 
 #ifdef CEU_THREADS
         // just before executing CEU code
