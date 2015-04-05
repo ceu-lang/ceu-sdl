@@ -1,46 +1,5 @@
-#ifdef CEU_TIMEMACHINE
-input int SDL_DT;
-global do
-#endif
-
-#ifndef ALL
-
-#include "sdl.ceu";
-
-input void SDL_QUIT;
-input void SDL_REDRAW;
-
-native do
-    SDL_Renderer* REN = NULL;
-    int REN_W, REN_H;
-end
-
-var _SDL_Window&? win;
-    finalize
-        win = _SDL_CreateWindow("SDL - 02 (two)",
-                _SDL_WINDOWPOS_UNDEFINED, _SDL_WINDOWPOS_UNDEFINED,
-                640, 480, _SDL_WINDOW_SHOWN);
-    with
-        _SDL_DestroyWindow(&win);
-    end
-
-_SDL_GetWindowSize(&win, &_REN_W, &_REN_H);
-
-finalize
-    _REN = _SDL_CreateRenderer(&win, -1, 0);
-with
-    _SDL_DestroyRenderer(_REN);
-end
-
-#else
-
-_SDL_SetWindowTitle(&win, "SDL - 01 (one)");
-
-#endif
-
-#ifdef CEU_TIMEMACHINE
-end
-#endif
+#define HEADER_TITLE "SDL - 02 (two)"
+#include "header.ceu"
 
 var _SDL_Rect r1;
     r1.x = 100;

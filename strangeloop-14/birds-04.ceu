@@ -1,42 +1,5 @@
-#ifndef ALL
-
-#include "sdl.ceu"
-
-input void SDL_QUIT;
-input void SDL_REDRAW;
-input int  SDL_DT;
-
-native do
-    SDL_Renderer* REN = NULL;
-    int REN_W, REN_H;
-end
-
-#ifdef CEU_TIMEMACHINE
-global do
-#endif
-
-var _SDL_Window&? win;
-finalize
-    win = _SDL_CreateWindow("Birds - 04 (dynamic)", 200,200, 640,480, 0);
-with
-    _SDL_DestroyWindow(&win);
-end
-
-finalize
-    _REN = _SDL_CreateRenderer(&win, -1, 0);
-with
-    _SDL_DestroyRenderer(_REN);
-end
-
-#ifdef CEU_TIMEMACHINE
-end
-#endif
-
-#else
-
-_SDL_SetWindowTitle(&win, "Birds - 04 (dynamic)");
-
-#endif
+#define HEADER_TITLE "Birds - 04 (dynamic)"
+#include "header.ceu"
 
 #ifdef CEU_TIMEMACHINE
 global do
