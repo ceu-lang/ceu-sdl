@@ -63,7 +63,9 @@ int main (int argc, char *argv[])
 
     WCLOCK_nxt = CEU_WCLOCK_INACTIVE;
     u32 old = SDL_GetTicks();
+#ifdef CEU_FPS
     u32 fps_old = old;
+#endif
 
 #ifdef CEU_THREADS
     // just before executing CEU code
@@ -161,15 +163,6 @@ if (!CEU_TIMEMACHINE_ON) {
             has = SDL_WaitEventTimeout(&evt, tm);
         }
 
-/* TODO: o 1o faz mais sentido, mas so o 2o funciona! */
-/*
-        u32 now = SDL_GetTicks();
-        while (now <= old) {
-            now = SDL_GetTicks();
-        }
-        s32 dt = now - old;
-        old = now;
-*/
         u32 now = SDL_GetTicks();
         s32 dt_ms = (CEU_TIMEMACHINE_ON ? (now - old) : 1000/CEU_FPS);
             /* TODO: forcing fixed DT but still need to count deltas for extra DTs */
@@ -177,18 +170,15 @@ if (!CEU_TIMEMACHINE_ON) {
         assert(dt_ms >= 0);
         old = now;
 
-
-        // DT/WCLOCK/REDRAW respecting FPS (at most)
-        int fps_ok = 1;
-/*
-        int fps_ok = !SDL_PollEvent(NULL);
-        if (! fps_ok) {
-            if (old >= fps_old+1000/CEU_FPS) {
-                fps_old = old;
-                fps_ok = 1;
-            }
+#ifdef CEU_FPS
+        int fps_ok = 0;
+        if (old >= fps_old+1000/CEU_FPS) {
+            fps_old = old;
+            fps_ok = 1;
         }
-*/
+#else
+        int fps_ok = 1;
+#endif
 
 #ifdef CEU_THREADS
         // just before executing CEU code
