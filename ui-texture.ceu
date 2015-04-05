@@ -11,8 +11,8 @@ input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONUP;
 class UITexture with
     interface UI;
     var   _SDL_Renderer&  ren;
-    var   bool            redim?  = false;
-    var   _SDL_Color&?    bg_clr? = nil;
+    var   bool            should_redim = false;
+    var   _SDL_Color&?    bg_clr;
 
     var int align_x    = _UI_ALIGN_LEFT;
     var int align_y    = _UI_ALIGN_TOP;
@@ -28,22 +28,22 @@ class UITexture with
     var int pad_y = 0;
 
     function (_SDL_Rect* r)=>void go;
-    function (_SDL_Rect* bg, bool redim??)=>void go_bg;
+    function (_SDL_Rect* bg, bool should_redim_)=>void go_bg;
 do
     /* METHODS */
 
     function (_SDL_Rect* r)=>void go do
         _assert(r != null);
-        _assert(not this.redim?);
+        _assert(not this.should_redim);
         // ignoring r:w / r:h (no redim)
         this.rect.x = _UI_align(r:x, rect.w, this.align_x);
         this.rect.y = _UI_align(r:y, rect.h, this.align_y);
     end
 
-    function @rec (_SDL_Rect* bg, bool redim??)=>void go_bg do
+    function @rec (_SDL_Rect* bg, bool should_redim_)=>void go_bg do
         //ui_go_bg(this, bg);
         _assert(bg != null);
-        //_assert(not redim??);
+        //_assert(not should_redim?);
         this.rect.x = _UI_align_bg(bg:x, bg:w, this.rect.w, this.align_bg_x);
         this.rect.y = _UI_align_bg(bg:y, bg:h, this.rect.h, this.align_bg_y);
     end
@@ -71,7 +71,7 @@ do
         end
     with
         every SDL_REDRAW do
-            if bg_clr? != nil then
+            if bg_clr? then
 /*
                 _SDL_SetRenderDrawColor(ren,
                     bg_clr:r,bg_clr:g,bg_clr:b,bg_clr:a);
@@ -79,7 +79,7 @@ do
 */
                 _boxColor(&ren, rect.x-pad_x/2,rect.y-pad_y/2,
                                rect.x+rect.w+pad_x/2,rect.y+rect.h+pad_y/2,
-                               bg_clr?);
+                               bg_clr);
             end
             //emit ok_redraw_pre;
 
@@ -121,26 +121,26 @@ input void SDL_QUIT;
 
 var int win_w;
 var int win_h;
-var _SDL_Window&? win?;
+var _SDL_Window&? win;
     finalize
-        win? = _SDL_CreateWindow("UI - Texture",
+        win = _SDL_CreateWindow("UI - Texture",
                             500, 1300, 800, 480, _SDL_WINDOW_SHOWN);
     with
-        _SDL_DestroyWindow(win?);
+        _SDL_DestroyWindow(&win);
     end
 
-_SDL_GetWindowSize(&win?, &win_w, &win_h);
+_SDL_GetWindowSize(&win, &win_w, &win_h);
 var _SDL_Rect win_r;
     win_r.x = 0;
     win_r.y = 0;
     win_r.w = win_w;
     win_r.h = win_h;
 
-var _SDL_Renderer&? ren?;
+var _SDL_Renderer&? ren;
     finalize
-        ren? = _SDL_CreateRenderer(&win?, -1, 0);
+        ren = _SDL_CreateRenderer(&win, -1, 0);
     with
-        _SDL_DestroyRenderer(ren?);
+        _SDL_DestroyRenderer(&ren);
     end
 
 _TTF_Init();
@@ -148,19 +148,19 @@ _TTF_Init();
         _TTF_Quit();
     end
 
-var _TTF_Font&? font?;
+var _TTF_Font&? font;
 finalize
-    font? = _TTF_OpenFont("fnts/monofonto.ttf", 20);
+    font = _TTF_OpenFont("fnts/monofonto.ttf", 20);
 with
-    _TTF_CloseFont(font?);
+    _TTF_CloseFont(&font);
 end
 
-var _SDL_Texture&? tex_txt?;
+var _SDL_Texture&? tex_txt;
 finalize
-    tex_txt? = _SDL_text2texture(&ren?, &font?, "ola mundo!",
+    tex_txt = _SDL_text2texture(&ren, &font, "ola mundo!",
                                 &_colors.black, &_colors.white);
 with
-    _SDL_DestroyTexture(tex_txt?);
+    _SDL_DestroyTexture(&tex_txt);
 end
 
 var _SDL_Rect r1, r2;
@@ -169,23 +169,23 @@ par/or do
     await SDL_QUIT;
 with
     every SDL_REDRAW do
-        _SDL_SetRenderDrawColor(&ren?, 0x00,0x00,0x00, 0xFF);
-        _SDL_RenderFillRect(&ren?, &win_r);
-        _SDL_SetRenderDrawColor(&ren?, 0xFF,0xFF,0xFF, 0xFF);
-        _SDL_RenderFillRect(&ren?, &r2);
-        _circleRGBA(&ren?, win_r.w/2, win_r.h/2, 2, 0xFF,0xFF,0xFF,0xFF);
+        _SDL_SetRenderDrawColor(&ren, 0x00,0x00,0x00, 0xFF);
+        _SDL_RenderFillRect(&ren, &win_r);
+        _SDL_SetRenderDrawColor(&ren, 0xFF,0xFF,0xFF, 0xFF);
+        _SDL_RenderFillRect(&ren, &r2);
+        _circleRGBA(&ren, win_r.w/2, win_r.h/2, 2, 0xFF,0xFF,0xFF,0xFF);
     end
 with
-    var _SDL_Texture&? tex?;
+    var _SDL_Texture&? tex;
     finalize
-        tex? = _IMG_LoadTexture(&ren?, "samples/img.png");
+        tex = _IMG_LoadTexture(&ren, "samples/img.png");
     with
-        _SDL_DestroyTexture(tex?);
+        _SDL_DestroyTexture(tex);
     end
 
     var UITexture ui_txt with
-        this.ren = ren?;
-        this.tex = tex_txt?;
+        this.ren = ren;
+        this.tex = tex_txt;
         this.align_x = _UI_ALIGN_LEFT;
         this.align_y = _UI_ALIGN_TOP;
     end;
@@ -201,14 +201,14 @@ with
     ui_txt.go_bg(&win_r, false);
 
     var UITexture ui1 with
-        this.ren = ren?;
-        this.tex = tex?;
-        this.bg_clr? = &_colors.blue;
+        this.ren = ren;
+        this.tex = tex;
+        this.bg_clr = &_colors.blue;
     end;
 
     var UITexture ui2 with
-        this.ren = ren?;
-        this.tex = tex?;
+        this.ren = ren;
+        this.tex = tex;
     end;
 
     par do
@@ -306,7 +306,7 @@ with
     end
 with
     every SDL_REDRAW do
-        _SDL_RenderPresent(&ren?);
+        _SDL_RenderPresent(&ren);
     end
 end
 
