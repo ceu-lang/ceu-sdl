@@ -1,5 +1,3 @@
-native _printf();
-
 class HelloWorld with
     var   int  id;
     event void stop;

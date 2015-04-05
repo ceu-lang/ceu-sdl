@@ -3,14 +3,9 @@
 input void SDL_REDRAW;
 input void SDL_QUIT;
 
-native do
-    SDL_Renderer* REN = NULL;
-    int REN_W, REN_H;
-end
-
-var _SDL_Window& win;
+var _SDL_Window&? win;
     finalize
-        win = _SDL_CreateWindow("SDL 5", _SDL_WINDOWPOS_CENTERED,
+        win = _SDL_CreateWindow("SDL 4", _SDL_WINDOWPOS_CENTERED,
                                          _SDL_WINDOWPOS_CENTERED,
                                          800, 480,
                                          _SDL_WINDOW_SHOWN);
@@ -18,13 +13,15 @@ var _SDL_Window& win;
         _SDL_DestroyWindow(&win);
     end
 
-_SDL_GetWindowSize(&win, &_REN_W, &_REN_H);
+var int w, h;
+_SDL_GetWindowSize(&win, &w, &h);
 
-finalize
-    _REN = _SDL_CreateRenderer(&win, -1, 0);
-with
-    _SDL_DestroyRenderer(_REN);
-end
+var _SDL_Renderer&? ren;
+    finalize
+        ren = _SDL_CreateRenderer(&win, -1, 0);
+    with
+        _SDL_DestroyRenderer(&ren);
+    end
 
 var _SDL_Rect bg;
     bg.x = 0;
@@ -32,9 +29,9 @@ var _SDL_Rect bg;
     bg.w = 640;
     bg.h = 480;
 
-var _SDL_Texture& tex;
+var _SDL_Texture&? tex;
     finalize
-        tex = _IMG_LoadTexture(_REN, "samples/img.png");
+        tex = _IMG_LoadTexture(&ren, "samples/img.png");
     with
         _SDL_DestroyTexture(&tex);
     end
@@ -49,14 +46,14 @@ _TTF_Init();
         _TTF_Quit();
     end
 
-var _TTF_Font& fnt;
+var _TTF_Font&? fnt;
     finalize
         fnt = _TTF_OpenFont("samples/Deutsch.ttf", 40);
     with
         _TTF_CloseFont(&fnt);
     end
 
-var _SDL_Texture& str_tex;
+var _SDL_Texture&? str_tex;
 var _SDL_Rect str_r;
     str_r.x = 10;
     str_r.y = 10;
@@ -67,14 +64,14 @@ do
         clr.r = 255;
         clr.g = 255;
         clr.b = 255;
-    var _SDL_Surface* sfc;
+    var _SDL_Surface&? sfc;
     finalize
         sfc = _TTF_RenderText_Blended(&fnt, "Hello world!", clr);
     with
-        _SDL_FreeSurface(sfc);
+        _SDL_FreeSurface(&sfc);
     end
     finalize
-        str_tex = _SDL_CreateTextureFromSurface(_REN, sfc);
+        str_tex = _SDL_CreateTextureFromSurface(&ren, &sfc);
     with
         _SDL_DestroyTexture(&str_tex);
     end
@@ -84,7 +81,7 @@ _Mix_OpenAudio(22050, _AUDIO_S16SYS, 2, 4096);
     finalize with
         _Mix_CloseAudio();
     end
-var _Mix_Chunk& snd;
+var _Mix_Chunk&? snd;
     finalize
         snd = _Mix_LoadWAV("samples/click1.wav");
     with
@@ -99,11 +96,11 @@ with
     end
 with
     every SDL_REDRAW do
-        _SDL_SetRenderDrawColor(_REN, 0x00,0x00,0x00,0xFF);
-        _SDL_RenderFillRect(_REN, &bg);
-        _SDL_RenderCopy(_REN, &tex, null, &tex_r);
-        _SDL_RenderCopy(_REN, &str_tex, null, &str_r);
-        _SDL_RenderPresent(_REN);
+        _SDL_SetRenderDrawColor(&ren, 0x00,0x00,0x00,0xFF);
+        _SDL_RenderFillRect(&ren, &bg);
+        _SDL_RenderCopy(&ren, &tex, null, &tex_r);
+        _SDL_RenderCopy(&ren, &str_tex, null, &str_r);
+        _SDL_RenderPresent(&ren);
     end
 end
 

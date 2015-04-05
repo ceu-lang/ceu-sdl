@@ -3,12 +3,7 @@
 input void SDL_REDRAW;
 input void SDL_QUIT;
 
-native do
-    SDL_Renderer* REN = NULL;
-    int REN_W, REN_H;
-end
-
-var _SDL_Window& win;
+var _SDL_Window&? win;
     finalize
         win = _SDL_CreateWindow("SDL 2", _SDL_WINDOWPOS_CENTERED,
                                          _SDL_WINDOWPOS_CENTERED,
@@ -18,17 +13,19 @@ var _SDL_Window& win;
         _SDL_DestroyWindow(&win);
     end
 
-_SDL_GetWindowSize(&win, &_REN_W, &_REN_H);
+var int w, h;
+_SDL_GetWindowSize(&win, &w, &h);
 
-finalize
-    _REN = _SDL_CreateRenderer(&win, -1, 0);
-with
-    _SDL_DestroyRenderer(_REN);
-end
+var _SDL_Renderer&? ren;
+    finalize
+        ren = _SDL_CreateRenderer(&win, -1, 0);
+    with
+        _SDL_DestroyRenderer(&ren);
+    end
 
 var _SDL_Rect bg;
-    bg.w = _REN_W;
-    bg.h = _REN_H;
+    bg.w = w;
+    bg.h = h;
     bg.x = 0;
     bg.y = 0;
 
@@ -38,8 +35,9 @@ var _SDL_Color bg_clr;
     bg_clr.b = 0x00;
 
 class Rect with
-    var _SDL_Rect rect;
-    var int       v;
+    var _SDL_Renderer& ren;
+    var _SDL_Rect      rect;
+    var int            v;
 do
     var _SDL_Color clr;
         clr.r = 0xFF;
@@ -55,8 +53,8 @@ do
         end
     with
         every SDL_REDRAW do
-            _SDL_SetRenderDrawColor(_REN, clr.r,clr.g,clr.b,0xFF);
-            _SDL_RenderFillRect(_REN, &rect);
+            _SDL_SetRenderDrawColor(&ren, clr.r,clr.g,clr.b,0xFF);
+            _SDL_RenderFillRect(&ren, &rect);
         end
     end
 end
@@ -65,12 +63,13 @@ par/or do
     await SDL_QUIT;
 with
     every SDL_REDRAW do
-        _SDL_SetRenderDrawColor(_REN, bg_clr.r,bg_clr.g,bg_clr.b,0xFF);
-        _SDL_RenderFillRect(_REN, &bg);
+        _SDL_SetRenderDrawColor(&ren, bg_clr.r,bg_clr.g,bg_clr.b,0xFF);
+        _SDL_RenderFillRect(&ren, &bg);
     end
 with
     loop do
         var Rect r1 with
+            this.ren    = ren;
             this.rect.x = 100;
             this.rect.y = 100;
             this.rect.w = 20;
@@ -79,6 +78,7 @@ with
         end;
 
         var Rect r2 with
+            this.ren    = ren;
             this.rect.x = 100;
             this.rect.y = 200;
             this.rect.w = 40;
@@ -90,7 +90,7 @@ with
     end
 with
     every SDL_REDRAW do
-        _SDL_RenderPresent(_REN);
+        _SDL_RenderPresent(&ren);
     end
 end
 

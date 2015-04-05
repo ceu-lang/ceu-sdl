@@ -180,9 +180,14 @@ if (!CEU_TIMEMACHINE_ON) {
             fps_ok = 1;
             dt_ms = (1000/CEU_FPS);
             fps_next = (dt_ms + togo);
+            if (fps_next < 0) {
+printf("[TODO: main.c] delayed %d\n", -fps_next);
+                fps_next = 0;
+            }
         } else {
             fps_next = togo;
         }
+        assert(fps_next >= 0);
 #else
         int fps_ok = 1;
 #endif
