@@ -132,7 +132,7 @@ do
 #endif
                                   )
                             finalize with
-                                nothing;
+                                nothing;    // events are mem'copied
                             end;
                     end
                 with
