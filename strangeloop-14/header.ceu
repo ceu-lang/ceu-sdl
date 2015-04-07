@@ -40,6 +40,18 @@ end
 
 #else
 
+#ifdef CEU_TIMEMACHINE
+input bool OS_RESUME;
+class Title with
+do
+    loop do
+        _SDL_SetWindowTitle(_WIN, HEADER_TITLE);
+        await OS_RESUME;
+    end
+end
+var Title t;
+#else
 _SDL_SetWindowTitle(_WIN, HEADER_TITLE);
+#endif
 
 #endif

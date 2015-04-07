@@ -73,7 +73,7 @@ with
     await FOREVER;
 with
     every SDL_REDRAW do
-        _SDL_RenderPresent(ren);
+        _SDL_RenderPresent(_REN);
     end
 with
     await SDL_QUIT;
