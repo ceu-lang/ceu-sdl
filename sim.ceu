@@ -185,23 +185,25 @@ var UITimeMachine uitm with
     this.tm = tm;
 end;
 
-//event void go_restart;
-interface Global with
+class G with
     var   TimeMachine& tm_;
     event bool in_tm;
     var   bool blur;
+do
 end
-event bool in_tm;
-var   bool blur = false;
-var   TimeMachine& tm_ = tm;
+var G g with
+    this.blur = false;
+    this.tm_  = tm;
+end;
 
 class TimeKeyController with
     var int   k_alt, k_left, k_right;
     event void ok;
+    var G& g;
 do
-    global:blur = true;
-    emit global:in_tm => true;
-    emit global:tm_.go_on;
+    g.blur = true;
+    emit g.in_tm => true;
+    emit g.tm_.go_on;
 
     par/or do
         var _SDL_KeyboardEvent* key = await SDL_KEYUP_
@@ -211,30 +213,30 @@ do
             var _SDL_KeyboardEvent* key = await SDL_KEYDOWN_;
             var int sym2 = key:keysym.sym;
             if sym2 == this.k_left then
-                if global:tm_.time_total-global:tm_.time_now < 2000 then
-                    emit global:tm_.go_backward => 2;
+                if g.tm_.time_total-g.tm_.time_now < 2000 then
+                    emit g.tm_.go_backward => 2;
                 end
             else/if sym2 == this.k_right then
-                emit global:tm_.go_forward => 2;
+                emit g.tm_.go_forward => 2;
             end
             par/or do
                 key = await SDL_KEYUP_ until key:keysym.sym == sym2;
             with
                 var int time_now;
-                every time_now in global:tm_.ok_seek do
-                    if global:tm_.time_total-time_now >= 2000 then
+                every time_now in g.tm_.ok_seek do
+                    if g.tm_.time_total-time_now >= 2000 then
                         break;
                     end
                 end
             end
-            emit global:tm_.go_pause;
+            emit g.tm_.go_pause;
         end
     end
 
-    emit global:tm_.go_off;
-    TM_AWAIT_SEEK(global:tm_);
-    emit global:in_tm => false;
-    global:blur = false;
+    emit g.tm_.go_off;
+    TM_AWAIT_SEEK(g.tm_);
+    emit g.in_tm => false;
+    g.blur = false;
 
     emit this.ok;
 end
@@ -246,20 +248,21 @@ with
         var _SDL_KeyboardEvent* key = await SDL_KEYDOWN_;
         var int sym = key:keysym.sym;
         if sym == _SDLK_ESCAPE then
-            emit in_tm => true;
+            emit g.in_tm => true;
             emit tm.go_on;
             emit uitm.go_on;
             key = await SDL_KEYDOWN_ until key:keysym.sym == _SDLK_ESCAPE;
             emit tm.go_off;
             TM_AWAIT_SEEK(tm);
             emit uitm.go_off;
-            emit in_tm => false;
+            emit g.in_tm => false;
         else/if sym==_SDLK_LALT and _TIME1>0 then
             _TIME1 = _TIME1 - 1;
             do TimeKeyController with
                 this.k_alt   = _SDLK_LALT;
                 this.k_left  = _SDLK_a;
                 this.k_right = _SDLK_d;
+                this.g       = g;
             end;
         else/if sym==_SDLK_RALT and _TIME2>0 then
             _TIME2 = _TIME2 - 1;
@@ -267,13 +270,14 @@ with
                 this.k_alt   = _SDLK_RALT;
                 this.k_left  = _SDLK_LEFT;
                 this.k_right = _SDLK_RIGHT;
+                this.g       = g;
             end;
         end
     end
 with
     every SDL_REDRAW do
         emit uitm.go_redraw;
-        if blur then
+        if g.blur then
             _boxRGBA(_REN, 0, 0, _REN_W, _REN_H, 0xAA,0x88,0x88,0x88);
         end
         _SDL_RenderPresent(_UITM_REN);
