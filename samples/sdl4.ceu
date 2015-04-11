@@ -25,29 +25,18 @@ var _SDL_Renderer&? ren;
         _SDL_DestroyRenderer(&ren);
     end
 
-var _SDL_Rect bg;
-    bg.w = w;
-    bg.h = h;
-    bg.x = 0;
-    bg.y = 0;
-
-var _SDL_Color bg_clr;
-    bg_clr.r = 0x00;
-    bg_clr.g = 0x00;
-    bg_clr.b = 0x00;
+var SDL_Rect  bg     = SDL_Rect(0,0 , w,h);
+var SDL_Color bg_clr = SDL_Color(0x00, 0x00, 0x00, 0xFF);
 
 class Rect with
     var _SDL_Renderer& ren;
-    var _SDL_Rect      rct;
+    var SDL_Rect       rct;
     var int            dt;
 do
     this.rct.w = 20;
     this.rct.h = 20;
 
-    var _SDL_Color clr;
-        clr.r = 0xFF;
-        clr.g = 0xFF;
-        clr.b = 0xFF;
+    var SDL_Color clr = SDL_Color(0xFF, 0xFF, 0xFF, 0xFF);
 
     event int go_pause;
 
@@ -65,7 +54,7 @@ do
         loop do
             var _SDL_MouseButtonEvent* but = await SDL_MOUSEBUTTONDOWN;
             if but:button == _SDL_BUTTON_LEFT then
-                if _SDL_Rect_vs_Mouse(&rct, but) then
+                if _SDL_Rect_vs_Mouse((_SDL_Rect*)&rct, but) then
                     is_paused = not is_paused;
                     emit go_pause => is_paused;
                 end
@@ -74,7 +63,7 @@ do
     with
         every SDL_REDRAW do
             _SDL_SetRenderDrawColor(&ren, clr.r,clr.g,clr.b,0xFF);
-            _SDL_RenderFillRect(&ren, &rct);
+            _SDL_RenderFillRect(&ren, (_SDL_Rect*)&rct);
         end
     end
     //await FOREVER;    // disappears but remains on memory
@@ -87,7 +76,7 @@ par/or do
 with
     every SDL_REDRAW do
         _SDL_SetRenderDrawColor(&ren, bg_clr.r,bg_clr.g,bg_clr.b,0xFF);
-        _SDL_RenderFillRect(&ren, &bg);
+        _SDL_RenderFillRect(&ren, (_SDL_Rect*)&bg);
     end
 with
     loop do
@@ -98,10 +87,9 @@ with
                     every 1s do
                         native _rand();
                         spawn Rect in rs with
-                            this.ren   = ren;
-                            this.dt    =  10 + _rand()%20;
-                            this.rct.x = 100;
-                            this.rct.y = 100 + _rand()%300;
+                            this.ren = ren;
+                            this.dt  =  10 + _rand()%20;
+                            this.rct = SDL_Rect(100,100+_rand()%300, 0,0);
                         end;
                     end
                 end

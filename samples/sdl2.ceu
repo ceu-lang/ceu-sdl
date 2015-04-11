@@ -23,16 +23,8 @@ var _SDL_Renderer&? ren;
         _SDL_DestroyRenderer(&ren);
     end
 
-var _SDL_Rect bg;
-    bg.w = w;
-    bg.h = h;
-    bg.x = 0;
-    bg.y = 0;
-
-var _SDL_Color bg_clr;
-    bg_clr.r = 0x00;
-    bg_clr.g = 0x00;
-    bg_clr.b = 0x00;
+var SDL_Rect  bg     = SDL_Rect(0,0 , w,h);
+var SDL_Color bg_clr = SDL_Color(0x00, 0x00, 0x00, 0xFF);
 
 class Rect with
     var _SDL_Renderer& ren;
@@ -64,7 +56,7 @@ par/or do
 with
     every SDL_REDRAW do
         _SDL_SetRenderDrawColor(&ren, bg_clr.r,bg_clr.g,bg_clr.b,0xFF);
-        _SDL_RenderFillRect(&ren, &bg);
+        _SDL_RenderFillRect(&ren, (_SDL_Rect*)&bg);
     end
 with
     loop do

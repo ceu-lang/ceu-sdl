@@ -9,7 +9,7 @@ native do
     int REN_W, REN_H;
 end
 
-var _SDL_Window& win;
+var _SDL_Window&? win;
     finalize
         win = _SDL_CreateWindow("SDL 7", _SDL_WINDOWPOS_CENTERED,
                                          _SDL_WINDOWPOS_CENTERED,
@@ -27,27 +27,11 @@ with
     _SDL_DestroyRenderer(_REN);
 end
 
-var _SDL_Rect bg;
-    bg.w = _REN_W;
-    bg.h = _REN_H;
-    bg.x = 0;
-    bg.y = 0;
+var SDL_Rect  bg     = SDL_Rect(0,0, _REN_W,_REN_H);
+var SDL_Color bg_clr = SDL_Color(0xFF,0xFF,0x00,0xFF);
 
-var _SDL_Color bg_clr;
-    bg_clr.r = 0xFF;
-    bg_clr.g = 0xFF;
-    bg_clr.b = 0x00;
-
-var _SDL_Rect fg;
-    fg.w = 100;
-    fg.h = 100;
-    fg.x = 100;
-    fg.y = 100;
-
-var _SDL_Color fg_clr;
-    fg_clr.r = 0xFF;
-    fg_clr.g = 0x00;
-    fg_clr.b = 0x00;
+var SDL_Rect  fg     = SDL_Rect(100,100, 100,100);
+var SDL_Color fg_clr = SDL_Color(0xFF,0x00,0x00,0xFF);
 
 par/or do
     await SDL_QUIT;
@@ -60,10 +44,10 @@ with
     every SDL_REDRAW do
 
         _SDL_SetRenderDrawColor(_REN, bg_clr.r,bg_clr.g,bg_clr.b,0xFF);
-        _SDL_RenderFillRect(_REN, &bg);
+        _SDL_RenderFillRect(_REN, (_SDL_Rect*)&bg);
 
         _SDL_SetRenderDrawColor(_REN, fg_clr.r,fg_clr.g,fg_clr.b,0xFF);
-        _SDL_RenderFillRect(_REN, &fg);
+        _SDL_RenderFillRect(_REN, (_SDL_Rect*)&fg);
 
         loop i in 30 do
             _pixelRGBA(_REN, 10+_rand()%50, 10+_rand()%50, 100,100,100, 0xFF);

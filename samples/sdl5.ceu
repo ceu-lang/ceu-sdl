@@ -23,11 +23,8 @@ var _SDL_Renderer&? ren;
         _SDL_DestroyRenderer(&ren);
     end
 
-var _SDL_Rect bg;
-    bg.x = 0;
-    bg.y = 0;
-    bg.w = 640;
-    bg.h = 480;
+var SDL_Rect  bg     = SDL_Rect(0,0 , w,h);
+var SDL_Color bg_clr = SDL_Color(0x00, 0x00, 0x00, 0xFF);
 
 var _SDL_Texture&? tex;
     finalize
@@ -35,11 +32,7 @@ var _SDL_Texture&? tex;
     with
         _SDL_DestroyTexture(&tex);
     end
-var _SDL_Rect tex_r;
-    tex_r.x = 100;
-    tex_r.y = 100;
-    tex_r.w = 20;
-    tex_r.h = 20;
+var SDL_Rect tex_r = SDL_Rect(100,100, 20,20);
 
 _TTF_Init();
     finalize with
@@ -54,19 +47,12 @@ var _TTF_Font&? fnt;
     end
 
 var _SDL_Texture&? str_tex;
-var _SDL_Rect str_r;
-    str_r.x = 10;
-    str_r.y = 10;
-    str_r.w = 200;
-    str_r.h = 20;
+var SDL_Rect str_r = SDL_Rect(10,10, 200,20);
 do
-    var _SDL_Color clr;
-        clr.r = 255;
-        clr.g = 255;
-        clr.b = 255;
+    var SDL_Color clr = SDL_Color(0xFF, 0xFF, 0xFF, 0xFF);
     var _SDL_Surface&? sfc;
     finalize
-        sfc = _TTF_RenderText_Blended(&fnt, "Hello world!", clr);
+        sfc = _TTF_RenderText_Blended(&fnt, "Hello world!", *(_SDL_Color*)&clr);
     with
         _SDL_FreeSurface(&sfc);
     end
@@ -97,9 +83,9 @@ with
 with
     every SDL_REDRAW do
         _SDL_SetRenderDrawColor(&ren, 0x00,0x00,0x00,0xFF);
-        _SDL_RenderFillRect(&ren, &bg);
-        _SDL_RenderCopy(&ren, &tex, null, &tex_r);
-        _SDL_RenderCopy(&ren, &str_tex, null, &str_r);
+        _SDL_RenderFillRect(&ren, (_SDL_Rect*)&bg);
+        _SDL_RenderCopy(&ren, &tex, null, (_SDL_Rect*)&tex_r);
+        _SDL_RenderCopy(&ren, &str_tex, null, (_SDL_Rect*)&str_r);
         _SDL_RenderPresent(&ren);
     end
 end

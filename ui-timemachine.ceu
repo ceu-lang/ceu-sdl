@@ -80,23 +80,19 @@ do
     var int h = ren_h/80;
     var int y = ren_h - h*4;
 
-    var _SDL_Rect r;
-        r.x = x;
-        r.y = y;
-        r.w = w;
-        r.h = h;
+    var SDL_Rect r = SDL_Rect(x,y, w,h);
 
-    var _SDL_Rect rc;
-        rc.w = w*2 / 3;
-        rc.x = ren_w/2 - rc.w/2;
-        rc.y = y - ren_h/10 - ren_h/80;
-        rc.h = ren_h/10;
+    var int cw = w*2 / 3;
+    var SDL_Rect rc = SDL_Rect(ren_w/2 - cw/2,
+                               y - ren_h/10 - ren_h/80,
+                               cw,
+                               ren_h/10);
 
-    var _SDL_Rect[_UITM_TEX_N] rcs;
+    var SDL_Rect[_UITM_TEX_N] rcs;
     do
         var int dx = rc.w / (_UITM_TEX_N+1);
         loop i in _UITM_TEX_N do
-            var _SDL_Rect ri;
+            var SDL_Rect ri;
             _SDL_QueryTexture(_UITM_TEXS[i], null, null, &ri.w, &ri.h);
             ri.x = rc.x + (i+1)*dx - ri.w/2;
             ri.y = rc.y + (rc.h-ri.h)/2;
@@ -113,7 +109,7 @@ do
         with
             loop do
                 var _SDL_MouseButtonEvent* e = await SDL_MOUSEBUTTONDOWN_
-                                               until _SDL_Rect_vs_Mouse(&r,e);
+                                               until _SDL_Rect_vs_Mouse((_SDL_Rect*)&r,e);
                 emit tm.go_seek => (tm.time_total * (e:x-x) / (float)w);
                 bk_speed = -4;
                 fw_speed = -4;
@@ -138,13 +134,13 @@ do
                 var _SDL_MouseButtonEvent* e = await SDL_MOUSEBUTTONDOWN_;
                 var int i = -1;
                 loop ii in _UITM_TEX_N do
-                    if _SDL_Rect_vs_Mouse(&rcs[ii], e) then
+                    if _SDL_Rect_vs_Mouse((_SDL_Rect*)&rcs[ii], e) then
                         i = ii;
                         break;
                     end
                 end
                 e = await SDL_MOUSEBUTTONUP_;
-                if _SDL_Rect_vs_Mouse(&rcs[i], e) then
+                if _SDL_Rect_vs_Mouse((_SDL_Rect*)&rcs[i], e) then
                     if i == 0 then                          // FIRST
                         emit tm.go_seek => 0;
                     else/if i == 1 then                     // REWIND
@@ -187,7 +183,7 @@ do
                     _boxRGBA(_UITM_REN, rc.x, rc.y, rc.x+rc.w, rc.y+rc.h,
                              0xAA,0xAA,0xAA,0xAA);
                     loop i in _UITM_TEX_N do
-                        _SDL_RenderCopy(_UITM_REN, _UITM_TEXS[i], null, &rcs[i]);
+                        _SDL_RenderCopy(_UITM_REN, _UITM_TEXS[i], null, (_SDL_Rect*)&rcs[i]);
                     end
                 end
             end

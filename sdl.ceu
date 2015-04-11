@@ -1,6 +1,25 @@
 #ifndef _SDL_CEU
 #define _SDL_CEU
 
+data SDL_Color with
+    var u8 r;
+    var u8 g;
+    var u8 b;
+    var u8 a;
+end
+
+data SDL_Point with
+    var int x;
+    var int y;
+end
+
+data SDL_Rect with
+    var int x;
+    var int y;
+    var int w;
+    var int h;
+end
+
 native @const _GL_SCISSOR_TEST, _GL_TEXTURE_2D;
 native _glEnable(), _glDisable(), _glScissor();
 

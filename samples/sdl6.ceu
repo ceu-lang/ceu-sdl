@@ -32,8 +32,8 @@ var _SDL_Renderer&? ren;
 /* Maximum of 10k Rectangles on a dedicated memory pool */
 
 class Rect with
-    var _SDL_Rect  rct;        // My initial values
-    var int        vel;        // I have a speed set from outside
+    var SDL_Rect       rct;    // My initial values
+    var int            vel;    // I have a speed set from outside
     var _SDL_Renderer& ren;    // I redraw myself
 do
     this.rct.w = 25;
@@ -49,10 +49,8 @@ do
 /*
 */
 
-    var _SDL_Color clr;         // color varies periodically
-        clr.r = 0xFF;
-        clr.g = 0xFF;
-        clr.b = 0xFF;
+    var SDL_Color clr = SDL_Color(0xFF,0xFF,0xFF,0xFF);
+        // color varies periodically
 
     par/or do
         every 100ms do
@@ -99,7 +97,7 @@ do
         /* redraw myself every frame */
         every SDL_REDRAW do
             _SDL_SetRenderDrawColor(&ren, clr.r,clr.g,clr.b,0xFF);
-            _SDL_RenderFillRect(&ren, &rct);
+            _SDL_RenderFillRect(&ren, (_SDL_Rect*)&rct);
         end
     end
 end
