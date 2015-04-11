@@ -1,12 +1,22 @@
 #ifndef _UI_CEU
 #define _UI_CEU
 
+#include "sdl.ceu"
+
 native @const _UI_ALIGN_LEFT, _UI_ALIGN_CENTER, _UI_ALIGN_RIGHT,
               _UI_ALIGN_TOP,  _UI_ALIGN_MIDDLE, _UI_ALIGN_BOTTOM;
 
 native @pure _UI_align(), _UI_align_bg();
 
+#define UI_SDL_COLOR_REF(to,fr) \
+    finalize                    \
+        to = _SDL_COLOR_REF(fr);\
+    with                        \
+        nothing;                \
+    end
+
 native do
+
     enum {
         UI_ALIGN_LEFT = 0,
         UI_ALIGN_CENTER,
@@ -62,9 +72,9 @@ interface UI with
     //event _SDL_Point*    go_move;
 
     var   _SDL_Renderer& ren;
-    var   _SDL_Rect      rect;
+    var   SDL_Rect       rect;
     var   bool           should_redim;
-    var   _SDL_Color&?   bg_clr;
+    var   SDL_Color&?    bg_clr;
 
     var   int            align_x;
     var   int            align_y;
@@ -72,7 +82,7 @@ interface UI with
     var   int            align_bg_y;
 
     function @rec (SDL_Rect* rect)=>void go;
-    function @rec (_SDL_Rect* bg, bool should_redim_)=>void go_bg;
+    function @rec (SDL_Rect* bg, bool should_redim_)=>void go_bg;
 end
 
 #endif

@@ -12,7 +12,7 @@ class UITexture with
     interface UI;
     var   _SDL_Renderer&  ren;
     var   bool            should_redim = false;
-    var   _SDL_Color&?    bg_clr;
+    var   SDL_Color&?     bg_clr;
 
     var int align_x    = _UI_ALIGN_LEFT;
     var int align_y    = _UI_ALIGN_TOP;
@@ -27,12 +27,12 @@ class UITexture with
     var int pad_x = 0;
     var int pad_y = 0;
 
-    function (_SDL_Rect* r)=>void go;
-    function (_SDL_Rect* bg, bool should_redim_)=>void go_bg;
+    function (SDL_Rect* r)=>void go;
+    function (SDL_Rect* bg, bool should_redim_)=>void go_bg;
 do
     /* METHODS */
 
-    function (_SDL_Rect* r)=>void go do
+    function (SDL_Rect* r)=>void go do
         _assert(r != null);
         _assert(not this.should_redim);
         // ignoring r:w / r:h (no redim)
@@ -40,7 +40,7 @@ do
         this.rect.y = _UI_align(r:y, rect.h, this.align_y);
     end
 
-    function @rec (_SDL_Rect* bg, bool should_redim_)=>void go_bg do
+    function @rec (SDL_Rect* bg, bool should_redim_)=>void go_bg do
         //ui_go_bg(this, bg);
         _assert(bg != null);
         //_assert(not should_redim?);
@@ -58,14 +58,15 @@ do
         // OK_CLICKED
         loop do
             var _SDL_MouseButtonEvent* but = await SDL_MOUSEBUTTONUP;
-            var _SDL_Rect r = this.rect;
+            var SDL_Rect r = this.rect;
             if this.rect_mul != 1 then
-                r.w = rect.w * this.rect_mul;
-                r.h = rect.h * this.rect_mul;
-                r.x = rect.x - (r.w-rect.w)/2;
-                r.y = rect.y - (r.h-rect.h)/2;
+                var int w = rect.w * this.rect_mul;
+                var int h = rect.h * this.rect_mul;
+                r = SDL_Rect(rect.x - (r.w-w)/2,
+                             rect.y - (r.h-h)/2,
+                             w, h);
             end
-            if _SDL_Rect_vs_Mouse(&r, but) then
+            if _SDL_Rect_vs_Mouse((_SDL_Rect*)&r, but) then
                 emit ok_clicked;
             end
         end
@@ -83,7 +84,7 @@ do
             end
             //emit ok_redraw_pre;
 
-            _SDL_RenderCopy(&this.ren, &this.tex, null, &rect);
+            _SDL_RenderCopy(&this.ren, &this.tex, null, (_SDL_Rect*)&rect);
             //emit ok_redraw_pos;
         end
     end
@@ -130,11 +131,7 @@ var _SDL_Window&? win;
     end
 
 _SDL_GetWindowSize(&win, &win_w, &win_h);
-var _SDL_Rect win_r;
-    win_r.x = 0;
-    win_r.y = 0;
-    win_r.w = win_w;
-    win_r.h = win_h;
+var SDL_Rect win_r = SDL_Rect(0,0, win_w,win_h);
 
 var _SDL_Renderer&? ren;
     finalize
@@ -163,16 +160,16 @@ with
     _SDL_DestroyTexture(&tex_txt);
 end
 
-var _SDL_Rect r1, r2;
+var SDL_Rect r1, r2;
 
 par/or do
     await SDL_QUIT;
 with
     every SDL_REDRAW do
         _SDL_SetRenderDrawColor(&ren, 0x00,0x00,0x00, 0xFF);
-        _SDL_RenderFillRect(&ren, &win_r);
+        _SDL_RenderFillRect(&ren, (_SDL_Rect*)&win_r);
         _SDL_SetRenderDrawColor(&ren, 0xFF,0xFF,0xFF, 0xFF);
-        _SDL_RenderFillRect(&ren, &r2);
+        _SDL_RenderFillRect(&ren, (_SDL_Rect*)&r2);
         _circleRGBA(&ren, win_r.w/2, win_r.h/2, 2, 0xFF,0xFF,0xFF,0xFF);
     end
 with
@@ -190,9 +187,7 @@ with
         this.align_y = _UI_ALIGN_TOP;
     end;
 
-    var _SDL_Rect r_txt;
-        r_txt.x = 0;
-        r_txt.y = 0;
+    var SDL_Rect r_txt = SDL_Rect(0,0,0,0);
     ui_txt.go(&r_txt);
 
     await 1s;
@@ -203,7 +198,7 @@ with
     var UITexture ui1 with
         this.ren = ren;
         this.tex = tex;
-        this.bg_clr = &_colors.blue;
+        UI_SDL_COLOR_REF(this.bg_clr, _colors.blue);
     end;
 
     var UITexture ui2 with
@@ -212,15 +207,8 @@ with
     end;
 
     par do
-        r1.x = 10;
-        r1.y = 10;
-        r1.w = 150;
-        r1.h = 150;
-
-        r2.x = 200;
-        r2.y = 100;
-        r2.w = 100;
-        r2.h = 100;
+        r1 = SDL_Rect(10,10, 150,150);
+        r2 = SDL_Rect(200,100, 100,100);
 
         loop do
             native _rand();
@@ -282,9 +270,9 @@ with
                 end
             end
 
-            var _SDL_Rect r;
-                r.x = win_r.w / 2;
-                r.y = win_r.h / 2;
+            var SDL_Rect r = SDL_Rect(win_r.w / 2,
+                                      win_r.h / 2,
+                                      0,0);
 
             loop i in 3 do
                 loop j in 3 do

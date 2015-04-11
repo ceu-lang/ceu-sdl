@@ -2,6 +2,9 @@
 #define _SDL_COLORS_CEU
 
 native do
+    ##define SDL_COLOR_REF(c) ((CEU_SDL_Color*)UNSAFE_POINTER_TO_REFERENCE(&c))
+    ##define SDL_COLOR(c)     (*((CEU_SDL_Color*)(&c)))
+
     typedef struct {
         SDL_Color black;
         SDL_Color white;
