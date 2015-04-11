@@ -9,8 +9,8 @@ input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
 
 class UIScroll with
     interface UI;
-    var bool         should_redim  = true;
-    var SDL_Color&?  bg_clr;
+    var bool       should_redim  = true;
+    var SDL_Color? bg_clr;
 
     var int align_x    = _UI_ALIGN_LEFT;
     var int align_y    = _UI_ALIGN_TOP;
@@ -238,8 +238,8 @@ with
         this.spc_y     = 10;
         this.pad_x     = 10;
         this.pad_y     = 10;
-        UI_SDL_COLOR_REF(this.clr_bg    , _colors.white);
-        UI_SDL_COLOR_REF(this.clr_ui_bg , _colors.gray);
+        this.clr_bg    = SDL_COLOR_WHITE;
+        this.clr_ui_bg = SDL_COLOR_GRAY;
     end;
 
     var SDL_Rect r = SDL_Rect(0,0, 2*win_r.w,2*win_r.h);
@@ -252,10 +252,10 @@ with
             _fprintf(_stderr, "G: %d\n", opt);
         end
     with
-        await 10s;
+        await 5s;
         _printf("oi\n");
 
-        var SDL_Color c = _SDL_COLOR(_colors.blue);
+        var SDL_Color c = SDL_COLOR_BLUE;
             c.a = 0x77;
 
         var UIScroll scroll with

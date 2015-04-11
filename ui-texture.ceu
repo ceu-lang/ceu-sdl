@@ -12,7 +12,7 @@ class UITexture with
     interface UI;
     var   _SDL_Renderer&  ren;
     var   bool            should_redim = false;
-    var   SDL_Color&?     bg_clr;
+    var   SDL_Color?      bg_clr;
 
     var int align_x    = _UI_ALIGN_LEFT;
     var int align_y    = _UI_ALIGN_TOP;
@@ -153,9 +153,11 @@ with
 end
 
 var _SDL_Texture&? tex_txt;
+var SDL_Color black = SDL_COLOR_BLACK;
+var SDL_Color white = SDL_COLOR_WHITE;
 finalize
     tex_txt = _SDL_text2texture(&ren, &font, "ola mundo!",
-                                &_colors.black, &_colors.white);
+                                (_SDL_Color*)&black, (_SDL_Color*)&white);
 with
     _SDL_DestroyTexture(&tex_txt);
 end
@@ -198,7 +200,7 @@ with
     var UITexture ui1 with
         this.ren = ren;
         this.tex = tex;
-        UI_SDL_COLOR_REF(this.bg_clr, _colors.blue);
+        this.bg_clr = SDL_COLOR_BLUE;
     end;
 
     var UITexture ui2 with

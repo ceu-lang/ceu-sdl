@@ -31,7 +31,7 @@ class UIGrid with
 
     var _SDL_Renderer&  ren;
     var   bool          should_redim  = true;
-    var   SDL_Color&?   bg_clr;
+    var   SDL_Color?    bg_clr;
 
     var int align_x    = _UI_ALIGN_LEFT;
     var int align_y    = _UI_ALIGN_TOP;
@@ -41,12 +41,12 @@ class UIGrid with
     event int           ok_uiclicked;
 
     // TODO: clr_bg vs bg_clr
-    var   SDL_Color&? clr_bg      ; // whole UI background
-    var   SDL_Color&? clr_fr      ; // whole UI frame
-    var   SDL_Color&? clr_cell_bg ; // each cell background
-    var   SDL_Color&? clr_cell_fr ; // each cell frame
-    var   SDL_Color&? clr_ui_bg   ; // each UI background (if existent)
-    var   SDL_Color&? clr_ui_fr   ; // each UI frame (if existent)
+    var   SDL_Color? clr_bg      ; // whole UI background
+    var   SDL_Color? clr_fr      ; // whole UI frame
+    var   SDL_Color? clr_cell_bg ; // each cell background
+    var   SDL_Color? clr_cell_fr ; // each cell frame
+    var   SDL_Color? clr_ui_bg   ; // each UI background (if existent)
+    var   SDL_Color? clr_ui_fr   ; // each UI frame (if existent)
 
     //var   int           one_x=0, one_y=0;
     var   int            spc_x=0, spc_y=0;
@@ -215,18 +215,7 @@ do
                 _SDL_SetRenderDrawColor(&ren,
                         clr_bg.r,clr_bg.g,clr_bg.b,clr_bg.a);
                 _SDL_RenderFillRect(&ren, (_SDL_Rect*)&rect);
-/*
-_printf("oioi %d %d %d\n", clr_bg.r, clr_bg.g, clr_bg.b);
-                _boxColor(&ren, rect.x,rect.y,rect.x+rect.w,rect.y+rect.h, &clr_bg);
-*/
             end
-/*
-//clr_cell_bg = &_colors.white;
-//clr_ui_bg = &_colors.white;
-clr_cell_fr = &_colors.white;
-clr_ui_fr = &_colors.black;
-clr_fr = &_colors.red;
-*/
             loop/UI_GRID_MAX_UIS i in uis_n do
                 if clr_cell_bg? then
                     _SDL_SetRenderDrawColor(&ren,
@@ -307,10 +296,10 @@ with
         this.lay_cols = 4;
         this.lay      = _lay1;
         this.uis_n    = 3;
-        UI_SDL_COLOR_REF(this.clr_bg      , _colors.gray);
-        UI_SDL_COLOR_REF(this.clr_fr      , _colors.red);
-        UI_SDL_COLOR_REF(this.clr_cell_bg , _colors.white);
-        UI_SDL_COLOR_REF(this.clr_cell_fr , _colors.black);
+        this.clr_bg      = SDL_COLOR_GRAY;
+        this.clr_fr      = SDL_COLOR_RED;
+        this.clr_cell_bg = SDL_COLOR_WHITE;
+        this.clr_cell_fr = SDL_COLOR_BLACK;
     end;
 
     var UIGrid g2 with
@@ -321,9 +310,9 @@ with
         this.lay_cols = 3;
         this.lay      = _lay2;
         this.uis_n    = 3;
-        UI_SDL_COLOR_REF(this.clr_cell_fr , _colors.black);
-        UI_SDL_COLOR_REF(this.clr_ui_bg   , _colors.yellow);
-        UI_SDL_COLOR_REF(this.clr_ui_fr   , _colors.red);
+        this.clr_cell_fr = SDL_COLOR_BLACK;
+        this.clr_ui_bg   = SDL_COLOR_YELLOW;
+        this.clr_ui_fr   = SDL_COLOR_RED;
     end;
 
     var SDL_Rect r = SDL_Rect(win_w/4, win_h/4,

@@ -28,7 +28,7 @@ var SDL_Color bg_clr = SDL_Color(0x00, 0x00, 0x00, 0xFF);
 
 class Rect with
     var _SDL_Renderer& ren;
-    var _SDL_Rect      rect;
+    var SDL_Rect       rect;
     var int            v;
 do
     var _SDL_Color clr;
@@ -46,7 +46,7 @@ do
     with
         every SDL_REDRAW do
             _SDL_SetRenderDrawColor(&ren, clr.r,clr.g,clr.b,0xFF);
-            _SDL_RenderFillRect(&ren, &rect);
+            _SDL_RenderFillRect(&ren, (_SDL_Rect*)&rect);
         end
     end
 end
