@@ -2,7 +2,7 @@
 #include "header.ceu"
 
 native do
-    int ORGS = 0;       // count the number of alive rectangles
+    //int ORGS = 0;       // count the number of alive rectangles
 end
 
 /* Maximum of 10k Rectangles on a dedicated memory pool */
@@ -18,11 +18,11 @@ do
     var int x = rct.x;
 
     /* count the number of alive rectangles */
+/*
     _ORGS = _ORGS + 1;          // increment on init
         finalize with
             _ORGS = _ORGS - 1;  // decrement on finalization
         end;
-/*
 */
 
     var _SDL_Color clr;         // color varies periodically
@@ -145,7 +145,7 @@ with
         with
             await 1s;
         end
-        _printf("[FPS=%d] [orgs=%d]\n", c, _ORGS);
+        //_printf("[FPS=%d] [orgs=%d]\n", c, _ORGS);
     end
 end
 

@@ -34,8 +34,8 @@ do
     this.r.w = 50;
     this.r.h = 45;
 
-        var float sin = 0;
-    par/and do
+    var float sin = 0;
+    par do
         var int y = r.y;
         var int dt;
         var float x = r.x;
