@@ -1,0 +1,74 @@
+native do
+    ##define SDL_MATH
+end
+#define HEADER_TITLE "LED - 07 (scope)"
+#include "header.ceu"
+
+class Led with
+    var SDL_Point p;
+do
+    var bool is_on = false;
+    par do
+        loop do
+            par/or do
+                loop do
+                    await 500ms;
+                    is_on = not is_on;
+                end
+            with
+                var _SDL_MouseButtonEvent* but =
+                        await SDL_MOUSEBUTTONDOWN
+                        until _SDL_Circle_vs_Mouse((_SDL_Point*)&this.p, 50, but);
+            end
+            await 2s;
+        end
+    with
+        every SDL_REDRAW do
+            _filledCircleRGBA(_REN, this.p.x,this.p.y,50, 0xFF,0xFF,0xFF,0xFF);
+            if is_on then
+                _filledCircleRGBA(_REN, this.p.x,this.p.y,47, 0x00,0x88,0x00,0xFF);
+            else
+                _filledCircleRGBA(_REN, this.p.x,this.p.y,47, 0x00,0x00,0x00,0xFF);
+            end
+        end
+    end
+end
+
+var SDL_Point stop = SDL_Point(300,430);
+
+par/or do
+    await SDL_QUIT;
+with
+    every SDL_REDRAW do
+        _boxRGBA(_REN, 0,0,_REN_W,_REN_H, 0xCC,0xCC,0xCC,0xFF);
+    end
+with
+    loop do
+        par/or do
+            var int i = 0;
+            var int x = 100;
+            var int y = 100;
+            var Led[6] leds with
+                this.p = SDL_Point(x,y);
+                x = x + 200;
+                if i == 2 then
+                    y = y + 200;
+                    x = 100;
+                end
+                i = i + 1;
+            end;
+            await FOREVER;
+        with
+            var _SDL_MouseButtonEvent* but =
+                    await SDL_MOUSEBUTTONDOWN
+                    until _SDL_Circle_vs_Mouse((_SDL_Point*)&stop, 30, but);
+        end
+    end
+with
+    every SDL_REDRAW do
+        _filledCircleRGBA(_REN, stop.x,stop.y,30, 0xFF,0x00,0x00,0xFF);
+        _SDL_RenderPresent(_REN);
+    end
+end
+
+escape 0;
