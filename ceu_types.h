@@ -10,7 +10,9 @@ typedef unsigned int  word;
 #endif
 typedef unsigned int  uint;
 typedef unsigned char byte;
+#ifndef __cplusplus
 typedef unsigned char bool;
+#endif
 
 typedef int64_t  s64;
 typedef int32_t  s32;
@@ -23,5 +25,19 @@ typedef uint8_t   u8;
 
 typedef float    f32;
 typedef double   f64;
+
+void ceu_sys_log (int mode, long s) {
+    switch (mode) {
+        case 0:
+            fprintf(stderr, "%s", (char*)s);
+            break;
+        case 1:
+            fprintf(stderr, "%lX", s);
+            break;
+        case 2:
+            fprintf(stderr, "%ld", s);
+            break;
+    }
+}
 
 #endif
