@@ -1,4 +1,5 @@
 CFLAGS = -DCEU_DEBUG #-DCEU_DEBUG_TRAILS
+#CFLAGS = -DSDL_MATH
 
 all:
 	ceu --cpp-args "-I ." $(CEUFILE)

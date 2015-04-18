@@ -118,8 +118,8 @@ with
         end
     with
         every SDL_DT do
-            loop (Bird*)b1 in birds do
-                loop (Bird*)b2 in birds do
+            loop b1 in birds do
+                loop b2 in birds do
                     if b1!=b2 and _SDL_HasIntersection(&b1:r,&b2:r) then
                         emit b1:go_collide;
                         emit b2:go_collide;
@@ -131,7 +131,7 @@ with
         loop do
             var _SDL_MouseButtonEvent* mse = await SDL_MOUSEBUTTONDOWN;
             var Bird* ptr = null;
-            loop (Bird*) b in birds do
+            loop b in birds do
                 if _SDL_Rect_vs_Mouse(&b:r,mse) then
                     ptr = b;
                     break;

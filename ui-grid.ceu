@@ -87,7 +87,7 @@ do
 
         // TODO: save all cur in a vector and do this loop once, after 
         // calculating them all
-        loop (UIGridItem*)item in this.uis do
+        loop item in this.uis do
             if item:idx == -1 then
                 call/rec item:ui:go_bg(&this.rect, true);    // -1 = BG item
             end
@@ -165,7 +165,7 @@ do
 
                     // TODO: save all cur in a vector and do this loop once, 
                     // after calculating them all
-                    loop (UIGridItem*)item in this.uis do
+                    loop item in this.uis do
                         if item:idx == cur then
                             call/rec item:ui:go_bg(ui_rect, true);
                         end

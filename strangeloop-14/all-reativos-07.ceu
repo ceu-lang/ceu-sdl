@@ -1,0 +1,200 @@
+#define ALL
+
+#include "sdl.ceu"
+#include "sdl-gfx.ceu"
+
+input void SDL_QUIT;
+input void SDL_REDRAW;
+input int  SDL_DT;
+input _SDL_KeyboardEvent*    SDL_KEYDOWN;
+input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
+
+#ifdef CEU_TIMEMACHINE
+input int SDL_DT;
+global do
+#endif
+
+native do
+    SDL_Window*   WIN = NULL;
+    SDL_Renderer* REN = NULL;
+    int REN_W, REN_H;
+end
+
+finalize
+    _WIN = _SDL_CreateWindow("DEMO",
+            _SDL_WINDOWPOS_UNDEFINED, _SDL_WINDOWPOS_UNDEFINED,
+            640, 480, _SDL_WINDOW_SHOWN);
+with
+    _SDL_DestroyWindow(_WIN);
+end
+
+_SDL_GetWindowSize(_WIN, &_REN_W, &_REN_H);
+
+finalize
+    _REN = _SDL_CreateRenderer(_WIN, -1, 0);
+with
+    _SDL_DestroyRenderer(_REN);
+end
+
+#ifdef CEU_TIMEMACHINE
+end
+#endif
+
+var int ex = 1;
+
+#define MAX 19
+
+par/or do
+    loop do
+        do
+            // show blank screen
+            _SDL_SetWindowTitle(_WIN, "-- blank --");
+            watching SDL_KEYDOWN do
+                every SDL_REDRAW do
+                    _SDL_SetRenderDrawColor(_REN, 0x00,0x00,0x00, 0xFF);
+                    _SDL_RenderFillRect(_REN, null);
+                    _SDL_RenderPresent(_REN);
+                end
+            end
+        end
+        par/or do
+            if ex == 1 then
+                #undef  Title
+                #define Title Title1
+                #include "strangeloop-14/led-01.ceu"
+            else/if ex == 2 then
+                #undef  Title
+                #define Title Title2
+                #include "strangeloop-14/led-02.ceu"
+            else/if ex == 3 then
+                #undef  Title
+                #define Title Title3
+                #include "strangeloop-14/led-03.ceu"
+            else/if ex == 4 then
+                #undef  Title
+                #define Title Title4
+                #include "strangeloop-14/sdl-01.ceu"
+            else/if ex == 5 then
+                #undef  Title
+                #define Title Title5
+                #include "strangeloop-14/sdl-02.ceu"
+            else/if ex == 6 then
+                #undef  Title
+                #define Title Title6
+                #define Rect Rect1
+                #include "strangeloop-14/sdl-03.ceu"
+            else/if ex == 7 then
+                #undef  Title
+                #define Title Title7
+                #define Bird Bird1
+                #include "strangeloop-14/birds-01.ceu"
+            else/if ex == 8 then
+                #undef  Title
+                #define Title Title8
+                #undef Bird
+                #define Bird Bird2
+                #include "strangeloop-14/birds-02.ceu"
+            else/if ex == 9 then
+                #undef  Title
+                #define Title Title9
+                #undef Bird
+                #define Bird Bird3
+                #include "strangeloop-14/birds-03.ceu"
+            else/if ex == 10 then
+                #undef  Title
+                #define Title Title10
+                #undef Bird
+                #define Bird Bird4
+                #include "strangeloop-14/birds-04.ceu"
+            else/if ex == 11 then
+                #undef  Title
+                #define Title Title11
+                #undef Bird
+                #define Bird Bird5
+                #include "strangeloop-14/birds-05.ceu"
+            else/if ex == 12 then
+                #undef  Title
+                #define Title Title12
+                #undef Bird
+                #define Bird Bird6
+                #include "strangeloop-14/birds-06.ceu"
+            else/if ex == 13 then
+                #undef  Title
+                #define Title Title13
+                #undef Bird
+                #define Bird Bird7
+                #include "strangeloop-14/birds-07.ceu"
+            else/if ex == 14 then
+                #undef  Title
+                #define Title Title14
+                #undef Bird
+                #define Bird Bird8
+                #include "strangeloop-14/birds-08.ceu"
+            else/if ex == 15 then
+                #undef  Title
+                #define Title Title15
+                #undef Bird
+                #define Bird Bird9
+                #include "strangeloop-14/birds-09.ceu"
+            else/if ex == 16 then
+                #undef  Title
+                #define Title Title16
+                #undef Bird
+                #define Bird Bird10
+                #include "strangeloop-14/birds-10.ceu"
+            else/if ex == 17 then
+                #undef  Title
+                #define Title Title17
+                #undef Bird
+                #define Bird Bird11
+                #include "strangeloop-14/birds-11.ceu"
+            else/if ex == 18 then
+                #undef  Title
+                #define Title Title18
+                #undef Bird
+                #define Bird Bird12
+                #include "strangeloop-14/birds-12.ceu"
+            else/if ex == 19 then
+                #undef  Title
+                #define Title Title19
+                #undef Bird
+                #define Bird Bird13
+                #include "strangeloop-14/birds-13.ceu"
+#if 0
+            else/if ex == 20 then
+                #undef  Title
+                #define Title Title20
+                #undef Rect
+                #define Rect Rect2
+                #include "strangeloop-14/sdl6.ceu"
+#endif
+            else
+                await FOREVER;
+            end
+        with
+            var _SDL_KeyboardEvent* key;
+            every key in SDL_KEYDOWN do
+                if key:keysym.sym==_SDLK_r or key:keysym.sym==_SDLK_DOWN or
+                                              key:keysym.sym==_SDLK_UP then
+                    ex = ex;
+                    break;
+                else/if key:keysym.sym==_SDLK_p or key:keysym.sym==_SDLK_LEFT then
+                    ex = ex - 1;
+                    break;
+                else/if key:keysym.sym==_SDLK_n or key:keysym.sym==_SDLK_RIGHT then
+                    ex = ex + 1;
+                    break;
+                end
+            end
+            if ex < 1 then
+                ex = MAX;
+            else/if ex > MAX then
+                ex = 1;
+            end
+        end
+    end
+with
+    await SDL_QUIT;
+end
+
+escape 0;
