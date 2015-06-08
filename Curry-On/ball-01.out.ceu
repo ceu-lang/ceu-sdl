@@ -1,0 +1,33 @@
+
+    input int  NEXT_FRAME;      /* int:  number of milliseconds between frames */
+    input void MOUSE_BUTTON;    /* void: not interested in any associated value */
+
+    data Ball with
+        var float x;
+        var float y;
+        var float radius;
+    end
+    var Ball ball = Ball(130,130,8);    /* starting position and radius */
+
+    await MOUSE_BUTTON;                 /* wait for the starting click */
+
+    var float velocity     = 20;        /* pixels per second */
+    var float acceleration = 20;        /* pixels per second per second */
+
+    par do
+        /* velocity is the integral of acceleration */
+        loop do
+            var int dt = await NEXT_FRAME;
+            velocity = velocity + acceleration * dt/1000.0;
+        end
+    with
+        /* position is the integral of velocity */
+        loop do
+            var int dt = await NEXT_FRAME;
+            ball.x = ball.x + velocity * dt/1000.0;
+        end
+    with
+        /* Omitted code to redraw the ball and the track. */
+        /* (has access to mutable ball.[xy])              */
+    end
+
