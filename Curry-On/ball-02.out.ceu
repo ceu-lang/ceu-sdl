@@ -1,0 +1,38 @@
+
+    class Integral_Over_Time with
+        var float& accumulator;
+        var float& value;
+    do
+        every dt in NEXT_FRAME do
+            accumulator = accumulator + value * dt/1000.0;
+        end
+    end
+
+    input int  NEXT_FRAME;      /* int:  number of milliseconds between frames */
+    input void MOUSE_BUTTON;    /* void: not interested in any associated value */
+
+    data Ball with
+        var float x;
+        var float y;
+        var float radius;
+    end
+    var Ball ball = Ball(130,130,8);    /* starting position and radius */
+
+    await MOUSE_BUTTON;                 /* wait for the starting click */
+
+    var float velocity     = 20;        /* pixels per second */
+    var float acceleration = 20;        /* pixels per second per second */
+
+    var Integral_Over_Time int_velocity with
+        this.accumulator = velocity;
+        this.value       = acceleration;
+    end;
+
+    var Integral_Over_Time int_position with
+        this.accumulator = ball.x;
+        this.value       = velocity;
+    end;
+
+    /* Omitted code to redraw the ball and the track. */
+    /* (has access to mutable ball.[xy])              */
+
