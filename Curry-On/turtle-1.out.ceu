@@ -3,7 +3,7 @@
 
 input void SDL_REDRAW;
 input void SDL_QUIT;
-input int  SDL_DT;
+input int    SDL_DT;
 
 var _SDL_Window&? win;
     finalize
@@ -44,8 +44,39 @@ var _SDL_Renderer&? ren;
         end
     or
         tag REPEAT with
+            var int            times;
+            var Command* command;
+        end
+    end
+
+    data Command with
+        tag NOTHING;
+    or
+        tag AWAIT with
+            var int ms;
+        end
+    or
+        tag ROTATE with
+            var int vel_angle;
+        end
+    or
+        tag MOVE with
+            var int vel_pixels;
+        end
+    or
+        tag SEQUENCE with
+            var Command* one;
+            var Command* two;
+        end
+    or
+        tag REPEAT with
             var int      times;
             var Command* command;
+        end
+    or
+        tag PAROR with
+            var Command* one;
+            var Command* two;
         end
     end
 
@@ -59,6 +90,32 @@ var _SDL_Renderer&? ren;
             rotate(45)
             move(-100)
     */
+
+    #define DO_1_SEC(something)       \
+        Command.PAROR(                \
+                something,            \
+                Command.AWAIT(1000))
+
+    #define SEQ8(a,b,c,d,e,f,g,h)     \
+        Command.SEQUENCE(a,           \
+            Command.SEQUENCE(b,       \
+                Command.SEQUENCE(c,   \
+                    <...>
+
+    pool Command[] cmds =
+        new SEQ8(
+            Command.AWAIT(1000),
+            DO_1_SEC(Command.MOVE(150)),
+            Command.AWAIT(1000),
+            DO_1_SEC(Command.ROTATE(140)),
+            Command.AWAIT(1000),
+            DO_1_SEC(Command.MOVE(100)),
+            Command.AWAIT(1000),
+            Command.PAROR(
+                Command.AWAIT(20000),
+                Command.PAROR(
+                    Command.ROTATE(100),
+                    Command.MOVE(200))));
 
     pool Command[] cmds =
         new Command.REPEAT(2,
@@ -79,24 +136,24 @@ var _SDL_Renderer&? ren;
 
 
     class Turtle with
-        var SDL_Point pos;      // initial position
+        var SDL_Point pos;        // initial position
         var int       angle;    // initial angle
     do
-        <...>   // code to continuously redraw the turtle
+        <...>     // code to continuously redraw the turtle
     end
 
     class TurtleTurn with
         var Turtle& turtle;
         var int     angle;
     do
-        <...>   // code to manipulate the angle
+        <...>     // code to manipulate the angle
     end
 
     class TurtleMove with
         var Turtle& turtle;
         var int     pixels;
     do
-        <...>   // code to manipulate the position
+        <...>     // code to manipulate the position
     end
 
     var Turtle turtle with
@@ -134,18 +191,38 @@ var _SDL_Renderer&? ren;
     end
 
     loop/rec cmd in cmds do
-      watching cmd do
+        watching cmd do
         <...>
 
         else/if cmd:ROTATE then
-          do TurtleTurn with
+            do TurtleTurn with
             this.turtle = turtle;
             this.angle  = cmd:ROTATE.angle;
-          end;
+            end;
 
         <...>
-      end
+        end
     end
+
+    loop/rec cmd in cmds do
+        watching cmd do
+            <...>
+
+            else/if cmd:AWAIT then
+                await (cmd:AWAIT.ms) ms;
+
+            else/if cmd:PAROR then
+                par/or do
+                    recurse cmd:PAROR.one;
+                with
+                    recurse cmd:PAROR.two;
+                end
+
+            <...>
+        end
+    end
+
+
 
     await FOREVER;
 with

@@ -1,30 +1,5 @@
-#include "sdl.ceu"
-#include "sdl-gfx.ceu"
-
-input void SDL_REDRAW;
-input void SDL_QUIT;
-input int  SDL_DT;
-
-var _SDL_Window&? win;
-    finalize
-        win = _SDL_CreateWindow("Logo", _SDL_WINDOWPOS_CENTERED,
-                                        _SDL_WINDOWPOS_CENTERED,
-                                        400, 400,
-                                        _SDL_WINDOW_SHOWN);
-    with
-        _SDL_DestroyWindow(&win);
-    end
-
-var int w, h;
-_SDL_GetWindowSize(&win, &w, &h);
-var SDL_Rect bg = SDL_Rect(0,0 , w,h);
-
-var _SDL_Renderer&? ren;
-    finalize
-        ren = _SDL_CreateRenderer(&win, -1, 0);
-    with
-        _SDL_DestroyRenderer(&ren);
-    end
+#define HEADER_TITLE "Turtle - 01"
+#include "header.ceu"
 
 data Command with
     tag NOTHING;
@@ -48,9 +23,7 @@ or
     end
 end
 
-// TODO: aceitar estatico
 pool Command[] cmds;
-
 cmds = new Command.REPEAT(2,
             Command.SEQUENCE(
                 Command.ROTATE(45),
@@ -80,7 +53,7 @@ do
     end
 end
 
-class TurtleTurn with
+class TurtleRotate with
     var Turtle& turtle;
     var int     angle;
 do
@@ -133,12 +106,12 @@ par/or do
     await SDL_QUIT;
 with
     every SDL_REDRAW do
-        _SDL_SetRenderDrawColor(&ren, 0xFF,0xFF,0xFF, 0xFF);
-        _SDL_RenderFillRect(&ren, (_SDL_Rect*)&bg);
+        _SDL_SetRenderDrawColor(_REN, 0xFF,0xFF,0xFF, 0xFF);
+        _SDL_RenderFillRect(_REN, null);
     end
 with
     var Turtle turtle with
-        this.ren = ren;
+        this.ren = _REN;
     end;
 
     await 1s;
@@ -148,7 +121,7 @@ with
                 nothing;
 
             else/if cmd:ROTATE then
-                do TurtleTurn with
+                do TurtleRotate with
                     this.turtle  = turtle;
                     this.angle   = cmd:ROTATE.angle;
                 end;
@@ -177,7 +150,7 @@ with
     await FOREVER;
 with
     every SDL_REDRAW do
-        _SDL_RenderPresent(&ren);
+        _SDL_RenderPresent(_REN);
     end
 end
 
