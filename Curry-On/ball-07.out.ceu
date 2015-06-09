@@ -1,0 +1,19 @@
+
+
+    #define MOVE_UNTIL_BUTTON(axis,v0,a0)           \
+        do                                          \
+            var float velocity=v0, acceleration=a0; \
+            DCL_INT(velocity, acceleration);        \
+            DCL_INT(axis,     velocity);            \
+            await MOUSE_BUTTON;                     \
+        end
+
+    await MOUSE_BUTTON;
+    loop do
+        MOVE_UNTIL_BUTTON(ball.x,  20,  20);
+        MOVE_UNTIL_BUTTON(ball.y,  20,  20);
+        MOVE_UNTIL_BUTTON(ball.x, -20, -20);
+        MOVE_UNTIL_BUTTON(ball.y, -20, -20);
+    end
+
+

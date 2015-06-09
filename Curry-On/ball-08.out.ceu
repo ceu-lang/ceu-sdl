@@ -1,0 +1,36 @@
+
+
+    // INPUTS
+    input int  NEXT_FRAME;
+    input void MOUSE_BUTTON;
+
+    // ABSTRACTIONS
+    class Integral_Over_Time with
+        var float& accumulator;
+        var float& value;
+    do
+        <...>
+    end
+    #define DCL_INT(a,v) \
+        <...>
+    #define MOVE_UNTIL_BUTTON(axis,v0,a0) \
+        <...>
+
+    // PROGRAM DATA
+    data Ball with
+        var float x;
+        var float y;
+        var float radius;
+    end
+    var Ball ball = Ball(130,130,8);
+
+    // PROGRAM FLOW
+    await MOUSE_BUTTON;
+    loop do
+        MOVE_UNTIL_BUTTON(ball.x,  20,  20);
+        MOVE_UNTIL_BUTTON(ball.y,  20,  20);
+        MOVE_UNTIL_BUTTON(ball.x, -20, -20);
+        MOVE_UNTIL_BUTTON(ball.y, -20, -20);
+    end
+
+
