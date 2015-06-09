@@ -1,30 +1,5 @@
-native do
-    ##define SDL_MATH
-end
-#include "sdl.ceu"
-#include "sdl-gfx.ceu"
-
-input void SDL_REDRAW;
-input void SDL_QUIT;
-input int  SDL_DT;
-input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
-
-var int win_w;
-var int win_h;
-var _SDL_Window&? win;
-    finalize
-        win = _SDL_CreateWindow("Example 1",
-                            0, 0, 400, 400, _SDL_WINDOW_SHOWN);
-    with
-        _SDL_DestroyWindow(&win);
-    end
-
-var _SDL_Renderer&? ren;
-    finalize
-        ren = _SDL_CreateRenderer(&win, -1, 0);
-    with
-        _SDL_DestroyRenderer(&ren);
-    end
+#define HEADER_TITLE "Ball - 01"
+#include "header.ceu"
 
 data Ball with
     var float x;
@@ -55,24 +30,24 @@ with
 with
     every SDL_REDRAW do
 
-        _SDL_SetRenderDrawColor(ren, 0xFF,0xFF,0xFF,0x00);
-        _SDL_RenderFillRect(ren, null);
+        _SDL_SetRenderDrawColor(_REN, 0xFF,0xFF,0xFF,0x00);
+        _SDL_RenderFillRect(_REN, null);
 
-        _SDL_SetRenderDrawColor(ren, 0x95,0x2A,0x2A,0x00);
+        _SDL_SetRenderDrawColor(_REN, 0x95,0x2A,0x2A,0x00);
         var SDL_Rect r1 = SDL_Rect(100,100,  200,50);
-        _SDL_RenderFillRect(ren, (_SDL_Rect*)&r1);
+        _SDL_RenderFillRect(_REN, (_SDL_Rect*)&r1);
         var SDL_Rect r2 = SDL_Rect(100,250, 200,50);
-        _SDL_RenderFillRect(ren, (_SDL_Rect*)&r2);
+        _SDL_RenderFillRect(_REN, (_SDL_Rect*)&r2);
         var SDL_Rect r3 = SDL_Rect(100,100, 50,200);
-        _SDL_RenderFillRect(ren, (_SDL_Rect*)&r3);
+        _SDL_RenderFillRect(_REN, (_SDL_Rect*)&r3);
         var SDL_Rect r4 = SDL_Rect(250,100, 50,200);
-        _SDL_RenderFillRect(ren, (_SDL_Rect*)&r4);
+        _SDL_RenderFillRect(_REN, (_SDL_Rect*)&r4);
 
-        _SDL_SetRenderDrawColor(ren, 0x00,0x00,0xFF,0x00);
-        _filledCircleRGBA(ren, (int)ball.x, (int)ball.y, (int)ball.radius,
+        _SDL_SetRenderDrawColor(_REN, 0x00,0x00,0xFF,0x00);
+        _filledCircleRGBA(_REN, (int)ball.x, (int)ball.y, (int)ball.radius,
                                0x00,0x00,0x00,0xFF);
 
-        _SDL_RenderPresent(ren);
+        _SDL_RenderPresent(_REN);
     end
 end
 

@@ -43,7 +43,7 @@ end
 
 var int ex = 1;
 
-#define MAX 2
+#define MAX 6
 
 par/or do
     loop do
@@ -62,26 +62,56 @@ par/or do
             if ex == 1 then
                 #undef  Title
                 #define Title Title1
-                #undef  Command
-                #define Command Command1
-                #undef  Turtle
-                #define Turtle Turtle1
-                #undef  TurtleMove
-                #define TurtleMove TurtleMove1
-                #undef  TurtleRotate
-                #define TurtleRotate TurtleRotate1
-                #include "Curry-On/turtle-1.ceu"
+                #undef  Ball
+                #define Ball Ball1
+                #include "Curry-On/ball-01.ceu"
             else/if ex == 2 then
                 #undef  Title
                 #define Title Title2
+                #undef  Ball
+                #define Ball Ball2
+                #undef  Integral_Over_Time
+                #define Integral_Over_Time Integral_Over_Time2
+                #include "Curry-On/ball-04.ceu"
+            else/if ex == 3 then
+                #undef  Title
+                #define Title Title3
+                #undef  Ball
+                #define Ball Ball3
+                #undef  Integral_Over_Time
+                #define Integral_Over_Time Integral_Over_Time3
+                #include "Curry-On/ball-05.ceu"
+            else/if ex == 4 then
+                #undef  Title
+                #define Title Title4
+                #undef  Ball
+                #define Ball Ball4
+                #undef  Integral_Over_Time
+                #define Integral_Over_Time Integral_Over_Time4
+                #include "Curry-On/ball-06.ceu"
+            else/if ex == 5 then
+                #undef  Title
+                #define Title Title5
                 #undef  Command
-                #define Command Command2
+                #define Command Command5
                 #undef  Turtle
-                #define Turtle Turtle2
+                #define Turtle Turtle5
                 #undef  TurtleMove
-                #define TurtleMove TurtleMove2
+                #define TurtleMove TurtleMove5
                 #undef  TurtleRotate
-                #define TurtleRotate TurtleRotate2
+                #define TurtleRotate TurtleRotate5
+                #include "Curry-On/turtle-1.ceu"
+            else/if ex == 6 then
+                #undef  Title
+                #define Title Title6
+                #undef  Command
+                #define Command Command6
+                #undef  Turtle
+                #define Turtle Turtle6
+                #undef  TurtleMove
+                #define TurtleMove TurtleMove6
+                #undef  TurtleRotate
+                #define TurtleRotate TurtleRotate6
                 #include "Curry-On/turtle-2.ceu"
             else
                 await FOREVER;
