@@ -161,48 +161,42 @@ with
                     kill *g:SIMPLE.w;
 
                 else/if g:SPLIT then
-                    loop do
-                        par/or do
-                            var int w_, h_;
-                            if g:SPLIT.horizontal then
-                                w_ = w;
-                                h_ = h/2;
-                            else
-                                w_ = w/2;
-                                h_ = h;
-                            end
-                            var int nat = recurse g:SPLIT.g1 with
-                                this.x = x;
-                                this.y = y;
-                                this.w = w_;
-                                this.h = h_;
-                            end;
-                            if nat then
-                                g:SPLIT.g1 = new Grid.EMPTY();
-                            end
-                        with
-                            var int x_, y_, w_, h_;
-                            if g:SPLIT.horizontal then
-                                x_ = x;
-                                y_ = h/2;
-                                w_ = w;
-                                h_ = h/2;
-                            else
-                                x_ = w/2;
-                                y_ = y;
-                                w_ = w/2;
-                                h_ = h;
-                            end
-                            var int nat = recurse g:SPLIT.g2 with
-                                this.x = x_;
-                                this.y = y_;
-                                this.w = w_;
-                                this.h = h_;
-                            end;
-                            if nat then
-                                g:SPLIT.g1 = new Grid.EMPTY();
-                            end
+                    par/or do
+                        var int w_, h_;
+                        if g:SPLIT.horizontal then
+                            w_ = w;
+                            h_ = h/2;
+                        else
+                            w_ = w/2;
+                            h_ = h;
                         end
+                        recurse g:SPLIT.g1 with
+                            this.x = x;
+                            this.y = y;
+                            this.w = w_;
+                            this.h = h_;
+                        end;
+                        g = g:SPLIT.g2;
+                    with
+                        var int x_, y_, w_, h_;
+                        if g:SPLIT.horizontal then
+                            x_ = x;
+                            y_ = h/2;
+                            w_ = w;
+                            h_ = h/2;
+                        else
+                            x_ = w/2;
+                            y_ = y;
+                            w_ = w/2;
+                            h_ = h;
+                        end
+                        recurse g:SPLIT.g2 with
+                            this.x = x_;
+                            this.y = y_;
+                            this.w = w_;
+                            this.h = h_;
+                        end;
+                        g = g:SPLIT.g1;
                     end
 
                 else

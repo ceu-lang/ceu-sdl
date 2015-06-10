@@ -17,7 +17,6 @@ var _SDL_Window&? win;
 
 var int w, h;
 _SDL_GetWindowSize(&win, &w, &h);
-var SDL_Rect bg = SDL_Rect(0,0 , w,h);
 
 var _SDL_Renderer&? ren;
     finalize
@@ -33,19 +32,11 @@ or
         var int ms;
     end
 or
-    tag RIGHT with
+    tag ROTATE with
         var int d_angle;
     end
 or
-    tag LEFT with
-        var int d_angle;
-    end
-or
-    tag FORWARD with
-        var int d_pixels;
-    end
-or
-    tag BACKWARD with
+    tag MOVE with
         var int d_pixels;
     end
 or
@@ -80,17 +71,17 @@ pool Command[] cmds;
 
 cmds = new SEQ8(
             Command.AWAIT(1000),
-            DO1SEC(Command.FORWARD(150)),
+            DO1SEC(Command.MOVE(150)),
             Command.AWAIT(1000),
-            DO1SEC(Command.RIGHT(180)),
+            DO1SEC(Command.ROTATE(140)),
             Command.AWAIT(1000),
-            DO1SEC(Command.FORWARD(150)),
+            DO1SEC(Command.MOVE(100)),
             Command.AWAIT(1000),
             Command.PAROR(
-                Command.AWAIT(10000),
+                Command.AWAIT(20000),
                 Command.PAROR(
-                    Command.RIGHT(180),
-                    Command.FORWARD(100))));
+                    Command.ROTATE(100),
+                    Command.MOVE(200))));
 
 class Turtle with
     var _SDL_Renderer&  ren;
@@ -108,26 +99,16 @@ do
     end
 end
 
-class TurtleTurn with
+class TurtleRotate with
     var Turtle& turtle;
     var int     d_angle;
-    var int     isRight;
 do
     var int inc;
-    if isRight then
-        if d_angle < 0 then
-            d_angle = -d_angle;
-            inc = 1;
-        else
-            inc = -1;
-        end
+    if d_angle < 0 then
+        d_angle = -d_angle;
+        inc = 1;
     else
-        if d_angle < 0 then
-            d_angle = -d_angle;
-            inc = -1;
-        else
-            inc = 1;
-        end
+        inc = -1;
     end
 
     var float sum = turtle.angle;
@@ -140,13 +121,13 @@ end
 class TurtleMove with
     var Turtle& turtle;
     var int     d_pixels;
-    var int     isForward;
 do
     var int inc;
-    if isForward then
+    if d_pixels > 0 then
         inc =  1;
     else
         inc = -1;
+        d_pixels = -d_pixels;
     end
 
     var float sum = 0;
@@ -170,7 +151,7 @@ par/or do
 with
     every SDL_REDRAW do
         _SDL_SetRenderDrawColor(&ren, 0xFF,0xFF,0xFF, 0xFF);
-        _SDL_RenderFillRect(&ren, (_SDL_Rect*)&bg);
+        _SDL_RenderFillRect(&ren, null);
     end
 with
     var Turtle turtle with
@@ -185,30 +166,16 @@ with
             else/if cmd:AWAIT then
                 await (cmd:AWAIT.ms) ms;
 
-            else/if cmd:RIGHT or cmd:LEFT then
-                var int d_angle;
-                if cmd:RIGHT then
-                    d_angle = cmd:RIGHT.d_angle;
-                else
-                    d_angle = cmd:LEFT.d_angle;
-                end
-                do TurtleTurn with
+            else/if cmd:ROTATE then
+                do TurtleRotate with
                     this.turtle  = turtle;
-                    this.d_angle = d_angle;
-                    this.isRight = cmd:RIGHT;
+                    this.d_angle = cmd:ROTATE.d_angle;
                 end;
 
-            else/if cmd:FORWARD or cmd:BACKWARD then
-                var int d_pixels;
-                if cmd:FORWARD then
-                    d_pixels = cmd:FORWARD.d_pixels;
-                else
-                    d_pixels = cmd:BACKWARD.d_pixels;
-                end
+            else/if cmd:MOVE then
                 do TurtleMove with
-                    this.turtle    = turtle;
-                    this.d_pixels  = d_pixels;
-                    this.isForward = cmd:FORWARD;
+                    this.turtle   = turtle;
+                    this.d_pixels = cmd:MOVE.d_pixels;
                 end;
 
             else/if cmd:PAROR then
@@ -232,6 +199,8 @@ with
             end
         end
     end
+
+    await FOREVER;
 with
     every SDL_REDRAW do
         _SDL_RenderPresent(&ren);
