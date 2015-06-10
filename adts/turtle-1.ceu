@@ -5,6 +5,8 @@ input void SDL_REDRAW;
 input void SDL_QUIT;
 input int  SDL_DT;
 
+/* SDL INITIALIZATION */
+
 var _SDL_Window&? win;
     finalize
         win = _SDL_CreateWindow("Logo", _SDL_WINDOWPOS_CENTERED,
@@ -24,6 +26,8 @@ var _SDL_Renderer&? ren;
     with
         _SDL_DestroyRenderer(&ren);
     end
+
+/* TURTLE LANGUAGE SPECIFICATION */
 
 data Command with
     tag NOTHING;
@@ -47,6 +51,19 @@ or
     end
 end
 
+/*
+ * TURTLE PROGRAM SAMPLE:
+ *
+ *  repeat 2 do
+ *      rotate   45;
+ *      move    100;
+ *      rotate  -90;
+ *      move    100;
+ *      rotate   45;
+ *      move   -100;
+ *  end
+ */
+
 pool Command[] cmds;
 cmds = new Command.REPEAT(2,
             Command.SEQUENCE(
@@ -60,6 +77,13 @@ cmds = new Command.REPEAT(2,
                             Command.SEQUENCE(
                                 Command.ROTATE(45),
                                 Command.MOVE(-100)))))));
+
+/*
+ * TURTLE BEHAVIORS:
+ *  - Turtle:       holds "pos", "angle", and redraws itself every frame
+ *  - TurtleRotate: rotates the turtle given an angle
+ *  - TurtleMove:   moves the turtle given the pixels
+ */
 
 class Turtle with
     var _SDL_Renderer&  ren;
@@ -126,41 +150,47 @@ do
 
 end
 
+/* MAIN PROGRAM */
+
 par/or do
     await SDL_QUIT;
 with
+    /* WHITE BAKGROUND */
     every SDL_REDRAW do
         _SDL_SetRenderDrawColor(&ren, 0xFF,0xFF,0xFF, 0xFF);
         _SDL_RenderFillRect(&ren, null);
     end
 with
+    /* TURTLE DECLARATION */
     var Turtle turtle with
         this.ren = ren;
     end;
 
     await 1s;
+
+    /* EXECUTES THE PROGRAM */
     loop/rec cmd in cmds do
-        watching cmd do
-            if cmd:NOTHING then
+        watching cmd do                 // aborts if the current node is mutated
+            if cmd:NOTHING then         // base case
                 nothing;
 
-            else/if cmd:ROTATE then
+            else/if cmd:ROTATE then     // rotation
                 do TurtleRotate with
                     this.turtle  = turtle;
                     this.angle   = cmd:ROTATE.angle;
                 end;
 
-            else/if cmd:MOVE then
+            else/if cmd:MOVE then       // movement
                 do TurtleMove with
                     this.turtle    = turtle;
                     this.pixels    = cmd:MOVE.pixels;
                 end;
 
-            else/if cmd:SEQUENCE then
+            else/if cmd:SEQUENCE then   // sequence is recursive
                 recurse cmd:SEQUENCE.one;
                 recurse cmd:SEQUENCE.two;
 
-            else/if cmd:REPEAT then
+            else/if cmd:REPEAT then     // repeat N times (also recursive)
                 loop i in cmd:REPEAT.times do
                     recurse cmd:REPEAT.command;
                 end
@@ -173,6 +203,7 @@ with
 
     await FOREVER;
 with
+    /* REDRAW THE FRAME */
     every SDL_REDRAW do
         _SDL_RenderPresent(&ren);
     end
