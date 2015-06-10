@@ -59,20 +59,20 @@ par/or do
             end
         end
         par/or do
-            if ex == 1 then
+            if ex==1 or ex==5 then
                 #undef  Title
                 #define Title Title1
                 #undef  Ball
                 #define Ball Ball1
-                #include "Curry-On/ball-01.ceu"
+                #undef  Integral_Over_Time
+                #define Integral_Over_Time Integral_Over_Time1
+                #include "Curry-On/ball-06.ceu"
             else/if ex == 2 then
                 #undef  Title
                 #define Title Title2
                 #undef  Ball
                 #define Ball Ball2
-                #undef  Integral_Over_Time
-                #define Integral_Over_Time Integral_Over_Time2
-                #include "Curry-On/ball-04.ceu"
+                #include "Curry-On/ball-01.ceu"
             else/if ex == 3 then
                 #undef  Title
                 #define Title Title3
@@ -80,7 +80,7 @@ par/or do
                 #define Ball Ball3
                 #undef  Integral_Over_Time
                 #define Integral_Over_Time Integral_Over_Time3
-                #include "Curry-On/ball-05.ceu"
+                #include "Curry-On/ball-04.ceu"
             else/if ex == 4 then
                 #undef  Title
                 #define Title Title4
@@ -88,19 +88,7 @@ par/or do
                 #define Ball Ball4
                 #undef  Integral_Over_Time
                 #define Integral_Over_Time Integral_Over_Time4
-                #include "Curry-On/ball-06.ceu"
-            else/if ex == 5 then
-                #undef  Title
-                #define Title Title5
-                #undef  Command
-                #define Command Command5
-                #undef  Turtle
-                #define Turtle Turtle5
-                #undef  TurtleMove
-                #define TurtleMove TurtleMove5
-                #undef  TurtleRotate
-                #define TurtleRotate TurtleRotate5
-                #include "Curry-On/turtle-1.ceu"
+                #include "Curry-On/ball-05.ceu"
             else/if ex == 6 then
                 #undef  Title
                 #define Title Title6
@@ -112,6 +100,18 @@ par/or do
                 #define TurtleMove TurtleMove6
                 #undef  TurtleRotate
                 #define TurtleRotate TurtleRotate6
+                #include "Curry-On/turtle-1.ceu"
+            else/if ex == 7 then
+                #undef  Title
+                #define Title Title7
+                #undef  Command
+                #define Command Command7
+                #undef  Turtle
+                #define Turtle Turtle7
+                #undef  TurtleMove
+                #define TurtleMove TurtleMove7
+                #undef  TurtleRotate
+                #define TurtleRotate TurtleRotate7
                 #include "Curry-On/turtle-2.ceu"
             else
                 await FOREVER;
