@@ -20,10 +20,9 @@ data Ball with
     var float x;
     var float y;
     var float radius;
-    var float z1;
 end
 
-var Ball ball = Ball(130,130,8,0);
+var Ball ball = Ball(130,130,8);
 
 par/or do
     await SDL_QUIT;

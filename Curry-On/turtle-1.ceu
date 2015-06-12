@@ -23,7 +23,7 @@ or
     end
 end
 
-pool Command[] cmds;
+pool Command[15] cmds;
 cmds = new Command.REPEAT(2,
             Command.SEQUENCE(
                 Command.ROTATE(45),

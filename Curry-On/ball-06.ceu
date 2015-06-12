@@ -20,12 +20,9 @@ data Ball with
     var float x;
     var float y;
     var float radius;
-    var float z1;
-    var float z2;
-    var float z3;
 end
 
-var Ball ball = Ball(130,130,8, 0,0,0);
+var Ball ball = Ball(130,130,8);
 
 par/or do
     await SDL_QUIT;
@@ -76,7 +73,7 @@ with
 
         _SDL_SetRenderDrawColor(_REN, 0x00,0x00,0xFF,0x00);
         _filledCircleRGBA(_REN, (int)ball.x, (int)ball.y, (int)ball.radius,
-                               0x00,0x00,0x00,0xFF);
+                                0x00,0x00,0x00,0xFF);
 
         _SDL_RenderPresent(_REN);
     end
