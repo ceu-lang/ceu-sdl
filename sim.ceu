@@ -222,8 +222,8 @@ do
             par/or do
                 key = await SDL_KEYUP_ until key:keysym.sym == sym2;
             with
-                var int time_now;
-                every time_now in g.tm_.ok_seek do
+                loop do
+                    var int time_now = await g.tm_.ok_seek;
                     if g.tm_.time_total-time_now >= 2000 then
                         break;
                     end
