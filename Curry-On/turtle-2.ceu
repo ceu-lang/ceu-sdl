@@ -59,17 +59,16 @@ cmds = new SEQ8(
                     Command.MOVE(200))));
 
 class Turtle with
-    var _SDL_Renderer&  ren;
-    var SDL_Point       pos   = SDL_Point(200,200);
-    var int             angle = 180;
+    var SDL_Point pos   = SDL_Point(200,200);
+    var int       angle = 180;
 do
     every SDL_REDRAW do
-        _filledCircleRGBA(&ren, pos.x,pos.y, 25,
+        _filledCircleRGBA(_REN, pos.x,pos.y, 25,
                                 0x00,0xAA,0x00,0xFF);
 
         var int x = this.pos.x + 25*_sin(angle/(180.0/_M_PI));
         var int y = this.pos.y + 25*_cos(angle/(180.0/_M_PI));
-        _filledCircleRGBA(&ren, x,y, 8,
+        _filledCircleRGBA(_REN, x,y, 8,
                                 0x00,0x00,0x00,0xFF);
     end
 end
@@ -129,9 +128,7 @@ with
         _SDL_RenderFillRect(_REN, null);
     end
 with
-    var Turtle turtle with
-        this.ren = _REN;
-    end;
+    var Turtle turtle;
 
     loop/rec cmd in cmds do
         watching cmd do

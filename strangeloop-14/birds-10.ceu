@@ -38,9 +38,9 @@ do
     var float sin = 0;
     par/or do
         var int y = r.y;
-        var int dt;
         var float x = r.x;
-        every dt in SDL_DT do
+        loop do
+            var int dt = await SDL_DT;
             var float v = dt*speed;
             x = x + v/1000;
             r.x = x;
@@ -90,11 +90,15 @@ with
             end
         with
             every SDL_DT do
-                loop (Bird*)b1 in birds do
-                    loop (Bird*)b2 in birds do
-                        if b1!=b2 and _SDL_HasIntersection(&b1:r,&b2:r) then
-                            emit b1:go_collide;
-                            emit b2:go_collide;
+                loop b1 in birds do
+                    loop b2 in birds do
+                        watching *b1 do
+                            watching *b2 do
+                                if b1!=b2 and _SDL_HasIntersection(&b1:r,&b2:r) then
+                                    emit b1:go_collide;
+                                    emit b2:go_collide;
+                                end
+                            end
                         end
                     end
                 end

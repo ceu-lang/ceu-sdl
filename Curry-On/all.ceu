@@ -43,7 +43,7 @@ end
 
 var int ex = 1;
 
-#define MAX 6
+#define MAX 7
 
 par/or do
     loop do

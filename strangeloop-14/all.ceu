@@ -1,10 +1,12 @@
 #define ALL
 
+native/pre do
+    ##define SDL_MATH
+end
 native do
     SDL_Window*   WIN = NULL;
     SDL_Renderer* REN = NULL;
     int REN_W, REN_H;
-    ##define SDL_MATH
 end
 
 #include "sdl.ceu"
@@ -137,8 +139,8 @@ par/or do
                 await FOREVER;
             end
         with
-            var _SDL_KeyboardEvent* key;
-            every key in SDL_KEYDOWN do
+            loop do
+                var _SDL_KeyboardEvent* key = await SDL_KEYDOWN;
                 if key:keysym.sym==_SDLK_r or key:keysym.sym==_SDLK_DOWN or
                                               key:keysym.sym==_SDLK_UP then
                     ex = ex;

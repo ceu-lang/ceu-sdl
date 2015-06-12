@@ -42,9 +42,9 @@ do
         var bool is_dead =
             par do
                 var int y = r.y;
-                var int dt;
                 var float x = r.x;
-                every dt in SDL_DT do
+                loop do
+                    var int dt = await SDL_DT;
                     var float v = dt*speed;
                     x = x + v/1000;
                     r.x = x;
@@ -60,9 +60,9 @@ do
             end;
 
         if is_dead then
-            var int dt;
             var float y = r.y;
-            every dt in SDL_DT do
+            loop do
+                var int dt = await SDL_DT;
                 y = y + dt*0.5;
                 r.y = y;
                 if r.y >= 400 then
@@ -118,11 +118,15 @@ with
         end
     with
         every SDL_DT do
-            loop (Bird*)b1 in birds do
-                loop (Bird*)b2 in birds do
+            loop b1 in birds do
+                loop b2 in birds do
                     if b1!=b2 and _SDL_HasIntersection(&b1:r,&b2:r) then
-                        emit b1:go_collide;
-                        emit b2:go_collide;
+                        watching *b1 do
+                            watching *b2 do
+                                emit b1:go_collide;
+                                emit b2:go_collide;
+                            end
+                        end
                     end
                 end
             end
@@ -131,14 +135,14 @@ with
         loop do
             var _SDL_MouseButtonEvent* mse = await SDL_MOUSEBUTTONDOWN;
             var Bird* ptr = null;
-            loop (Bird*) b in birds do
+            loop b in birds do
                 if _SDL_Rect_vs_Mouse(&b:r,mse) then
                     ptr = b;
                     break;
                 end
             end
             if ptr != null then
-                watching ptr do
+                watching *ptr do
                     every SDL_REDRAW do
                         _SDL_SetRenderDrawColor(_REN, 0xFF,0xFF,0xFF, 0xFF);
                         _SDL_RenderDrawLine(_REN, 320,480,
