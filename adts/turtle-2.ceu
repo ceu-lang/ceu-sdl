@@ -56,7 +56,7 @@ or
     end
 end
 
-pool Command[15] cmds;
+pool Command[30] cmds;
 
 #define DO1SEC(x) Command.PAROR(Command.AWAIT(1000), x)
 #define SEQ8(a,b,c,d,e,f,g,h)               \
@@ -157,7 +157,7 @@ with
         this.ren = ren;
     end;
 
-    loop/rec cmd in cmds do
+    traverse cmd in cmds do
         watching cmd do
             if cmd:NOTHING then
                 nothing;

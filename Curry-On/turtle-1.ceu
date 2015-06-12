@@ -112,7 +112,7 @@ with
     var Turtle turtle;
 
     await 1s;
-    loop/rec cmd in cmds do
+    traverse cmd in cmds do
         watching cmd do
             if cmd:NOTHING then
                 nothing;

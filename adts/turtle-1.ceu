@@ -170,7 +170,7 @@ with
     await 1s;
 
     /* EXECUTES THE PROGRAM */
-    loop/rec cmd in cmds do
+    traverse cmd in cmds do
         watching cmd do                 // aborts if the current node is mutated
             if cmd:NOTHING then         // base case
                 nothing;

@@ -135,7 +135,7 @@ with
         await 2s;
         grid:SPLIT.g2:SPLIT.g2 = new Grid.SIMPLE(&r5);
     with
-        loop/rec g in grid with
+        traverse g in grid with
             var int x = 0;
             var int y = 0;
             var int w = 400;
