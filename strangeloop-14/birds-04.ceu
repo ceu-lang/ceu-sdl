@@ -37,7 +37,6 @@ do
     var float sin = 0;
     par do
         var int y = r.y;
-        var int dt;
         var float x = r.x;
         every dt in SDL_DT do
             var float v = dt*speed;

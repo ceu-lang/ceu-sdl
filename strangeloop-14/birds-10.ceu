@@ -93,11 +93,16 @@ with
                 loop b1 in birds do
                     loop b2 in birds do
                         watching *b1 do
+                            var bool hit = false;
                             watching *b2 do
                                 if b1!=b2 and _SDL_HasIntersection(&b1:r,&b2:r) then
-                                    emit b1:go_collide;
+                                    hit = true;
+                                    //emit b1:go_collide;
                                     emit b2:go_collide;
                                 end
+                            end
+                            if hit then
+                                emit b1:go_collide;
                             end
                         end
                     end
