@@ -188,12 +188,12 @@ with
                 end;
 
             else/if cmd:SEQUENCE then   // sequence is recursive
-                recurse cmd:SEQUENCE.one;
-                recurse cmd:SEQUENCE.two;
+                traverse cmd:SEQUENCE.one;
+                traverse cmd:SEQUENCE.two;
 
             else/if cmd:REPEAT then     // repeat N times (also recursive)
                 loop i in cmd:REPEAT.times do
-                    recurse cmd:REPEAT.command;
+                    traverse cmd:REPEAT.command;
                 end
 
             else

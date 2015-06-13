@@ -126,8 +126,8 @@ with
 //  - excecao, orgs
 //  -   nesse caso, watching obrigatorio
 
-// recurse/escape
-//      var int v = recurse ...;
+// traverse/escape
+//      var int v = traverse ...;
 
     par do
         await 2s;
@@ -170,7 +170,7 @@ with
                             w_ = w/2;
                             h_ = h;
                         end
-                        recurse g:SPLIT.g1 with
+                        traverse g:SPLIT.g1 with
                             this.x = x;
                             this.y = y;
                             this.w = w_;
@@ -190,7 +190,7 @@ with
                             w_ = w/2;
                             h_ = h;
                         end
-                        recurse g:SPLIT.g2 with
+                        traverse g:SPLIT.g2 with
                             this.x = x_;
                             this.y = y_;
                             this.w = w_;
