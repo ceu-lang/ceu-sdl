@@ -24,7 +24,7 @@ global do
 finalize
     _WIN = _SDL_CreateWindow("DEMO",
             _SDL_WINDOWPOS_UNDEFINED, _SDL_WINDOWPOS_UNDEFINED,
-            400, 400, _SDL_WINDOW_SHOWN);
+            600, 400, _SDL_WINDOW_SHOWN);
 with
     _SDL_DestroyWindow(_WIN);
 end

@@ -21,7 +21,7 @@ var _SDL_Window&? win;
     finalize
         win = _SDL_CreateWindow(HEADER_TITLE,
                 _SDL_WINDOWPOS_UNDEFINED, _SDL_WINDOWPOS_UNDEFINED,
-                640, 480, _SDL_WINDOW_SHOWN);
+                600, 400, _SDL_WINDOW_SHOWN);
     with
         _SDL_DestroyWindow(&win);
     end

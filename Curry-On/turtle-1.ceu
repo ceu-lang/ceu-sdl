@@ -28,18 +28,18 @@ cmds = new Command.REPEAT(2,
             Command.SEQUENCE(
                 Command.ROTATE(45),
                 Command.SEQUENCE(
-                    Command.MOVE(100),
+                    Command.MOVE(200),
                     Command.SEQUENCE(
                         Command.ROTATE(-90),
                         Command.SEQUENCE(
-                            Command.MOVE(100),
+                            Command.MOVE(200),
                             Command.SEQUENCE(
                                 Command.ROTATE(45),
-                                Command.MOVE(-100)))))));
+                                Command.MOVE(-200)))))));
 
 class Turtle with
-    var SDL_Point pos   = SDL_Point(200,200);
-    var int       angle = 180;
+    var SDL_Point pos;
+    var int       angle;
 do
     every SDL_REDRAW do
         _filledCircleRGBA(_REN, pos.x,pos.y, 25,
@@ -89,7 +89,7 @@ do
         if sum >= this.pixels then
             break;
         end
-        var float mul = 80 * dt * 0.001 * inc;
+        var float mul = 150 * dt * 0.001 * inc;
         var float dx  = mul * _sin(turtle.angle/(180.0/_M_PI));
         var float dy  = mul * _cos(turtle.angle/(180.0/_M_PI));
         sum = sum + _fabs(dx) + _fabs(dy);
@@ -109,7 +109,10 @@ with
         _SDL_RenderFillRect(_REN, null);
     end
 with
-    var Turtle turtle;
+    var Turtle turtle with
+        this.pos   = SDL_Point(250,300);
+        this.angle = 180;
+    end;
 
     await 1s;
     traverse cmd in cmds do

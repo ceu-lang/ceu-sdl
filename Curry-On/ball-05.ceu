@@ -30,7 +30,7 @@ with
     await SDL_MOUSEBUTTONDOWN;  /* wait for the starting click */
 
     do
-        var float velocity=20, acceleration=20;
+        var float velocity=30, acceleration=30;
         DCL_INT(velocity, acceleration);
         DCL_INT(ball.x,   velocity);
 
@@ -38,7 +38,7 @@ with
     end
 
     do
-        var float velocity=20, acceleration=20;
+        var float velocity=30, acceleration=30;
         DCL_INT(velocity, acceleration);
         DCL_INT(ball.y,   velocity);
 
@@ -52,13 +52,13 @@ with
         _SDL_RenderFillRect(_REN, null);
 
         _SDL_SetRenderDrawColor(_REN, 0x95,0x2A,0x2A,0xFF);
-        var SDL_Rect r1 = SDL_Rect(100,100,  200,50);
+        var SDL_Rect r1 = SDL_Rect(100,100, 400,50);
         _SDL_RenderFillRect(_REN, (_SDL_Rect*)&r1);
-        var SDL_Rect r2 = SDL_Rect(100,250, 200,50);
+        var SDL_Rect r2 = SDL_Rect(100,250, 400,50);
         _SDL_RenderFillRect(_REN, (_SDL_Rect*)&r2);
         var SDL_Rect r3 = SDL_Rect(100,100, 50,200);
         _SDL_RenderFillRect(_REN, (_SDL_Rect*)&r3);
-        var SDL_Rect r4 = SDL_Rect(250,100, 50,200);
+        var SDL_Rect r4 = SDL_Rect(450,100, 50,200);
         _SDL_RenderFillRect(_REN, (_SDL_Rect*)&r4);
 
         _filledCircleRGBA(_REN, (int)ball.x, (int)ball.y, (int)ball.radius,

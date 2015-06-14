@@ -46,17 +46,17 @@ pool Command[30] cmds;
 
 cmds = new SEQ8(
             Command.AWAIT(1000),
+            DO1SEC(Command.MOVE(250)),
+            Command.AWAIT(1000),
+            DO1SEC(Command.ROTATE(110)),
+            Command.AWAIT(1000),
             DO1SEC(Command.MOVE(150)),
-            Command.AWAIT(1000),
-            DO1SEC(Command.ROTATE(140)),
-            Command.AWAIT(1000),
-            DO1SEC(Command.MOVE(100)),
             Command.AWAIT(1000),
             Command.PAROR(
                 Command.AWAIT(20000),
                 Command.PAROR(
-                    Command.ROTATE(100),
-                    Command.MOVE(200))));
+                    Command.ROTATE(110),
+                    Command.MOVE(250))));
 
 class Turtle with
     var SDL_Point pos   = SDL_Point(200,200);
@@ -128,7 +128,10 @@ with
         _SDL_RenderFillRect(_REN, null);
     end
 with
-    var Turtle turtle;
+    var Turtle turtle with
+        this.pos   = SDL_Point(250,300);
+        this.angle = 180;
+    end;
 
     traverse cmd in cmds do
         watching cmd do
