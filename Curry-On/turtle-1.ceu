@@ -115,6 +115,7 @@ with
     end;
 
     await 1s;
+
     traverse cmd in cmds do
         watching cmd do
             if cmd:NOTHING then
@@ -122,14 +123,14 @@ with
 
             else/if cmd:ROTATE then
                 do TurtleRotate with
-                    this.turtle  = turtle;
-                    this.angle   = cmd:ROTATE.angle;
+                    this.turtle = turtle;
+                    this.angle  = cmd:ROTATE.angle;
                 end;
 
             else/if cmd:MOVE then
                 do TurtleMove with
-                    this.turtle    = turtle;
-                    this.pixels    = cmd:MOVE.pixels;
+                    this.turtle = turtle;
+                    this.pixels = cmd:MOVE.pixels;
                 end;
 
             else/if cmd:SEQUENCE then
