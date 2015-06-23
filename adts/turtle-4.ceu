@@ -1,7 +1,11 @@
 /*
- * Two turtles moving in circles for about 20 seconds.
+ * Spawn a new turtle every 3 seconds.
+ * Collision detection.
  */
 
+native do
+    ##define SDL_MATH
+end
 #include "sdl.ceu"
 #include "sdl-gfx.ceu"
 
@@ -77,7 +81,7 @@ do
 end
 
 class TurtleRotate with
-    var Turtle& turtle;
+    var Turtle* turtle;
     var int     d_angle;
 do
     var int inc;
@@ -88,15 +92,17 @@ do
         inc = -1;
     end
 
-    var float sum = turtle.angle;
-    every dt in SDL_DT do
-        sum = sum + dt*inc*d_angle*0.001;
-        turtle.angle = sum;
+    var float sum = turtle:angle;
+    watching *turtle do
+        every dt in SDL_DT do
+            sum = sum + dt*inc*d_angle*0.001;
+            turtle:angle = sum;
+        end
     end
 end
 
 class TurtleMove with
-    var Turtle& turtle;
+    var Turtle* turtle;
     var int     d_pixels;
 do
     var int inc;
@@ -108,62 +114,66 @@ do
     end
 
     var float sum = 0;
-    var float x = turtle.pos.x;
-    var float y = turtle.pos.y;
-    every dt in SDL_DT do
-        var float mul = d_pixels * dt * 0.001 * this.inc;
-        var float dx  = mul * _sin(turtle.angle/(180.0/_M_PI));
-        var float dy  = mul * _cos(turtle.angle/(180.0/_M_PI));
-        sum = sum + _fabs(dx) + _fabs(dy);
-        x = x + dx;
-        y = y + dy;
-        turtle.pos.x = x;
-        turtle.pos.y = y;
+    var float x = turtle:pos.x;
+    var float y = turtle:pos.y;
+    watching *turtle do
+        every dt in SDL_DT do
+            var float mul = d_pixels * dt * 0.001 * this.inc;
+            var float dx  = mul * _sin(turtle:angle/(180.0/_M_PI));
+            var float dy  = mul * _cos(turtle:angle/(180.0/_M_PI));
+            sum = sum + _fabs(dx) + _fabs(dy);
+            x = x + dx;
+            y = y + dy;
+            turtle:pos.x = x;
+            turtle:pos.y = y;
+        end
     end
 end
 
 class Run with
-    var  Turtle&      turtle;
+    var  Turtle*      turtle;
     pool Command[30]& cmds;
 do
-    traverse cmd in cmds do
-        watching cmd do
-            if cmd:NOTHING then
-                nothing;
+    watching *turtle do
+        traverse cmd in cmds do
+            watching cmd do
+                if cmd:NOTHING then
+                    nothing;
 
-            else/if cmd:AWAIT then
-                await (cmd:AWAIT.ms) ms;
+                else/if cmd:AWAIT then
+                    await (cmd:AWAIT.ms) ms;
 
-            else/if cmd:ROTATE then
-                do TurtleRotate with
-                    this.turtle  = turtle;
-                    this.d_angle = cmd:ROTATE.d_angle;
-                end;
+                else/if cmd:ROTATE then
+                    do TurtleRotate with
+                        this.turtle  = turtle;
+                        this.d_angle = cmd:ROTATE.d_angle;
+                    end;
 
-            else/if cmd:MOVE then
-                do TurtleMove with
-                    this.turtle   = turtle;
-                    this.d_pixels = cmd:MOVE.d_pixels;
-                end;
+                else/if cmd:MOVE then
+                    do TurtleMove with
+                        this.turtle   = turtle;
+                        this.d_pixels = cmd:MOVE.d_pixels;
+                    end;
 
-            else/if cmd:PAROR then
-                par/or do
-                    traverse cmd:PAROR.one;
-                with
-                    traverse cmd:PAROR.two;
+                else/if cmd:PAROR then
+                    par/or do
+                        traverse cmd:PAROR.one;
+                    with
+                        traverse cmd:PAROR.two;
+                    end
+
+                else/if cmd:SEQUENCE then
+                    traverse cmd:SEQUENCE.one;
+                    traverse cmd:SEQUENCE.two;
+
+                else/if cmd:REPEAT then
+                    loop i in cmd:REPEAT.times do
+                        traverse cmd:REPEAT.command;
+                    end
+
+                else
+                    _ceu_out_assert(0, "not implemented");
                 end
-
-            else/if cmd:SEQUENCE then
-                traverse cmd:SEQUENCE.one;
-                traverse cmd:SEQUENCE.two;
-
-            else/if cmd:REPEAT then
-                loop i in cmd:REPEAT.times do
-                    traverse cmd:REPEAT.command;
-                end
-
-            else
-                _ceu_out_assert(0, "not implemented");
             end
         end
     end
@@ -203,28 +213,39 @@ with
                         Command.ROTATE(100),
                         Command.MOVE(200))));
 
-    var Turtle turtle1 with
-        this.ren   = ren;
-        this.pos   = SDL_Point(150,200);
-        this.angle = 180;
-    end;
+    pool Turtle[] ts;
+    pool Run[]    rs;
 
-    var Turtle turtle2 with
-        this.ren   = ren;
-        this.pos   = SDL_Point(250,200);
-        this.angle = 180;
-    end;
-
-    par/and do
-        do Run with
-            this.turtle = turtle1;
-            this.cmds   = cmds;
-        end;
+    par do
+        every 3s do
+            var Turtle*? t =
+                spawn Turtle in ts with
+                    this.ren   = ren;
+                    this.pos   = SDL_Point(50+_rand()%200,50+_rand()%200);
+                    this.angle = 50+_rand()%100;
+                end;
+            spawn Run in rs with
+                this.turtle = t;
+                this.cmds   = cmds;
+            end;
+        end
     with
-        do Run with
-            this.turtle = turtle2;
-            this.cmds   = cmds;
-        end;
+        every SDL_DT do
+            loop t1 in ts do
+                watching *t1 do
+                    loop t2 in ts do
+                        if t1 != t2 then
+                            if _SDL_Circle_vs_Circle((_SDL_Point*)&t1:pos,25,
+                                                     (_SDL_Point*)&t2:pos,25)
+                            then
+                                kill *t2;
+                                kill *t1;
+                            end
+                        end
+                    end
+                end
+            end
+        end
     end
 with
     every SDL_REDRAW do

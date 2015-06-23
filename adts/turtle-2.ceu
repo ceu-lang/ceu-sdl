@@ -1,3 +1,8 @@
+/*
+ * Turtle that can execute a "par/or".
+ * Does MOVE/ROTATE in parallel to move in circles.
+ */
+
 #include "sdl.ceu"
 #include "sdl-gfx.ceu"
 

@@ -1,3 +1,7 @@
+/*
+ * Simple "Logo Turtle" interpreter in Céu.
+ */
+
 #include "sdl.ceu"
 #include "sdl-gfx.ceu"
 
