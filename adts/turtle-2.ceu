@@ -164,10 +164,10 @@ with
 
     traverse cmd in cmds do
         watching cmd do
-            if cmd:NOTHING then
-                nothing;
+            //if cmd:NOTHING then
+                //nothing;
 
-            else/if cmd:AWAIT then
+            if cmd:AWAIT then
                 await (cmd:AWAIT.ms) ms;
 
             else/if cmd:ROTATE then

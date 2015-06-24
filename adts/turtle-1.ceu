@@ -176,10 +176,10 @@ with
     /* EXECUTES THE PROGRAM */
     traverse cmd in cmds do
         watching cmd do                 // aborts if the current node is mutated
-            if cmd:NOTHING then         // base case
-                nothing;
+            //if cmd:NOTHING then         // base case
+                //nothing;
 
-            else/if cmd:ROTATE then     // rotation
+            if cmd:ROTATE then     // rotation
                 do TurtleRotate with
                     this.turtle  = turtle;
                     this.angle   = cmd:ROTATE.angle;

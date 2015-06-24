@@ -137,10 +137,9 @@ do
     watching *turtle do
         traverse cmd in cmds do
             watching cmd do
-                if cmd:NOTHING then
-                    nothing;
-
-                else/if cmd:AWAIT then
+                //if cmd:NOTHING then
+                    //nothing;
+                if cmd:AWAIT then
                     await (cmd:AWAIT.ms) ms;
 
                 else/if cmd:ROTATE then
