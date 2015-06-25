@@ -72,8 +72,8 @@ end
  *  end
  */
 
-pool Command[15] cmds;
-cmds = new Command.REPEAT(2,
+pool Command[15] cmds =
+    new Command.REPEAT(2,
             Command.SEQUENCE(
                 Command.ROTATE(45),
                 Command.SEQUENCE(

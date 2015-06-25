@@ -186,8 +186,6 @@ with
         _SDL_RenderFillRect(&ren, null);
     end
 with
-    pool Command[30] cmds;
-
     #define DO1SEC(x) Command.PAROR(Command.AWAIT(1000), x)
     #define SEQ8(a,b,c,d,e,f,g,h)               \
         Command.SEQUENCE(a,                     \
@@ -198,7 +196,8 @@ with
                             Command.SEQUENCE(f, \
                                 Command.SEQUENCE(g,h)))))))
 
-    cmds = new SEQ8(
+    pool Command[30] cmds =
+            new SEQ8(
                 Command.AWAIT(1000),
                 DO1SEC(Command.MOVE(150)),
                 Command.AWAIT(1000),
