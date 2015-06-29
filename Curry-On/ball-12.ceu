@@ -143,15 +143,22 @@ with
                 with
                     every SDL_DT do
                         loop tmp1 in players do
-                            loop tmp2 in players do
-                                var SDL_Point pt1 = SDL_Point(tmp1:ball.x,tmp1:ball.y);
-                                var SDL_Point pt2 = SDL_Point(tmp2:ball.x,tmp2:ball.y);
-                                if tmp1 != tmp2 and
-                                   _SDL_Circle_vs_Circle((_SDL_Point*)&pt1,8,(_SDL_Point*)&pt2,8)
+                            watching *tmp1 do
+                                if tmp1:ball.x>640 or tmp1:ball.x<0 or
+                                   tmp1:ball.y>480 or tmp1:ball.y<0
                                 then
-                                    watching *tmp2 do
-                                        kill *tmp1;
-                                        kill *tmp2;
+                                    kill *tmp1;
+                                end
+                                loop tmp2 in players do
+                                    var SDL_Point pt1 = SDL_Point(tmp1:ball.x,tmp1:ball.y);
+                                    var SDL_Point pt2 = SDL_Point(tmp2:ball.x,tmp2:ball.y);
+                                    if tmp1 != tmp2 and
+                                       _SDL_Circle_vs_Circle((_SDL_Point*)&pt1,8,(_SDL_Point*)&pt2,8)
+                                    then
+                                        watching *tmp2 do
+                                            kill *tmp1;
+                                            kill *tmp2;
+                                        end
                                     end
                                 end
                             end

@@ -28,15 +28,9 @@ class Move_Until_Button with
 do
     DCL_INT(v0,  a0);
     DCL_INT(pos, v0);
-    par/or do
-        every v in global:inc do
-            a0 = a0 + v;
-        end
-    with
-        var _SDL_MouseButtonEvent* but =
-            await SDL_MOUSEBUTTONDOWN
-                until but:button == button;
-    end
+    var _SDL_MouseButtonEvent* but =
+        await SDL_MOUSEBUTTONDOWN
+            until but:button == button;
 end
 
 data Ball with
@@ -49,6 +43,7 @@ class Player with
     var   Ball ball;
     var   int  button;
     event int  inc;
+    event int  radius;
 do
     var int pts_tot = 0;
     var int pts_nxt = 0;
@@ -85,8 +80,8 @@ do
             end;
         end
     with
-        every v in inc do
-            a = a + v;
+        every v in radius do
+            ball.radius = ball.radius + v;
         end
     with
         every 500ms do
@@ -109,6 +104,23 @@ do
     end
 end
 
+class Mutual with
+    var Player& p1;
+    var Player& p2;
+do
+    par do
+        every v in p1.inc do
+_printf("P1 = %d\n", v);
+            emit p2.radius => -v;
+        end
+    with
+        every v in p2.inc do
+_printf("P2 = %d\n", v);
+            emit p1.radius => -v;
+        end
+    end
+end
+
 par/or do
     await SDL_QUIT;
 with
@@ -125,11 +137,14 @@ with
         this.ball   = Ball(300,130,8);
         this.button = _SDL_BUTTON_RIGHT;
     end;
-    await FOREVER;
-with
+    var Mutual mut with
+        this.p1 = p1;
+        this.p2 = p2;
+    end;
+
     every key in SDL_KEYDOWN do
         if key:keysym.sym>=_SDLK_1 and key:keysym.sym<=_SDLK_9 then
-            emit global:inc => (key:keysym.sym-_SDLK_5);
+            emit p1.inc => (key:keysym.sym-_SDLK_5);
         end
     end
 with
