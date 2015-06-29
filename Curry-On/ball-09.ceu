@@ -1,4 +1,4 @@
-#define HEADER_TITLE "Ball - 09"    // class, 2p
+#define HEADER_TITLE "Ball - 05"    // class, 2p
 #include "header.ceu"
 
 #define DCL_INT(a,v)                \
@@ -108,6 +108,8 @@ with
         this.button = _SDL_BUTTON_RIGHT;
     end;
     await FOREVER;
+with
+    #include "click.ceu"
 with
     every SDL_REDRAW do
         _SDL_RenderPresent(_REN);

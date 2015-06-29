@@ -1,0 +1,38 @@
+
+
+    input int MOUSE_BUTTON;     // int: clicked button
+
+    <...>                       // inputs, integral, ball
+
+    class Move_Until_Button with
+        var float& pos;
+        var float  v0, a0;
+        var int    button;      // await this button
+    do
+        var Integral_Over_Time _ (v0&,  a0&);
+        var Integral_Over_Time _ (pos&, v0&);
+        var int clk = await MOUSE_BUTTON
+                      until clk==button;
+                                // check clicked button
+    end
+
+    class Player with
+        var Ball ball;
+        var int  button;
+    do
+        await MOUSE_BUTTON;
+        loop do
+            do Move_Until_Button(ball.x&,  20,  20, button);
+            do Move_Until_Button(ball.y&, -20, -20, button);
+            do Move_Until_Button(ball.x&,  20,  20, button);
+            do Move_Until_Button(ball.y&, -20, -20, button);
+        end
+    end
+
+    var Player p1 (Ball(200,130,8), BUTTON_LEFT);
+    var Player p2 (Ball(300,130,8), BUTTON_RIGHT);
+
+    await FOREVER;
+
+
+

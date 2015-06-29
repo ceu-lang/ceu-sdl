@@ -1,4 +1,4 @@
-#define HEADER_TITLE "Ball - 10"    // class, spawn, col
+#define HEADER_TITLE "Ball - 05"    // class, 2p
 #include "header.ceu"
 
 #define DCL_INT(a,v)                \
@@ -16,6 +16,11 @@ do
     end
 end
 
+interface Global with
+    event int inc;
+end
+event int inc;
+
 class Move_Until_Button with
     var int button;
     var float& pos;
@@ -23,12 +28,11 @@ class Move_Until_Button with
 do
     DCL_INT(v0,  a0);
     DCL_INT(pos, v0);
-
-await 2s;
-
-    if button == 0 then
-        await (500+_rand()%3000) ms;
-    else
+    par/or do
+        every v in global:inc do
+            a0 = a0 + v;
+        end
+    with
         var _SDL_MouseButtonEvent* but =
             await SDL_MOUSEBUTTONDOWN
                 until but:button == button;
@@ -42,12 +46,15 @@ data Ball with
 end
 
 class Player with
-    var Ball ball;
-    var int  button;
+    var   Ball ball;
+    var   int  button;
+    event int  inc;
 do
     var int pts_tot = 0;
     var int pts_nxt = 0;
     var SDL_Point[5] pts;
+
+    var int a = 0;
 
     par do
         await SDL_MOUSEBUTTONDOWN;
@@ -78,6 +85,10 @@ do
             end;
         end
     with
+        every v in inc do
+            a = a + v;
+        end
+    with
         every 500ms do
             pts[pts_nxt].x = ball.x;
             pts[pts_nxt].y = ball.y;
@@ -106,21 +117,23 @@ with
         _SDL_RenderFillRect(_REN, null);
     end
 with
-    pool Player[] ps;
-    var Player*? p1 = spawn Player in ps with
+    var Player p1 with
         this.ball   = Ball(200,130,8);
         this.button = _SDL_BUTTON_LEFT;
     end;
-    var Player*? p2 = spawn Player in ps with
+    var Player p2 with
         this.ball   = Ball(300,130,8);
         this.button = _SDL_BUTTON_RIGHT;
     end;
-    every 5s do
-        spawn Player in ps with
-            this.ball   = Ball(50+_rand()%400, 50+_rand()%400, 8);
-            this.button = 0;
-        end;
+    await FOREVER;
+with
+    every key in SDL_KEYDOWN do
+        if key:keysym.sym>=_SDLK_1 and key:keysym.sym<=_SDLK_9 then
+            emit global:inc => (key:keysym.sym-_SDLK_5);
+        end
     end
+with
+    #include "click.ceu"
 with
     every SDL_REDRAW do
         _SDL_RenderPresent(_REN);

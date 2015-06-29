@@ -103,28 +103,28 @@ par/or do
                 #include "Curry-On/ball-05.ceu"
             else/if ex == 9 then
                 #undef  Title
-                #define Title Title6
-                #undef  Command
-                #define Command Command6
-                #undef  Turtle
-                #define Turtle Turtle6
-                #undef  TurtleMove
-                #define TurtleMove TurtleMove6
-                #undef  TurtleRotate
-                #define TurtleRotate TurtleRotate6
-                #include "Curry-On/turtle-1.ceu"
+                #define Title Title5
+                #undef  Ball
+                #define Ball Ball5
+                #undef  Integral_Over_Time
+                #define Integral_Over_Time Integral_Over_Time5
+                #undef  Move_Until_Button
+                #define Move_Until_Button Move_Until_Button5
+                #undef  Player
+                #define Player Player5
+                #include "Curry-On/ball-09.ceu"
             else/if ex == 10 then
                 #undef  Title
-                #define Title Title7
-                #undef  Command
-                #define Command Command7
-                #undef  Turtle
-                #define Turtle Turtle7
-                #undef  TurtleMove
-                #define TurtleMove TurtleMove7
-                #undef  TurtleRotate
-                #define TurtleRotate TurtleRotate7
-                #include "Curry-On/turtle-2.ceu"
+                #define Title Title6
+                #undef  Ball
+                #define Ball Ball6
+                #undef  Integral_Over_Time
+                #define Integral_Over_Time Integral_Over_Time6
+                #undef  Move_Until_Button
+                #define Move_Until_Button Move_Until_Button7
+                #undef  Player
+                #define Player Player6
+                #include "Curry-On/ball-12.ceu"
             else
                 await FOREVER;
             end

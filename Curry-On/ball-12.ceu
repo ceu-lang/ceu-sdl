@@ -1,4 +1,4 @@
-#define HEADER_TITLE "Ball - 10"    // class, spawn, col
+#define HEADER_TITLE "Ball - 6"    // class, spawn, col
 #include "header.ceu"
 
 #define DCL_INT(a,v)                \
@@ -24,7 +24,7 @@ do
     DCL_INT(v0,  a0);
     DCL_INT(pos, v0);
 
-await 2s;
+    await 2s;
 
     if button == 0 then
         await (500+_rand()%3000) ms;
@@ -42,6 +42,7 @@ data Ball with
 end
 
 class Player with
+    var bool is_npc;
     var Ball ball;
     var int  button;
 do
@@ -92,8 +93,15 @@ do
                 _filledCircleRGBA(_REN, pts[i].x, pts[i].y, 3,
                                        0xBB,0xBB,0xBB,0xFF);
             end
+
+            var int clr;
+            if this.is_npc then
+                clr = 0x88;
+            else
+                clr = 0x00;
+            end
             _filledCircleRGBA(_REN, (int)ball.x, (int)ball.y, (int)ball.radius,
-                                   0x00,0x00,0x00,0xFF);
+                                   clr,clr,clr,0xFF);
         end
     end
 end
@@ -106,21 +114,55 @@ with
         _SDL_RenderFillRect(_REN, null);
     end
 with
-    pool Player[] ps;
-    var Player*? p1 = spawn Player in ps with
-        this.ball   = Ball(200,130,8);
-        this.button = _SDL_BUTTON_LEFT;
-    end;
-    var Player*? p2 = spawn Player in ps with
-        this.ball   = Ball(300,130,8);
-        this.button = _SDL_BUTTON_RIGHT;
-    end;
-    every 5s do
-        spawn Player in ps with
-            this.ball   = Ball(50+_rand()%400, 50+_rand()%400, 8);
-            this.button = 0;
+    loop do
+        pool Player[] players;
+        var Player*? p1 = spawn Player in players with
+            this.is_npc = false;
+            this.ball   = Ball(200,130,8);
+            this.button = _SDL_BUTTON_LEFT;
         end;
+
+        watching *p1 do
+
+            var Player*? p2 = spawn Player in players with
+                this.is_npc = false;
+                this.ball   = Ball(300,130,8);
+                this.button = _SDL_BUTTON_RIGHT;
+            end;
+
+            watching *p2 do
+
+                par do
+                    every 5s do
+                        spawn Player in players with
+                            this.is_npc = true;
+                            this.ball   = Ball(50+_rand()%400, 50+_rand()%400, 8);
+                            this.button = 0;
+                        end;
+                    end
+                with
+                    every SDL_DT do
+                        loop tmp1 in players do
+                            loop tmp2 in players do
+                                var SDL_Point pt1 = SDL_Point(tmp1:ball.x,tmp1:ball.y);
+                                var SDL_Point pt2 = SDL_Point(tmp2:ball.x,tmp2:ball.y);
+                                if tmp1 != tmp2 and
+                                   _SDL_Circle_vs_Circle((_SDL_Point*)&pt1,8,(_SDL_Point*)&pt2,8)
+                                then
+                                    watching *tmp2 do
+                                        kill *tmp1;
+                                        kill *tmp2;
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
     end
+with
+    #include "click.ceu"
 with
     every SDL_REDRAW do
         _SDL_RenderPresent(_REN);

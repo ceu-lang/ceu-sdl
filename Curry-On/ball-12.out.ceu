@@ -1,4 +1,4 @@
-#define HEADER_TITLE "Ball - 10"    // class, spawn, col
+#define HEADER_TITLE "Ball - 6"    // class, spawn, col
 #include "header.ceu"
 
 #define DCL_INT(a,v)                \
@@ -24,7 +24,7 @@ do
     DCL_INT(v0,  a0);
     DCL_INT(pos, v0);
 
-await 2s;
+    await 2s;
 
     if button == 0 then
         await (500+_rand()%3000) ms;
@@ -42,6 +42,7 @@ data Ball with
 end
 
 class Player with
+    var bool is_npc;
     var Ball ball;
     var int  button;
 do
@@ -92,8 +93,15 @@ do
                 _filledCircleRGBA(_REN, pts[i].x, pts[i].y, 3,
                                        0xBB,0xBB,0xBB,0xFF);
             end
+
+            var int clr;
+            if this.is_npc then
+                clr = 0x88;
+            else
+                clr = 0x00;
+            end
             _filledCircleRGBA(_REN, (int)ball.x, (int)ball.y, (int)ball.radius,
-                                   0x00,0x00,0x00,0xFF);
+                                   clr,clr,clr,0xFF);
         end
     end
 end
@@ -106,21 +114,45 @@ with
         _SDL_RenderFillRect(_REN, null);
     end
 with
-    pool Player[] ps;
-    var Player*? p1 = spawn Player in ps with
-        this.ball   = Ball(200,130,8);
-        this.button = _SDL_BUTTON_LEFT;
-    end;
-    var Player*? p2 = spawn Player in ps with
-        this.ball   = Ball(300,130,8);
-        this.button = _SDL_BUTTON_RIGHT;
-    end;
-    every 5s do
-        spawn Player in ps with
-            this.ball   = Ball(50+_rand()%400, 50+_rand()%400, 8);
-            this.button = 0;
-        end;
+
+    // restarts every time p1 or p2 dies
+    loop do
+
+        // holds all dynamic instances in a lexical scope
+        pool Player[] players;
+
+        // creates p1 and p2 dynamically into the pool
+        var Player*? p1 = spawn Player(...) in players;
+        var Player*? p2 = spawn Player(...) in players;
+
+        // aborts whenever p1 or p2 dies
+        watching p1,p2 do
+            par do
+                // creates a new NPC into the pool every 5 seconds
+                every 5s do
+                    spawn Player(...) in players;
+                end
+            with
+                // checks for collisions every frame
+                every SDL_DT do
+                    // iterates over the pool (NxN)
+                    loop tmp1 in players do
+                        loop tmp2 in players do
+                            if <check-collision-tmp1-vs-tmp2> then
+                                // aborts the colliding organisms
+                                kill *tmp1;
+                                kill *tmp2;
+                            end
+                        end
+                    end
+                end
+            end
+        end
     end
+
+
+with
+    #include "click.ceu"
 with
     every SDL_REDRAW do
         _SDL_RenderPresent(_REN);

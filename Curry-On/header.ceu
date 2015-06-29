@@ -1,5 +1,9 @@
 #ifndef ALL
 
+native do
+    ##define SDL_MATH
+end
+
 #include "sdl.ceu"
 #include "sdl-gfx.ceu"
 
@@ -7,6 +11,7 @@ input void SDL_QUIT;
 input void SDL_REDRAW;
 input int SDL_DT;
 input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
+input _SDL_KeyboardEvent*    SDL_KEYDOWN;
 
 native do
     SDL_Renderer* REN = NULL;
