@@ -11,10 +11,12 @@
     do
         <...>
     end
-    #define DCL_INT(a,v) \
+    class Move_Until_Button with
+        var float& pos;
+        var float  v0, a0;
+    do
         <...>
-    #define MOVE_UNTIL_BUTTON(axis,v0,a0) \
-        <...>
+    end
 
     // PROGRAM DATA
     data Ball with
@@ -27,10 +29,10 @@
     // PROGRAM FLOW
     await MOUSE_BUTTON;
     loop do
-        MOVE_UNTIL_BUTTON(ball.x,  20,  20);
-        MOVE_UNTIL_BUTTON(ball.y,  20,  20);
-        MOVE_UNTIL_BUTTON(ball.x, -20, -20);
-        MOVE_UNTIL_BUTTON(ball.y, -20, -20);
+        do Move_Until_Button(ball.x&,  20,  20);
+        do Move_Until_Button(ball.y&, -20, -20);
+        do Move_Until_Button(ball.x&,  20,  20);
+        do Move_Until_Button(ball.y&, -20, -20);
     end
 
 

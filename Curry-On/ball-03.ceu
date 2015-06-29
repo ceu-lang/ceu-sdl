@@ -1,30 +1,9 @@
-native do
-    ##define SDL_MATH
-end
-#include "sdl.ceu"
-#include "sdl-gfx.ceu"
+#define HEADER_TITLE "Ball - 03"
+#include "header.ceu"
 
-input void SDL_REDRAW;
-input void SDL_QUIT;
-input int  SDL_DT;
-input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
-
-var int win_w;
-var int win_h;
-var _SDL_Window&? win;
-    finalize
-        win = _SDL_CreateWindow("Example 1",
-                            0, 0, 400, 400, _SDL_WINDOW_SHOWN);
-    with
-        _SDL_DestroyWindow(&win);
-    end
-
-var _SDL_Renderer&? ren;
-    finalize
-        ren = _SDL_CreateRenderer(&win, -1, 0);
-    with
-        _SDL_DestroyRenderer(&ren);
-    end
+var int pts_tot = 0;
+var int pts_nxt = 0;
+var SDL_Point[5] pts;
 
 #define INT(a,v)                    \
     var Integral_Over_Time _ with   \
@@ -61,25 +40,28 @@ with
 
     await FOREVER;
 with
+    every 500ms do
+        pts[pts_nxt].x = ball.x;
+        pts[pts_nxt].y = ball.y;
+        pts_nxt = (pts_nxt + 1) % 5;
+        if pts_tot < 5 then
+            pts_tot = pts_tot + 1;
+        end
+    end
+with
     every SDL_REDRAW do
 
-        _SDL_SetRenderDrawColor(ren, 0xFF,0xFF,0xFF,0xFF);
-        _SDL_RenderFillRect(ren, null);
+        _SDL_SetRenderDrawColor(_REN, 0xFF,0xFF,0xFF,0xFF);
+        _SDL_RenderFillRect(_REN, null);
 
-        _SDL_SetRenderDrawColor(ren, 0x95,0x2A,0x2A,0xFF);
-        var SDL_Rect r1 = SDL_Rect(100,100, 400,50);
-        _SDL_RenderFillRect(ren, (_SDL_Rect*)&r1);
-        var SDL_Rect r2 = SDL_Rect(100,250, 400,50);
-        _SDL_RenderFillRect(ren, (_SDL_Rect*)&r2);
-        var SDL_Rect r3 = SDL_Rect(100,100, 50,200);
-        _SDL_RenderFillRect(ren, (_SDL_Rect*)&r3);
-        var SDL_Rect r4 = SDL_Rect(450,100, 50,200);
-        _SDL_RenderFillRect(ren, (_SDL_Rect*)&r4);
-
-        _filledCircleRGBA(ren, (int)ball.x, (int)ball.y, (int)ball.radius,
+        loop/5 i in pts_tot do
+            _filledCircleRGBA(_REN, pts[i].x, pts[i].y, 3,
+                                   0xBB,0xBB,0xBB,0xFF);
+        end
+        _filledCircleRGBA(_REN, (int)ball.x, (int)ball.y, (int)ball.radius,
                                0x00,0x00,0x00,0xFF);
 
-        _SDL_RenderPresent(ren);
+        _SDL_RenderPresent(_REN);
     end
 end
 

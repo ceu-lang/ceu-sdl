@@ -118,10 +118,10 @@ with
 
     traverse cmd in cmds do
         watching cmd do
-            if cmd:NOTHING then
-                nothing;
+            //if cmd:NOTHING then
+                //nothing;
 
-            else/if cmd:ROTATE then
+            if cmd:ROTATE then
                 do TurtleRotate with
                     this.turtle = turtle;
                     this.angle  = cmd:ROTATE.angle;

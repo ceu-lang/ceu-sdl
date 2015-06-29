@@ -1,40 +1,25 @@
 
+    <...>                   // inputs & ball declarations
+
     class Integral_Over_Time with
         var float& accumulator;
         var float& value;
     do
-        loop do
-            var int dt = await NEXT_FRAME;
-            accumulator = accumulator + value * dt/1000.0;
+        every dt in NEXT_FRAME do
+            accumulator = accumulator + value;
         end
     end
 
-    input int  NEXT_FRAME;      // int:  number of milliseconds between frames
-    input void MOUSE_BUTTON;    // void: not interested in any associated value
+    await MOUSE_BUTTON;     // wait for the click to start
 
-    data Ball with
-        var float x;
-        var float y;
-        var float radius;
-    end
-    var Ball ball = Ball(130,130,8);    // starting position and radius
+    var float vx = 20;      // pixels per second
+    var float ax = 20;      // pixels per second per second
 
-    await MOUSE_BUTTON;                 // wait for the click to start
+    var Integral_Over_Time _ (vx&,     ax&);
+    var Integral_Over_Time _ (ball.x&, vx&);
+        // organism bodies execute in parallel
+        // with their enclosing block
 
-    var float velocity     = 20;        // pixels per second
-    var float acceleration = 20;        // pixels per second per second
-
-    var Integral_Over_Time int_velocity with
-        this.accumulator = velocity;
-        this.value       = acceleration;
-    end;
-
-    var Integral_Over_Time int_position with
-        this.accumulator = ball.x;
-        this.value       = velocity;
-    end;
-
-    // whatever comes next executes in parallel with the instances above
-    <...>
+    <...>                   // whatever comes next is in parallel
 
 

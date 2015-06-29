@@ -1,0 +1,149 @@
+#define HEADER_TITLE "Ball - 10"    // class, spawn, col
+#include "header.ceu"
+
+#define DCL_INT(a,v)                \
+    var Integral_Over_Time _ with   \
+        this.accumulator = a;       \
+        this.value       = v;       \
+    end
+
+class Integral_Over_Time with
+    var float& accumulator;
+    var float& value;
+do
+    every dt in SDL_DT do
+        accumulator = accumulator + value * dt/1000.0;
+    end
+end
+
+class Move_Until_Button with
+    var int button;
+    var float& pos;
+    var float v0, a0;
+do
+    DCL_INT(v0,  a0);
+    DCL_INT(pos, v0);
+
+await 2s;
+
+    if button == 0 then
+        await (500+_rand()%3000) ms;
+    else
+        var _SDL_MouseButtonEvent* but =
+            await SDL_MOUSEBUTTONDOWN
+                until but:button == button;
+    end
+end
+
+data Ball with
+    var float x;
+    var float y;
+    var float radius;
+end
+
+class Player with
+    var Ball ball;
+    var int  button;
+do
+    var int pts_tot = 0;
+    var int pts_nxt = 0;
+    var SDL_Point[5] pts;
+
+    par do
+        await SDL_MOUSEBUTTONDOWN;
+        loop do
+            do Move_Until_Button with
+                this.button = outer.button;
+                this.pos = ball.x;
+                this.v0  = 20;
+                this.a0  = 20;
+            end;
+            do Move_Until_Button with
+                this.button = outer.button;
+                this.pos = ball.y;
+                this.v0  = 20;
+                this.a0  = 20;
+            end;
+            do Move_Until_Button with
+                this.button = outer.button;
+                this.pos = ball.x;
+                this.v0  = -20;
+                this.a0  = -20;
+            end;
+            do Move_Until_Button with
+                this.button = outer.button;
+                this.pos = ball.y;
+                this.v0  = -20;
+                this.a0  = -20;
+            end;
+        end
+    with
+        every 500ms do
+            pts[pts_nxt].x = ball.x;
+            pts[pts_nxt].y = ball.y;
+            pts_nxt = (pts_nxt + 1) % 5;
+            if pts_tot < 5 then
+                pts_tot = pts_tot + 1;
+            end
+        end
+    with
+        every SDL_REDRAW do
+            loop/5 i in pts_tot do
+                _filledCircleRGBA(_REN, pts[i].x, pts[i].y, 3,
+                                       0xBB,0xBB,0xBB,0xFF);
+            end
+            _filledCircleRGBA(_REN, (int)ball.x, (int)ball.y, (int)ball.radius,
+                                   0x00,0x00,0x00,0xFF);
+        end
+    end
+end
+
+par/or do
+    await SDL_QUIT;
+with
+    every SDL_REDRAW do
+        _SDL_SetRenderDrawColor(_REN, 0xFF,0xFF,0xFF,0xFF);
+        _SDL_RenderFillRect(_REN, null);
+    end
+with
+    loop do
+        pool Player[] players;
+        var Player*? p1 = spawn Player in players with
+            this.ball   = Ball(200,130,8);
+            this.button = _SDL_BUTTON_LEFT;
+        end;
+
+        watching *p1 do
+
+            var Player*? p2 = spawn Player in players with
+                this.ball   = Ball(300,130,8);
+                this.button = _SDL_BUTTON_RIGHT;
+            end;
+
+            watching *p2 do
+
+                par/or do
+                    every 5s do
+                        spawn Player in players with
+                            this.ball   = Ball(50+_rand()%400, 50+_rand()%400, 8);
+                            this.button = 0;
+                        end;
+                    end
+                with
+                    loop tmp1 in players do
+                        loop tmp2 in players do
+                            kill *p1;
+                            kill *p2;
+                        end
+                    end
+                end
+            end
+        end
+    end
+with
+    every SDL_REDRAW do
+        _SDL_RenderPresent(_REN);
+    end
+end
+
+escape 0;
