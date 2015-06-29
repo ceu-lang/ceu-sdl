@@ -1,8 +1,8 @@
 
 
     // INPUTS
-    input int  NEXT_FRAME;
-    input void MOUSE_BUTTON;
+    input int NEXT_FRAME;
+    input int MOUSE_BUTTON;
 
     // ABSTRACTIONS
     class Integral_Over_Time with

@@ -55,6 +55,8 @@ with
 
         _SDL_RenderPresent(_REN);
     end
+with
+    #include "click.ceu"
 end
 
 escape 0;
