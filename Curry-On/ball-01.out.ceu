@@ -1,7 +1,7 @@
 
 
-    input int NEXT_FRAME;   // int: time elapsed between frames
-    input int MOUSE_BUTTON; // int: clicked button (not used here)
+    input int NEXT_FRAME;   // int: time between frames
+    input int MOUSE_BUTTON; // int: clicked button
 
     data Ball with
         var float x;
@@ -10,10 +10,10 @@
     end
     var Ball ball = Ball(130,130,8);
 
-    await MOUSE_BUTTON;     // wait for the click to start
+    await MOUSE_BUTTON; // wait for the click to start
 
-    var float vx = 20;      // pixels per second
-    var float ax = 20;      // pixels per second per second
+    var float vx = 20;  // pixels per second
+    var float ax = 20;  // pixels per second per second
 
     par do
         // "vx" is the integral of "ax"
@@ -28,6 +28,8 @@
             ball.x = ball.x + vx * dt;
         end
     end
+
+
 
     /*
      * The code to redraw the ball and the track is omitted

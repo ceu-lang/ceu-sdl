@@ -181,7 +181,7 @@ if (!CEU_TIMEMACHINE_ON) {
             dt_ms = (1000/CEU_FPS);
             fps_next = (dt_ms + togo);
             if (fps_next < 0) {
-printf("[TODO: main.c] delayed %d\n", -fps_next);
+/*printf("[TODO: main.c] delayed %d\n", -fps_next);*/
                 fps_next = 0;
             }
         } else {
