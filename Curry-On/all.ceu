@@ -112,7 +112,7 @@ par/or do
                 #define Move_Until_Button Move_Until_Button5
                 #undef  Player
                 #define Player Player5
-                #include "Curry-On/ball-09.ceu"
+                #include "Curry-On/ball-09.ceu"     // class, 2p
             else/if ex == 10 then
                 #undef  Title
                 #define Title Title6
@@ -124,7 +124,7 @@ par/or do
                 #define Move_Until_Button Move_Until_Button6
                 #undef  Player
                 #define Player Player6
-                #include "Curry-On/ball-10.ceu"
+                #include "Curry-On/ball-10.ceu"     // graph
             else
                 await FOREVER;
             end

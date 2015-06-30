@@ -78,17 +78,17 @@ do
             end;
         end
     with
-        every 500ms do
+        every TRAIL_MS ms do
             pts[pts_nxt].x = ball.x;
             pts[pts_nxt].y = ball.y;
-            pts_nxt = (pts_nxt + 1) % 5;
-            if pts_tot < 5 then
+            pts_nxt = (pts_nxt + 1) % TRAIL_N;
+            if pts_tot < TRAIL_N then
                 pts_tot = pts_tot + 1;
             end
         end
     with
         every SDL_REDRAW do
-            loop/5 i in pts_tot do
+            loop/TRAIL_N i in pts_tot do
                 _filledCircleRGBA(_REN, pts[i].x, pts[i].y, 3,
                                        0xBB,0xBB,0xBB,0xFF);
             end

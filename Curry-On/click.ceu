@@ -15,7 +15,7 @@ par do
             await SDL_MOUSEBUTTONDOWN
                 until but:button == _SDL_BUTTON_LEFT;
 
-        watching 200ms do
+        watching 250ms do
             every SDL_REDRAW do
                 _SDL_RenderCopy(_REN, _TEX, null, (_SDL_Rect*)&r);
                 _SDL_RenderPresent(_REN);

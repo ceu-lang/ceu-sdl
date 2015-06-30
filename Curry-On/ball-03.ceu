@@ -3,7 +3,7 @@
 
 var int pts_tot = 0;
 var int pts_nxt = 0;
-var SDL_Point[5] pts;
+var SDL_Point[TRAIL_N] pts;
 
 #define INT(a,v)                    \
     var Integral_Over_Time _ with   \
@@ -40,11 +40,11 @@ with
 
     await FOREVER;
 with
-    every 500ms do
+    every TRAIL_MS ms do
         pts[pts_nxt].x = ball.x;
         pts[pts_nxt].y = ball.y;
-        pts_nxt = (pts_nxt + 1) % 5;
-        if pts_tot < 5 then
+        pts_nxt = (pts_nxt + 1) % TRAIL_N;
+        if pts_tot < TRAIL_N then
             pts_tot = pts_tot + 1;
         end
     end
@@ -54,7 +54,7 @@ with
         _SDL_SetRenderDrawColor(_REN, 0xFF,0xFF,0xFF,0xFF);
         _SDL_RenderFillRect(_REN, null);
 
-        loop/5 i in pts_tot do
+        loop/TRAIL_N i in pts_tot do
             _filledCircleRGBA(_REN, pts[i].x, pts[i].y, 3,
                                    0xBB,0xBB,0xBB,0xFF);
         end

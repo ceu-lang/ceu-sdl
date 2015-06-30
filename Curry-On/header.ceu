@@ -1,3 +1,7 @@
+#define BALL_RADIUS 20
+#define TRAIL_N     10
+#define TRAIL_MS   250
+
 #ifndef ALL
 
 native do

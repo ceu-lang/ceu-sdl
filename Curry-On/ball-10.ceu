@@ -1,4 +1,4 @@
-#define HEADER_TITLE "Ball - 05"    // class, 2p
+#define HEADER_TITLE "Ball - 06"    // class, 2p, graph
 #include "header.ceu"
 
 #define DCL_INT(a,v)                \
@@ -15,11 +15,6 @@ do
         accumulator = accumulator + value * dt/1000.0;
     end
 end
-
-interface Global with
-    event int inc;
-end
-event int inc;
 
 class Move_Until_Button with
     var int button;
@@ -39,20 +34,29 @@ data Ball with
     var float radius;
 end
 
+class IO with
+    event int e_in;
+    event int e_out;
+do
+    await FOREVER;
+end
+
 class Player with
-    var   Ball ball;
-    var   int  button;
-    event int  inc;
-    event int  radius;
+    var Ball ball;
+    var int  button;
+    var IO&  io;
 do
     var int pts_tot = 0;
     var int pts_nxt = 0;
-    var SDL_Point[5] pts;
+    var SDL_Point[TRAIL_N] pts;
 
     var int a = 0;
 
-    par do
-        await SDL_MOUSEBUTTONDOWN;
+    par/or do
+        var _SDL_MouseButtonEvent* but =
+            await SDL_MOUSEBUTTONDOWN
+                until but:button == button;
+
         loop do
             do Move_Until_Button with
                 this.button = outer.button;
@@ -80,21 +84,26 @@ do
             end;
         end
     with
-        every v in radius do
+        loop do
+            var int v = await io.e_in;
             ball.radius = ball.radius + v;
+            emit io.e_out => -v;
+            if ball.radius <= 0 then
+                break;
+            end
         end
     with
-        every 500ms do
+        every TRAIL_MS ms do
             pts[pts_nxt].x = ball.x;
             pts[pts_nxt].y = ball.y;
-            pts_nxt = (pts_nxt + 1) % 5;
-            if pts_tot < 5 then
+            pts_nxt = (pts_nxt + 1) % TRAIL_N;
+            if pts_tot < TRAIL_N then
                 pts_tot = pts_tot + 1;
             end
         end
     with
         every SDL_REDRAW do
-            loop/5 i in pts_tot do
+            loop/TRAIL_N i in pts_tot do
                 _filledCircleRGBA(_REN, pts[i].x, pts[i].y, 3,
                                        0xBB,0xBB,0xBB,0xFF);
             end
@@ -104,19 +113,13 @@ do
     end
 end
 
-class Mutual with
-    var Player& p1;
-    var Player& p2;
+class Food with
+    var Ball ball;
 do
-    par do
-        every v in p1.inc do
-_printf("P1 = %d\n", v);
-            emit p2.radius => -v;
-        end
-    with
-        every v in p2.inc do
-_printf("P2 = %d\n", v);
-            emit p1.radius => -v;
+    watching (5000 + _rand()%5000) ms do
+        every SDL_REDRAW do
+            _filledCircleRGBA(_REN, (int)ball.x, (int)ball.y, (int)ball.radius,
+                                    0xCC,0x00,0x00,0xFF);
         end
     end
 end
@@ -129,22 +132,84 @@ with
         _SDL_RenderFillRect(_REN, null);
     end
 with
-    var Player p1 with
-        this.ball   = Ball(200,130,8);
-        this.button = _SDL_BUTTON_LEFT;
-    end;
-    var Player p2 with
-        this.ball   = Ball(300,130,8);
-        this.button = _SDL_BUTTON_RIGHT;
-    end;
-    var Mutual mut with
-        this.p1 = p1;
-        this.p2 = p2;
-    end;
+    loop do
+        pool Food[] foods;
 
-    every key in SDL_KEYDOWN do
-        if key:keysym.sym>=_SDLK_1 and key:keysym.sym<=_SDLK_9 then
-            emit p1.inc => (key:keysym.sym-_SDLK_5);
+        var IO io1, io2;
+
+        var Player p1 with
+            this.ball   = Ball(300,200,BALL_RADIUS);
+            this.button = _SDL_BUTTON_LEFT;
+            this.io     = io1;
+        end;
+        var Player p2 with
+            this.ball   = Ball(300,200,BALL_RADIUS);
+            this.button = _SDL_BUTTON_RIGHT;
+            this.io     = io2;
+        end;
+
+        watching p1 do
+        watching p2 do
+
+            par do
+                every v in io1.e_out do
+                    emit io2.e_in => v;
+                end
+            with
+                every v in io2.e_out do
+                    emit io1.e_in => v;
+                end
+            with
+                every (2000 + _rand()%3000)ms do
+                    spawn Food in foods with
+                        var int x = 50 + _rand()%500;
+                        var int y = 50 + _rand()%300;
+                        var int r = 3  + _rand()%5;
+                        this.ball = Ball(x,y,r);
+                    end;
+                end
+            with
+                every key in SDL_KEYDOWN do
+                    if key:keysym.sym == _SDLK_MINUS then
+                        emit p1.io.e_in => 5;
+                    else/if key:keysym.sym == _SDLK_EQUALS then
+                        emit p2.io.e_in => 5;
+                    else/if key:keysym.sym == _SDLK_1 then
+                        spawn Food in foods with
+                            var int x = 50 + _rand()%500;
+                            var int y = 50 + _rand()%300;
+                            var int r = 3  + _rand()%5;
+                            this.ball = Ball(x,y,r);
+                        end;
+                    end
+                end
+            with
+                every SDL_DT do
+                    loop food in foods do
+                        var SDL_Point pt0 = SDL_Point(food:ball.x, food:ball.y);
+                        var SDL_Point pt1 = SDL_Point(p1.ball.x,   p1.ball.y);
+                        var SDL_Point pt2 = SDL_Point(p2.ball.x,   p2.ball.y);
+                        watching *food do
+                            if _SDL_Circle_vs_Circle(
+                                    (_SDL_Point*)&pt0, food:ball.radius,
+                                    (_SDL_Point*)&pt1, p1.ball.radius)
+                            then
+                                emit p1.io.e_in => food:ball.radius;
+                                kill *food;
+                            end
+                            if _SDL_Circle_vs_Circle(
+                                    (_SDL_Point*)&pt0, food:ball.radius,
+                                    (_SDL_Point*)&pt2, p2.ball.radius)
+                            then
+                                emit p2.io.e_in => food:ball.radius;
+                                kill *food;
+                            end
+                        end
+                    end
+                end
+            end
+
+        end
         end
     end
 with
