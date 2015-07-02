@@ -115,9 +115,9 @@ with
                     // iterates over the foods
                     loop food in foods do
                         // on collision
-                        if <collision-food-vs-playerN> then
+                        if <collision-food-vs-p1> then
                             // pushes data
-                            emit pN.io.e_in => food:ball.radius;
+                            emit p1.io.e_in => food:ball.radius;
                             // removes the food from the pool
                             kill food;
                         end

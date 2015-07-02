@@ -1,7 +1,7 @@
 
-    <...>                   // inputs, ball, integral declarations
+    <...>               // inputs, ball, integral declarations
 
-    await MOUSE_BUTTON;     // wait for the click to start
+    await MOUSE_BUTTON; // wait for the click to start
 
     do
 
@@ -9,7 +9,7 @@
         var Integral_Over_Time _ (vx&,     ax&);
         var Integral_Over_Time _ (ball.x&, vx&);
 
-        await MOUSE_BUTTON;     // wait for the click to turn
+        await MOUSE_BUTTON; // wait for the click to turn
     end
 
     do
@@ -17,7 +17,7 @@
         var Integral_Over_Time _ (vy&,     ay&);
         var Integral_Over_Time _ (ball.y&, vy&);
 
-        await MOUSE_BUTTON;     // wait for the click to turn
+        await MOUSE_BUTTON; // wait for the click to turn
     end
 
 
