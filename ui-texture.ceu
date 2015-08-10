@@ -10,7 +10,6 @@ input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONUP;
 
 class UITexture with
     interface UI;
-    var   _SDL_Renderer&? ren;
     var   bool            should_redim = false;
     var   SDL_Color?      bg_clr;
 
@@ -78,13 +77,13 @@ do
                     bg_clr:r,bg_clr:g,bg_clr:b,bg_clr:a);
                 _SDL_RenderFillRect(ren, &this.bg_rect);
 */
-                _boxColor(&ren!, rect.x-pad_x/2,rect.y-pad_y/2,
+                _boxColor(&ren, rect.x-pad_x/2,rect.y-pad_y/2,
                                rect.x+rect.w+pad_x/2,rect.y+rect.h+pad_y/2,
                                bg_clr);
             end
             //emit ok_redraw_pre;
 
-            _SDL_RenderCopy(&this.ren!, &this.tex, null, (_SDL_Rect*)&rect);
+            _SDL_RenderCopy(&this.ren, &this.tex, null, (_SDL_Rect*)&rect);
             //emit ok_redraw_pos;
         end
     end
@@ -183,7 +182,7 @@ with
     end
 
     var UITexture ui_txt with
-        this.ren = ren;
+        this.ren = ren!;
         this.tex = tex_txt!;
         this.align_x = _UI_ALIGN_LEFT;
         this.align_y = _UI_ALIGN_TOP;
@@ -198,13 +197,13 @@ with
     ui_txt.go_bg(&win_r, false);
 
     var UITexture ui1 with
-        this.ren = ren;
+        this.ren = ren!;
         this.tex = tex!;
         this.bg_clr = SDL_COLOR_BLUE;
     end;
 
     var UITexture ui2 with
-        this.ren = ren;
+        this.ren = ren!;
         this.tex = tex!;
     end;
 
