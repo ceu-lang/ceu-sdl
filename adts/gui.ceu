@@ -48,7 +48,7 @@ or
     end
 or
     tag SPLIT with
-        var bool  horizontal;
+        var Split dir;
         var Grid* g1;
         var Grid* g2;
     end
@@ -106,12 +106,12 @@ with
     _printf("r1=%p r2=%p r3=%p r4=%p r5=%p\n",
         &r1, &r2, &r3, &r4, &r5);
 
-    pool Grid[] grid;
-    grid = new Grid.SPLIT(true,
-                Grid.SPLIT(false,
+    pool Grid[20] grid;
+    grid = new Grid.SPLIT(Split.HORIZONTAL(),
+                Grid.SPLIT(Split.VERTICAL(),
                     Grid.SIMPLE(&r1),
                     Grid.SIMPLE(&r2)),
-                Grid.SPLIT(false,
+                Grid.SPLIT(Split.VERTICAL(),
                     Grid.SIMPLE(&r3),
                     Grid.SIMPLE(&r4)));
 
@@ -163,7 +163,7 @@ with
                 else/if g:SPLIT then
                     par/or do
                         var int w_, h_;
-                        if g:SPLIT.horizontal then
+                        if g:SPLIT.dir.HORIZONTAL then
                             w_ = w;
                             h_ = h/2;
                         else
@@ -179,7 +179,7 @@ with
                         g = g:SPLIT.g2;
                     with
                         var int x_, y_, w_, h_;
-                        if g:SPLIT.horizontal then
+                        if g:SPLIT.dir.HORIZONTAL then
                             x_ = x;
                             y_ = h/2;
                             w_ = w;

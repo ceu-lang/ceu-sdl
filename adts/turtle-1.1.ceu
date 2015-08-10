@@ -238,7 +238,7 @@ with
     _printf("=== 3\n");
 
     cmds = new Command.SEQUENCE(Command.MOVE(200), Command.NOTHING());
-    pool Command*[] seq;    // TODO: should actually be "pool Command[]* seq"
+    pool Command[]* seq;    // TODO: should actually be "pool Command[]* seq"
     seq = cmds;
     seq:SEQUENCE.two = new Command.SEQUENCE(Command.ROTATE(90), Command.NOTHING());
     seq = seq:SEQUENCE.two;
