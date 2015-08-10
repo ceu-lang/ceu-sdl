@@ -1,0 +1,37 @@
+
+    <...>                   // inputs, ball, integral declarations
+
+    await MOUSE_BUTTON;     // wait for the click to start
+
+    loop do
+        do
+            // move right
+            var float vx=20, ax=20;
+            var Integral_Over_Time _ (vx&,     ax&);
+            var Integral_Over_Time _ (ball.x&, vx&);
+            await MOUSE_BUTTON;
+        end
+        do
+            // move down
+            var float vy=20, ay=20;
+            var Integral_Over_Time _ (vy&,     ay&);
+            var Integral_Over_Time _ (ball.y&, vy&);
+            await MOUSE_BUTTON;     // wait for the click to turn
+        end
+        do
+            // move left
+            var float vx=-20, ax=-20;
+            var Integral_Over_Time _ (vx&,     ax&);
+            var Integral_Over_Time _ (ball.x&, vx&);
+            await MOUSE_BUTTON;     // wait for the click to turn
+        end
+        do
+            // move up
+            var float vy=-20, ay=-20;
+            var Integral_Over_Time _ (vy&,     ay&);
+            var Integral_Over_Time _ (ball.y&, vy&);
+            await MOUSE_BUTTON;     // wait for the click to turn
+        end
+    end
+
+

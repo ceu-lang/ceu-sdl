@@ -1,0 +1,35 @@
+#define HEADER_TITLE "LED - 03 (repeat)"
+#include "header.ceu"
+
+var bool is_on = false;
+
+par/or do
+    await SDL_QUIT;
+with
+    loop do
+        par/or do
+            loop do
+                await 500ms;
+                is_on = not is_on;
+            end
+        with
+            await SDL_MOUSEBUTTONDOWN;
+        end
+        await 2s;
+    end
+with
+    every SDL_REDRAW do
+        _SDL_SetRenderDrawColor(_REN, 0xFF,0xFF,0xFF,0xFF);
+        _SDL_RenderFillRect(_REN, null);
+
+        _filledCircleRGBA(_REN, 200,200,50, 0xFF,0xFF,0xFF,0xFF);
+        if is_on then
+            _filledCircleRGBA(_REN, 200,200,47, 0x00,0x88,0x00,0xFF);
+        else
+            _filledCircleRGBA(_REN, 200,200,47, 0x00,0x00,0x00,0xFF);
+        end
+        _SDL_RenderPresent(_REN);
+    end
+end
+
+escape 0;

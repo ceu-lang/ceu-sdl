@@ -1,0 +1,49 @@
+
+    class Integral_Over_Time with
+        var float& accumulator;
+        var float& value;
+    do
+        loop do
+            var int dt = await NEXT_FRAME;
+            accumulator = accumulator + value * dt/1000.0;
+        end
+    end
+
+    input int  NEXT_FRAME;      // int:  number of milliseconds between frames
+    input void MOUSE_BUTTON;    // void: not interested in any associated value
+
+    data Ball with
+        var float x;
+        var float y;
+        var float radius;
+    end
+    var Ball ball = Ball(130,130,8);    // starting position and radius
+
+    // previous code collapsed
+    <...>
+
+    #define DCL_INT(a,v)                \
+        var Integral_Over_Time _ with   \
+            this.accumulator = a;       \
+            this.value       = v;       \
+        end
+
+    await MOUSE_BUTTON;         // wait for the click to start
+
+    do
+        var float velocity=20, acceleration=20;
+        DCL_INT(velocity, acceleration);
+        DCL_INT(ball.x,   velocity);
+        await MOUSE_BUTTON;     // wait for the click to turn
+    end
+
+    do
+        var float velocity=20, acceleration=20;
+        DCL_INT(velocity, acceleration);
+        DCL_INT(ball.y,   velocity);
+        await MOUSE_BUTTON;     // wait for the click to turn
+    end
+
+
+    await FOREVER;
+

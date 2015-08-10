@@ -67,14 +67,14 @@ int main (int argc, char *argv[])
     int fps_next = (1000/CEU_FPS);
 #endif
 
-#ifdef CEU_THREADS
-    // just before executing CEU code
-    CEU_THREADS_MUTEX_LOCK(&CEU.threads_mutex);
-#endif
-
     tceu_app app;
         app.data = (tceu_org*) &CEU_DATA;
         app.init = &ceu_app_init;
+
+#ifdef CEU_THREADS
+    // just before executing CEU code
+    CEU_THREADS_MUTEX_LOCK(&app.threads_mutex);
+#endif
 
     app.init(&app);    /* calls CEU_THREADS_MUTEX_LOCK() */
 #ifdef CEU_RET
@@ -125,7 +125,7 @@ if (!CEU_TIMEMACHINE_ON) {
     {
 #ifdef CEU_THREADS
         // unlock from INIT->START->REDRAW or last loop iteration
-        CEU_THREADS_MUTEX_UNLOCK(&CEU.threads_mutex);
+        CEU_THREADS_MUTEX_UNLOCK(&app.threads_mutex);
 #endif
 
         /*
@@ -181,7 +181,7 @@ if (!CEU_TIMEMACHINE_ON) {
             dt_ms = (1000/CEU_FPS);
             fps_next = (dt_ms + togo);
             if (fps_next < 0) {
-printf("[TODO: main.c] delayed %d\n", -fps_next);
+/*printf("[TODO: main.c] delayed %d\n", -fps_next);*/
                 fps_next = 0;
             }
         } else {
@@ -196,7 +196,7 @@ printf("[TODO: main.c] delayed %d\n", -fps_next);
 
 #ifdef CEU_THREADS
         // just before executing CEU code
-        CEU_THREADS_MUTEX_LOCK(&CEU.threads_mutex);
+        CEU_THREADS_MUTEX_LOCK(&app.threads_mutex);
 #endif
 
 #ifdef __ANDROID__
@@ -466,7 +466,7 @@ if (!CEU_TIMEMACHINE_ON) {
 END:
 #ifdef CEU_THREADS
     // only reachable if LOCKED
-    CEU_THREADS_MUTEX_UNLOCK(&CEU.threads_mutex);
+    CEU_THREADS_MUTEX_UNLOCK(&app.threads_mutex);
 #endif
     SDL_Quit();         // TODO: slow
 #ifdef CEU_RET

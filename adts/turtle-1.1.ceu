@@ -1,0 +1,307 @@
+#include "sdl.ceu"
+#include "sdl-gfx.ceu"
+
+input void SDL_REDRAW;
+input void SDL_QUIT;
+input int  SDL_DT;
+
+global do
+    native do
+        SDL_Renderer* REN = NULL;
+        int REN_W, REN_H;
+    end
+
+    var _SDL_Window&? win;
+        finalize
+            win = _SDL_CreateWindow("Turtle 1", _SDL_WINDOWPOS_CENTERED,
+                                                _SDL_WINDOWPOS_CENTERED,
+                                                400, 400,
+                                                _SDL_WINDOW_SHOWN);
+        with
+            _SDL_DestroyWindow(&win);
+        end
+    _SDL_GetWindowSize(&win, &_REN_W, &_REN_H);
+
+    finalize
+        _REN = _SDL_CreateRenderer(&win, -1, 0);
+    with
+        _SDL_DestroyRenderer(_REN);
+    end
+end
+
+class Turtle with
+    var SDL_Point pos;
+    var int       angle;
+do
+    every SDL_REDRAW do
+        _filledCircleRGBA(_REN, pos.x,pos.y, 25,
+                                0x00,0xAA,0x00,0xFF);
+
+        var int x = this.pos.x + 25*_sin(angle/(180.0/_M_PI));
+        var int y = this.pos.y + 25*_cos(angle/(180.0/_M_PI));
+        _filledCircleRGBA(_REN, x,y, 8,
+                                0x00,0x00,0x00,0xFF);
+    end
+end
+
+class TurtleRotate with
+    var Turtle& turtle;
+    var int     angle;
+do
+    var int inc;
+    if this.angle < 0 then
+        angle = -angle;
+        inc = 1;
+    else
+        inc = -1;
+    end
+    loop i in angle do
+        await 10ms;
+        turtle.angle = turtle.angle + inc;
+    end
+end
+
+class TurtleMove with
+    var Turtle& turtle;
+    var int     pixels;
+do
+    var int inc;
+    if this.pixels > 0 then
+        inc = 1;
+    else
+        inc = -1;
+        this.pixels = -this.pixels;
+    end
+
+    var float sum = 0;
+    var float x = turtle.pos.x;
+    var float y = turtle.pos.y;
+    loop do
+        var int dt = await SDL_DT;
+        if sum >= this.pixels then
+            break;
+        end
+        var float mul = 200 * dt * 0.001 * inc;
+        var float dx  = mul * _sin(turtle.angle/(180.0/_M_PI));
+        var float dy  = mul * _cos(turtle.angle/(180.0/_M_PI));
+        sum = sum + _fabs(dx) + _fabs(dy);
+        x = x + dx;
+        y = y + dy;
+        turtle.pos.x = x;
+        turtle.pos.y = y;
+    end
+
+end
+
+data Command with
+    tag NOTHING;
+or
+    tag ROTATE with
+        var int angle;
+    end
+or
+    tag MOVE with
+        var int pixels;
+    end
+or
+    tag SEQUENCE with
+        var Command* one;
+        var Command* two;
+    end
+or
+    tag REPEAT with
+        var int      times;
+        var Command* command;
+    end
+end
+
+class Run with
+    pool Command[16]& cmds;
+    var  Turtle&      turtle;
+do
+    traverse cmd in cmds do
+        watching cmd do                 // aborts if the current node is mutated
+            //if cmd:NOTHING then         // base case
+                //nothing;
+
+            if cmd:ROTATE then          // rotation
+                do TurtleRotate with
+                    this.turtle  = turtle;
+                    this.angle   = cmd:ROTATE.angle;
+                end;
+
+            else/if cmd:MOVE then       // movement
+                do TurtleMove with
+                    this.turtle    = turtle;
+                    this.pixels    = cmd:MOVE.pixels;
+                end;
+
+            else/if cmd:SEQUENCE then   // sequence is recursive
+                traverse cmd:SEQUENCE.one;
+                traverse cmd:SEQUENCE.two;
+
+            else/if cmd:REPEAT then     // repeat N times (also recursive)
+                loop i in cmd:REPEAT.times do
+                    traverse cmd:REPEAT.command;
+                end
+
+            else
+                _ceu_out_assert(0, "not implemented");
+            end
+        end
+    end
+end
+
+par/or do
+    await SDL_QUIT;
+with
+    every SDL_REDRAW do
+        _SDL_SetRenderDrawColor(_REN, 0xFF,0xFF,0xFF, 0xFF);
+        _SDL_RenderFillRect(_REN, null);
+    end
+with
+    var Turtle turtle with
+        this.pos   = SDL_Point(100,300);
+        this.angle = 180;
+    end;
+
+    pool Command[16] cmds;
+
+    ///////////////////////////////////////
+    // DIFFERENT WAYS TO POPULATE "cmds" //
+    ///////////////////////////////////////
+
+    ////////////////////////////
+    // 1: static, all at once //
+    ////////////////////////////
+
+    await 1s;
+    _printf("=== 1\n");
+
+    cmds = new Command.SEQUENCE(
+                Command.MOVE(200),
+                Command.SEQUENCE(
+                    Command.ROTATE(90),
+                    Command.SEQUENCE(
+                        Command.MOVE(200),
+                        Command.SEQUENCE(
+                            Command.ROTATE(90),
+                                Command.SEQUENCE(
+                                    Command.MOVE(200),
+                                        Command.SEQUENCE(
+                                            Command.ROTATE(90),
+                                            Command.SEQUENCE(
+                                                Command.MOVE(200),
+                                                Command.SEQUENCE(
+                                                    Command.ROTATE(90),
+                                                    Command.NOTHING()))))))));
+
+    do Run with
+        this.cmds   = cmds;
+        this.turtle = turtle;
+    end;
+
+    //////////////////////////////
+    // 2: static, one at a time //
+    //////////////////////////////
+
+    await 1s;
+    _printf("=== 2\n");
+
+    cmds =
+        new Command.SEQUENCE(Command.MOVE(200), Command.NOTHING());
+    cmds:SEQUENCE.two =
+        new Command.SEQUENCE(Command.ROTATE(90), Command.NOTHING());
+    cmds:SEQUENCE.two:SEQUENCE.two =
+        new Command.SEQUENCE(Command.MOVE(200), Command.NOTHING());
+    cmds:SEQUENCE.two:SEQUENCE.two:SEQUENCE.two =
+        new Command.SEQUENCE(Command.ROTATE(90), Command.NOTHING());
+    cmds:SEQUENCE.two:SEQUENCE.two:SEQUENCE.two:SEQUENCE.two =
+        new Command.SEQUENCE(Command.MOVE(200), Command.NOTHING());
+    cmds:SEQUENCE.two:SEQUENCE.two:SEQUENCE.two:SEQUENCE.two:SEQUENCE.two =
+        new Command.SEQUENCE(Command.ROTATE(90), Command.NOTHING());
+    cmds:SEQUENCE.two:SEQUENCE.two:SEQUENCE.two:SEQUENCE.two:SEQUENCE.two:SEQUENCE.two =
+        new Command.SEQUENCE(Command.MOVE(200), Command.NOTHING());
+    cmds:SEQUENCE.two:SEQUENCE.two:SEQUENCE.two:SEQUENCE.two:SEQUENCE.two:SEQUENCE.two:SEQUENCE.two =
+        new Command.SEQUENCE(Command.ROTATE(90), Command.NOTHING());
+
+    do Run with
+        this.cmds   = cmds;
+        this.turtle = turtle;
+    end;
+
+    ///////////////////////////////////////////////
+    // 3: dynamic, always hold the next position //
+    ///////////////////////////////////////////////
+
+    await 1s;
+    _printf("=== 3\n");
+
+    cmds = new Command.SEQUENCE(Command.MOVE(200), Command.NOTHING());
+    pool Command[]* seq;    // TODO: should actually be "pool Command[]* seq"
+    seq = cmds;
+    seq:SEQUENCE.two = new Command.SEQUENCE(Command.ROTATE(90), Command.NOTHING());
+    seq = seq:SEQUENCE.two;
+    seq:SEQUENCE.two = new Command.SEQUENCE(Command.MOVE(200), Command.NOTHING());
+    seq = seq:SEQUENCE.two;
+    seq:SEQUENCE.two = new Command.SEQUENCE(Command.ROTATE(90), Command.NOTHING());
+    seq = seq:SEQUENCE.two;
+    seq:SEQUENCE.two = new Command.SEQUENCE(Command.MOVE(200), Command.NOTHING());
+    seq = seq:SEQUENCE.two;
+    seq:SEQUENCE.two = new Command.SEQUENCE(Command.ROTATE(90), Command.NOTHING());
+    seq = seq:SEQUENCE.two;
+    seq:SEQUENCE.two = new Command.SEQUENCE(Command.MOVE(200), Command.NOTHING());
+    seq = seq:SEQUENCE.two;
+    seq:SEQUENCE.two = new Command.SEQUENCE(Command.ROTATE(90), Command.NOTHING());
+
+    do Run with
+        this.cmds   = cmds;
+        this.turtle = turtle;
+    end;
+
+    //////////////////////////////////////////////////////
+    // 4: dynamic, find next position on each insertion //
+    //////////////////////////////////////////////////////
+
+    await 1s;
+    _printf("=== 4\n");
+
+    cmds = new Command.NOTHING();
+    loop i in 4 do
+        traverse cmd in cmds do
+            if cmd:NOTHING then
+                // initial MOVE/ROTATE pair
+                cmds = new Command.SEQUENCE(
+                            Command.MOVE(200),
+                            Command.SEQUENCE(
+                                Command.ROTATE(90),
+                                Command.NOTHING()));
+            else/if cmd:SEQUENCE then
+                // further MOVE/ROTATE pairs
+                if cmd:SEQUENCE.two:NOTHING then
+                    cmd:SEQUENCE.two = new Command.SEQUENCE(
+                                            Command.MOVE(200),
+                                            Command.SEQUENCE(
+                                                Command.ROTATE(90),
+                                                Command.NOTHING()));
+                else
+                    traverse cmd:SEQUENCE.two;
+                end
+            end
+        end
+    end
+
+    do Run with
+        this.cmds   = cmds;
+        this.turtle = turtle;
+    end;
+
+    await 1s;
+
+with
+    every SDL_REDRAW do
+        _SDL_RenderPresent(_REN);
+    end
+end
+
+escape 1;

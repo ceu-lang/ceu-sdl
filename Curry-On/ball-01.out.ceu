@@ -1,0 +1,39 @@
+
+
+    input int NEXT_FRAME;   // int: time between frames
+    input int MOUSE_BUTTON; // int: clicked button
+
+    data Ball with
+        var float x;
+        var float y;
+        var float radius;
+    end
+    var Ball ball = Ball(130,130,8);
+
+    await MOUSE_BUTTON; // wait for the click to start
+
+    var float vx = 20;  // pixels per second
+    var float ax = 20;  // pixels per second per second
+
+    par do
+        // "vx" is the integral of "ax"
+        loop do
+            var int dt = await NEXT_FRAME;
+            vx = vx + ax * dt;
+        end
+    with
+        // "ball.x" is the integral of "vx"
+        loop do
+            var int dt = await NEXT_FRAME;
+            ball.x = ball.x + vx * dt;
+        end
+    end
+
+
+
+    /*
+     * The code to redraw the ball and the track is omitted
+     * (it reads the mutable fields "ball.x" and "ball.y").
+     */
+
+

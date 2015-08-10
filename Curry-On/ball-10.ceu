@@ -1,0 +1,223 @@
+#define HEADER_TITLE "Ball - 06"    // class, 2p, graph
+#include "header.ceu"
+
+#define DCL_INT(a,v)                \
+    var Integral_Over_Time _ with   \
+        this.accumulator = a;       \
+        this.value       = v;       \
+    end
+
+class Integral_Over_Time with
+    var float& accumulator;
+    var float& value;
+do
+    every dt in SDL_DT do
+        accumulator = accumulator + value * dt/1000.0;
+    end
+end
+
+class Move_Until_Button with
+    var int button;
+    var float& pos;
+    var float v0, a0;
+do
+    DCL_INT(v0,  a0);
+    DCL_INT(pos, v0);
+    var _SDL_MouseButtonEvent* but =
+        await SDL_MOUSEBUTTONDOWN
+            until but:button == button;
+end
+
+data Ball with
+    var float x;
+    var float y;
+    var float radius;
+end
+
+class IO with
+    event int e_in;
+    event int e_out;
+do
+    await FOREVER;
+end
+
+class Player with
+    var Ball ball;
+    var int  button;
+    var IO&  io;
+do
+    var int pts_tot = 0;
+    var int pts_nxt = 0;
+    var SDL_Point[TRAIL_N] pts;
+
+    var int a = 0;
+
+    par/or do
+        var _SDL_MouseButtonEvent* but =
+            await SDL_MOUSEBUTTONDOWN
+                until but:button == button;
+
+        loop do
+            do Move_Until_Button with
+                this.button = outer.button;
+                this.pos = ball.x;
+                this.v0  = 20;
+                this.a0  = 20;
+            end;
+            do Move_Until_Button with
+                this.button = outer.button;
+                this.pos = ball.y;
+                this.v0  = 20;
+                this.a0  = 20;
+            end;
+            do Move_Until_Button with
+                this.button = outer.button;
+                this.pos = ball.x;
+                this.v0  = -20;
+                this.a0  = -20;
+            end;
+            do Move_Until_Button with
+                this.button = outer.button;
+                this.pos = ball.y;
+                this.v0  = -20;
+                this.a0  = -20;
+            end;
+        end
+    with
+        loop do
+            var int v = await io.e_in;
+            ball.radius = ball.radius + v;
+            emit io.e_out => -v;
+            if ball.radius <= 0 then
+                break;
+            end
+        end
+    with
+        every TRAIL_MS ms do
+            pts[pts_nxt].x = ball.x;
+            pts[pts_nxt].y = ball.y;
+            pts_nxt = (pts_nxt + 1) % TRAIL_N;
+            if pts_tot < TRAIL_N then
+                pts_tot = pts_tot + 1;
+            end
+        end
+    with
+        every SDL_REDRAW do
+            loop/TRAIL_N i in pts_tot do
+                _filledCircleRGBA(_REN, pts[i].x, pts[i].y, 3,
+                                       0xBB,0xBB,0xBB,0xFF);
+            end
+            _filledCircleRGBA(_REN, (int)ball.x, (int)ball.y, (int)ball.radius,
+                                   0x00,0x00,0x00,0xFF);
+        end
+    end
+end
+
+class Food with
+    var Ball ball;
+do
+    watching (5000 + _rand()%5000) ms do
+        every SDL_REDRAW do
+            _filledCircleRGBA(_REN, (int)ball.x, (int)ball.y, (int)ball.radius,
+                                    0xCC,0x00,0x00,0xFF);
+        end
+    end
+end
+
+par/or do
+    await SDL_QUIT;
+with
+    every SDL_REDRAW do
+        _SDL_SetRenderDrawColor(_REN, 0xFF,0xFF,0xFF,0xFF);
+        _SDL_RenderFillRect(_REN, null);
+    end
+with
+    loop do
+        pool Food[] foods;
+
+        var IO io1, io2;
+
+        var Player p1 with
+            this.ball   = Ball(300,200,BALL_RADIUS);
+            this.button = _SDL_BUTTON_LEFT;
+            this.io     = io1;
+        end;
+        var Player p2 with
+            this.ball   = Ball(300,200,BALL_RADIUS);
+            this.button = _SDL_BUTTON_RIGHT;
+            this.io     = io2;
+        end;
+
+        watching p1 do
+        watching p2 do
+
+            par do
+                every v in io1.e_out do
+                    emit io2.e_in => v;
+                end
+            with
+                every v in io2.e_out do
+                    emit io1.e_in => v;
+                end
+            with
+                every (2000 + _rand()%3000)ms do
+                    spawn Food in foods with
+                        var int x = 50 + _rand()%500;
+                        var int y = 50 + _rand()%300;
+                        var int r = 3  + _rand()%5;
+                        this.ball = Ball(x,y,r);
+                    end;
+                end
+            with
+                every key in SDL_KEYDOWN do
+                    if key:keysym.sym == _SDLK_MINUS then
+                        emit p1.io.e_in => 5;
+                    else/if key:keysym.sym == _SDLK_EQUALS then
+                        emit p2.io.e_in => 5;
+                    else/if key:keysym.sym == _SDLK_1 then
+                        spawn Food in foods with
+                            var int x = 50 + _rand()%500;
+                            var int y = 50 + _rand()%300;
+                            var int r = 3  + _rand()%5;
+                            this.ball = Ball(x,y,r);
+                        end;
+                    end
+                end
+            with
+                every SDL_DT do
+                    loop food in foods do
+                        var SDL_Point pt0 = SDL_Point(food:ball.x, food:ball.y);
+                        var SDL_Point pt1 = SDL_Point(p1.ball.x,   p1.ball.y);
+                        var SDL_Point pt2 = SDL_Point(p2.ball.x,   p2.ball.y);
+                        watching *food do
+                            if _SDL_Circle_vs_Circle(
+                                    (_SDL_Point*)&pt0, food:ball.radius,
+                                    (_SDL_Point*)&pt1, p1.ball.radius)
+                            then
+                                emit p1.io.e_in => food:ball.radius;
+                                kill *food;
+                            end
+                            if _SDL_Circle_vs_Circle(
+                                    (_SDL_Point*)&pt0, food:ball.radius,
+                                    (_SDL_Point*)&pt2, p2.ball.radius)
+                            then
+                                emit p2.io.e_in => food:ball.radius;
+                                kill *food;
+                            end
+                        end
+                    end
+                end
+            end
+
+        end
+        end
+    end
+with
+    #include "click.ceu"
+with
+    every SDL_REDRAW do
+        _SDL_RenderPresent(_REN);
+    end
+end
+
+escape 0;

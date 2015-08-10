@@ -23,13 +23,13 @@ var _SDL_Window&? win;
                 _SDL_WINDOWPOS_UNDEFINED, _SDL_WINDOWPOS_UNDEFINED,
                 640, 480, _SDL_WINDOW_SHOWN);
     with
-        _SDL_DestroyWindow(&win);
+        _SDL_DestroyWindow(&win!);
     end
 
-_SDL_GetWindowSize(&win, &_REN_W, &_REN_H);
+_SDL_GetWindowSize(&win!, &_REN_W, &_REN_H);
 
 finalize
-    _REN = _SDL_CreateRenderer(&win, -1, 0);
+    _REN = _SDL_CreateRenderer(&win!, -1, 0);
 with
     _SDL_DestroyRenderer(_REN);
 end

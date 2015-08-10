@@ -1,0 +1,62 @@
+#define HEADER_TITLE "Ball - 01"
+#include "header.ceu"
+
+var int pts_tot = 0;
+var int pts_nxt = 0;
+var SDL_Point[TRAIL_N] pts;
+
+data Ball with
+    var float x;
+    var float y;
+    var float radius;
+end
+
+var Ball ball = Ball(130,130,8);
+
+par/or do
+    await SDL_QUIT;
+with
+    await SDL_MOUSEBUTTONDOWN;
+
+    var float velocity=30, acceleration=30;
+
+    par do
+        loop do
+            var int dt = await SDL_DT;
+            velocity = velocity + acceleration*dt/1000.0;
+        end
+    with
+        loop do
+            var int dt = await SDL_DT;
+            ball.x = ball.x + velocity*dt/1000.0;
+        end
+    end
+with
+    every TRAIL_MS ms do
+        pts[pts_nxt].x = ball.x;
+        pts[pts_nxt].y = ball.y;
+        pts_nxt = (pts_nxt + 1) % TRAIL_N;
+        if pts_tot < TRAIL_N then
+            pts_tot = pts_tot + 1;
+        end
+    end
+with
+    every SDL_REDRAW do
+
+        _SDL_SetRenderDrawColor(_REN, 0xFF,0xFF,0xFF,0xFF);
+        _SDL_RenderFillRect(_REN, null);
+
+        loop/TRAIL_N i in pts_tot do
+            _filledCircleRGBA(_REN, pts[i].x, pts[i].y, 3,
+                                   0xBB,0xBB,0xBB,0xFF);
+        end
+        _filledCircleRGBA(_REN, (int)ball.x, (int)ball.y, (int)ball.radius,
+                               0x00,0x00,0x00,0xFF);
+
+        _SDL_RenderPresent(_REN);
+    end
+with
+    #include "click.ceu"
+end
+
+escape 0;

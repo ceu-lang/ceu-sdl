@@ -37,9 +37,9 @@ do
     var float sin = 0;
     par/or do
         var int y = r.y;
-        var int dt;
         var float x = r.x;
-        every dt in SDL_DT do
+        loop do
+            var int dt = await SDL_DT;
             var float v = dt*speed;
             x = x + v/1000;
             r.x = x;

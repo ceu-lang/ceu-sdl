@@ -1,0 +1,158 @@
+#define HEADER_TITLE "Turtle - 01"
+#include "header.ceu"
+
+data Command with
+    tag NOTHING;
+or
+    tag ROTATE with
+        var int angle;
+    end
+or
+    tag MOVE with
+        var int pixels;
+    end
+or
+    tag SEQUENCE with
+        var Command* one;
+        var Command* two;
+    end
+or
+    tag REPEAT with
+        var int      times;
+        var Command* command;
+    end
+end
+
+pool Command[15] cmds;
+cmds = new Command.REPEAT(2,
+            Command.SEQUENCE(
+                Command.ROTATE(45),
+                Command.SEQUENCE(
+                    Command.MOVE(200),
+                    Command.SEQUENCE(
+                        Command.ROTATE(-90),
+                        Command.SEQUENCE(
+                            Command.MOVE(200),
+                            Command.SEQUENCE(
+                                Command.ROTATE(45),
+                                Command.MOVE(-200)))))));
+
+class Turtle with
+    var SDL_Point pos;
+    var int       angle;
+do
+    every SDL_REDRAW do
+        _filledCircleRGBA(_REN, pos.x,pos.y, 25,
+                                0x00,0xAA,0x00,0xFF);
+
+        var int x = this.pos.x + 25*_sin(angle/(180.0/_M_PI));
+        var int y = this.pos.y + 25*_cos(angle/(180.0/_M_PI));
+        _filledCircleRGBA(_REN, x,y, 8,
+                                0x00,0x00,0x00,0xFF);
+    end
+end
+
+class TurtleRotate with
+    var Turtle& turtle;
+    var int     angle;
+do
+    var int inc;
+    if this.angle < 0 then
+        angle = -angle;
+        inc = 1;
+    else
+        inc = -1;
+    end
+    loop i in angle do
+        await 10ms;
+        turtle.angle = turtle.angle + inc;
+    end
+end
+
+class TurtleMove with
+    var Turtle& turtle;
+    var int     pixels;
+do
+    var int inc;
+    if this.pixels > 0 then
+        inc = 1;
+    else
+        inc = -1;
+        this.pixels = -this.pixels;
+    end
+
+    var float sum = 0;
+    var float x = turtle.pos.x;
+    var float y = turtle.pos.y;
+    loop do
+        var int dt = await SDL_DT;
+        if sum >= this.pixels then
+            break;
+        end
+        var float mul = 150 * dt * 0.001 * inc;
+        var float dx  = mul * _sin(turtle.angle/(180.0/_M_PI));
+        var float dy  = mul * _cos(turtle.angle/(180.0/_M_PI));
+        sum = sum + _fabs(dx) + _fabs(dy);
+        x = x + dx;
+        y = y + dy;
+        turtle.pos.x = x;
+        turtle.pos.y = y;
+    end
+
+end
+
+par/or do
+    await SDL_QUIT;
+with
+    every SDL_REDRAW do
+        _SDL_SetRenderDrawColor(_REN, 0xFF,0xFF,0xFF, 0xFF);
+        _SDL_RenderFillRect(_REN, null);
+    end
+with
+    var Turtle turtle with
+        this.pos   = SDL_Point(250,300);
+        this.angle = 180;
+    end;
+
+    await 1s;
+
+    traverse cmd in cmds do
+        watching cmd do
+            //if cmd:NOTHING then
+                //nothing;
+
+            if cmd:ROTATE then
+                do TurtleRotate with
+                    this.turtle = turtle;
+                    this.angle  = cmd:ROTATE.angle;
+                end;
+
+            else/if cmd:MOVE then
+                do TurtleMove with
+                    this.turtle = turtle;
+                    this.pixels = cmd:MOVE.pixels;
+                end;
+
+            else/if cmd:SEQUENCE then
+                traverse cmd:SEQUENCE.one;
+                traverse cmd:SEQUENCE.two;
+
+            else/if cmd:REPEAT then
+                loop i in cmd:REPEAT.times do
+                    traverse cmd:REPEAT.command;
+                end
+
+            else
+                _ceu_out_assert(0, "not implemented");
+            end
+        end
+    end
+
+    await FOREVER;
+with
+    every SDL_REDRAW do
+        _SDL_RenderPresent(_REN);
+    end
+end
+
+escape 1;

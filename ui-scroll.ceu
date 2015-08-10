@@ -55,7 +55,8 @@ do
             var SDL_Point pt1 = SDL_Point(but:x,but:y);
             var SDL_Point pt2;
 
-            every 50ms do
+            loop do
+                await 50ms;
                 var int s = _SDL_GetMouseState(&pt2.x, &pt2.y);
                 if not s then
                     break;
@@ -197,17 +198,17 @@ var _SDL_Window&? win;
         win = _SDL_CreateWindow("UI - Scroll",
                             500, 1300, 400, 200, _SDL_WINDOW_SHOWN);
     with
-        _SDL_DestroyWindow(win);
+        _SDL_DestroyWindow(&win!);
     end
 
-_SDL_GetWindowSize(&win, &win_w, &win_h);
+_SDL_GetWindowSize(&win!, &win_w, &win_h);
 var SDL_Rect win_r = SDL_Rect(0,0, win_w,win_h);
 
 var _SDL_Renderer&? ren;
     finalize
-        ren = _SDL_CreateRenderer(&win, -1, 0);
+        ren = _SDL_CreateRenderer(&win!, -1, 0);
     with
-        _SDL_DestroyRenderer(&ren);
+        _SDL_DestroyRenderer(&ren!);
     end
 
 par/or do
@@ -215,25 +216,23 @@ par/or do
 with
     every SDL_REDRAW do
 
-        _SDL_SetRenderDrawColor(&ren, 0x00,0x00,0x00, 0);
-        _SDL_RenderFillRect(&ren, (_SDL_Rect*)&win_r);
+        _SDL_SetRenderDrawColor(&ren!, 0x00,0x00,0x00, 0);
+        _SDL_RenderFillRect(&ren!, (_SDL_Rect*)&win_r);
     end
 with
+    var int[] lay = [
+         0,  1,  2,  3,
+         4,  5,  6,  7,
+         8,  9, 10, 11,
+        12, 13, 14, 15
+    ];
+
     var UIGrid grid with
-        this.ren = ren;
+        this.ren = ren!;
         this.lay_lins = 4;
         this.lay_cols = 4;
-        this.lay = _UI_SCROLL_grid;
+        this.lay = lay;
         this.uis_n = 16;
-        native do
-            int UI_SCROLL_grid[] = {
-                 0,  1,  2,  3,
-                 4,  5,  6,  7,
-                 8,  9, 10, 11,
-                12, 13, 14, 15
-            };
-        end
-
         this.spc_x     = 10;
         this.spc_y     = 10;
         this.pad_x     = 10;
@@ -259,7 +258,7 @@ with
             c.a = 0x77;
 
         var UIScroll scroll with
-            this.ren = ren;
+            this.ren = ren!;
             this.ui  = grid;
             this.clr_scroll = c;
         end;
@@ -270,7 +269,7 @@ with
 
 with
     every SDL_REDRAW do
-        _SDL_RenderPresent(&ren);
+        _SDL_RenderPresent(&ren!);
     end
 end
 

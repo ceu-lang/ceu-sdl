@@ -1,0 +1,254 @@
+/*
+ * Spawn a new turtle every 3 seconds.
+ * Collision detection.
+ */
+
+native do
+    ##define SDL_MATH
+end
+#include "sdl.ceu"
+#include "sdl-gfx.ceu"
+
+input void SDL_REDRAW;
+input void SDL_QUIT;
+input int  SDL_DT;
+
+var _SDL_Window&? win;
+    finalize
+        win = _SDL_CreateWindow("Logo", _SDL_WINDOWPOS_CENTERED,
+                                        _SDL_WINDOWPOS_CENTERED,
+                                        400, 400,
+                                        _SDL_WINDOW_SHOWN);
+    with
+        _SDL_DestroyWindow(&win);
+    end
+
+var int w, h;
+_SDL_GetWindowSize(&win, &w, &h);
+
+var _SDL_Renderer&? ren;
+    finalize
+        ren = _SDL_CreateRenderer(&win, -1, 0);
+    with
+        _SDL_DestroyRenderer(&ren);
+    end
+
+data Command with
+    tag NOTHING;
+or
+    tag AWAIT with
+        var int ms;
+    end
+or
+    tag ROTATE with
+        var int d_angle;
+    end
+or
+    tag MOVE with
+        var int d_pixels;
+    end
+or
+    tag SEQUENCE with
+        var Command* one;
+        var Command* two;
+    end
+or
+    tag REPEAT with
+        var int      times;
+        var Command* command;
+    end
+or
+    tag PAROR with
+        var Command* one;
+        var Command* two;
+    end
+end
+
+class Turtle with
+    var _SDL_Renderer& ren;
+    var SDL_Point      pos;
+    var int            angle;
+do
+    every SDL_REDRAW do
+        _filledCircleRGBA(&ren, pos.x,pos.y, 25,
+                                0x00,0xAA,0x00,0xFF);
+
+        var int x = this.pos.x + 25*_sin(angle/(180.0/_M_PI));
+        var int y = this.pos.y + 25*_cos(angle/(180.0/_M_PI));
+        _filledCircleRGBA(&ren, x,y, 8,
+                                0x00,0x00,0x00,0xFF);
+    end
+end
+
+class TurtleRotate with
+    var Turtle* turtle;
+    var int     d_angle;
+do
+    var int inc;
+    if d_angle < 0 then
+        d_angle = -d_angle;
+        inc = 1;
+    else
+        inc = -1;
+    end
+
+    var float sum = turtle:angle;
+    watching *turtle do
+        every dt in SDL_DT do
+            sum = sum + dt*inc*d_angle*0.001;
+            turtle:angle = sum;
+        end
+    end
+end
+
+class TurtleMove with
+    var Turtle* turtle;
+    var int     d_pixels;
+do
+    var int inc;
+    if d_pixels > 0 then
+        inc =  1;
+    else
+        inc = -1;
+        d_pixels = -d_pixels;
+    end
+
+    var float sum = 0;
+    var float x = turtle:pos.x;
+    var float y = turtle:pos.y;
+    watching *turtle do
+        every dt in SDL_DT do
+            var float mul = d_pixels * dt * 0.001 * this.inc;
+            var float dx  = mul * _sin(turtle:angle/(180.0/_M_PI));
+            var float dy  = mul * _cos(turtle:angle/(180.0/_M_PI));
+            sum = sum + _fabs(dx) + _fabs(dy);
+            x = x + dx;
+            y = y + dy;
+            turtle:pos.x = x;
+            turtle:pos.y = y;
+        end
+    end
+end
+
+class Run with
+    var  Turtle*      turtle;
+    pool Command[30]& cmds;
+do
+    watching *turtle do
+        traverse cmd in cmds do
+            watching cmd do
+                //if cmd:NOTHING then
+                    //nothing;
+                if cmd:AWAIT then
+                    await (cmd:AWAIT.ms) ms;
+
+                else/if cmd:ROTATE then
+                    do TurtleRotate with
+                        this.turtle  = turtle;
+                        this.d_angle = cmd:ROTATE.d_angle;
+                    end;
+
+                else/if cmd:MOVE then
+                    do TurtleMove with
+                        this.turtle   = turtle;
+                        this.d_pixels = cmd:MOVE.d_pixels;
+                    end;
+
+                else/if cmd:PAROR then
+                    par/or do
+                        traverse cmd:PAROR.one;
+                    with
+                        traverse cmd:PAROR.two;
+                    end
+
+                else/if cmd:SEQUENCE then
+                    traverse cmd:SEQUENCE.one;
+                    traverse cmd:SEQUENCE.two;
+
+                else/if cmd:REPEAT then
+                    loop i in cmd:REPEAT.times do
+                        traverse cmd:REPEAT.command;
+                    end
+
+                else
+                    _ceu_out_assert(0, "not implemented");
+                end
+            end
+        end
+    end
+end
+
+par/or do
+    await SDL_QUIT;
+with
+    every SDL_REDRAW do
+        _SDL_SetRenderDrawColor(&ren, 0xFF,0xFF,0xFF, 0xFF);
+        _SDL_RenderFillRect(&ren, null);
+    end
+with
+    #define DO1SEC(x) Command.PAROR(Command.AWAIT(1000), x)
+    #define SEQ8(a,b,c,d,e,f,g,h)               \
+        Command.SEQUENCE(a,                     \
+            Command.SEQUENCE(b,                 \
+                Command.SEQUENCE(c,             \
+                    Command.SEQUENCE(d,         \
+                        Command.SEQUENCE(e,     \
+                            Command.SEQUENCE(f, \
+                                Command.SEQUENCE(g,h)))))))
+
+    pool Command[30] cmds =
+            new SEQ8(
+                Command.AWAIT(1000),
+                DO1SEC(Command.MOVE(150)),
+                Command.AWAIT(1000),
+                DO1SEC(Command.ROTATE(140)),
+                Command.AWAIT(1000),
+                DO1SEC(Command.MOVE(100)),
+                Command.AWAIT(1000),
+                Command.PAROR(
+                    Command.AWAIT(20000),
+                    Command.PAROR(
+                        Command.ROTATE(100),
+                        Command.MOVE(200))));
+
+    pool Turtle[] ts;
+    pool Run[]    rs;
+
+    par do
+        every 3s do
+            var Turtle*? t =
+                spawn Turtle in ts with
+                    this.ren   = ren;
+                    this.pos   = SDL_Point(50+_rand()%200,50+_rand()%200);
+                    this.angle = 50+_rand()%100;
+                end;
+            spawn Run in rs with
+                this.turtle = t;
+                this.cmds   = cmds;
+            end;
+        end
+    with
+        every SDL_DT do
+            loop t1 in ts do
+                watching *t1 do
+                    loop t2 in ts do
+                        if t1 != t2 then
+                            if _SDL_Circle_vs_Circle((_SDL_Point*)&t1:pos,25,
+                                                     (_SDL_Point*)&t2:pos,25)
+                            then
+                                kill *t2;
+                                kill *t1;
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+with
+    every SDL_REDRAW do
+        _SDL_RenderPresent(&ren);
+    end
+end
+
+escape 1;

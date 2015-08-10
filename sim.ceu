@@ -123,7 +123,6 @@ do
             // starts off
             watching this.go_on do
                 par do
-                    var _SDL_KeyboardEvent* key;
                     every key in SDL_KEYDOWN do
                         _queue_put(_CEU_IN_SDL_KEYDOWN,
                                    sizeof(_SDL_KeyboardEvent), (byte*)key
@@ -136,7 +135,6 @@ do
                             end;
                     end
                 with
-                    var _SDL_KeyboardEvent* key;
                     every key in SDL_KEYUP do
                         _queue_put(_CEU_IN_SDL_KEYUP,
                                    sizeof(_SDL_KeyboardEvent), (byte*)key
@@ -222,8 +220,8 @@ do
             par/or do
                 key = await SDL_KEYUP_ until key:keysym.sym == sym2;
             with
-                var int time_now;
-                every time_now in g.tm_.ok_seek do
+                loop do
+                    var int time_now = await g.tm_.ok_seek;
                     if g.tm_.time_total-time_now >= 2000 then
                         break;
                     end
@@ -282,7 +280,7 @@ with
         end
         _SDL_RenderPresent(_UITM_REN);
     end
-#if 0
+#if 1
 with
     loop do
         var _SDL_KeyboardEvent* key = await SDL_KEYDOWN_
@@ -304,8 +302,10 @@ with
         finalize with
             _CEU_TIMEMACHINE_ON = 0;
         end
+/*
+*/
 
-        pause/if in_tm do
+        pause/if g.in_tm do
             par/or do
                 loop do
                     key = await SDL_KEYDOWN_
@@ -320,6 +320,7 @@ with
                 end
             with
                 #include "input.ceu"
+                do Input;
             end
         end
     end
@@ -334,7 +335,6 @@ with
             end
         end
         fps = c;
-        //_printf("[FPS=%d]\n", fps);
     end
 end
 

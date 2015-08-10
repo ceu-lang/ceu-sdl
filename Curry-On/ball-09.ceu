@@ -1,0 +1,121 @@
+#define HEADER_TITLE "Ball - 05"    // class, 2p
+#include "header.ceu"
+
+#define DCL_INT(a,v)                \
+    var Integral_Over_Time _ with   \
+        this.accumulator = a;       \
+        this.value       = v;       \
+    end
+
+class Integral_Over_Time with
+    var float& accumulator;
+    var float& value;
+do
+    every dt in SDL_DT do
+        accumulator = accumulator + value * dt/1000.0;
+    end
+end
+
+class Move_Until_Button with
+    var int button;
+    var float& pos;
+    var float v0, a0;
+do
+    DCL_INT(v0,  a0);
+    DCL_INT(pos, v0);
+    var _SDL_MouseButtonEvent* but =
+        await SDL_MOUSEBUTTONDOWN
+            until but:button == button;
+end
+
+data Ball with
+    var float x;
+    var float y;
+    var float radius;
+end
+
+class Player with
+    var Ball ball;
+    var int  button;
+do
+    var int pts_tot = 0;
+    var int pts_nxt = 0;
+    var SDL_Point[TRAIL_N] pts;
+
+    par do
+        var _SDL_MouseButtonEvent* but =
+            await SDL_MOUSEBUTTONDOWN
+                until but:button == button;
+        loop do
+            do Move_Until_Button with
+                this.button = outer.button;
+                this.pos = ball.x;
+                this.v0  = 20;
+                this.a0  = 20;
+            end;
+            do Move_Until_Button with
+                this.button = outer.button;
+                this.pos = ball.y;
+                this.v0  = 20;
+                this.a0  = 20;
+            end;
+            do Move_Until_Button with
+                this.button = outer.button;
+                this.pos = ball.x;
+                this.v0  = -20;
+                this.a0  = -20;
+            end;
+            do Move_Until_Button with
+                this.button = outer.button;
+                this.pos = ball.y;
+                this.v0  = -20;
+                this.a0  = -20;
+            end;
+        end
+    with
+        every TRAIL_MS ms do
+            pts[pts_nxt].x = ball.x;
+            pts[pts_nxt].y = ball.y;
+            pts_nxt = (pts_nxt + 1) % TRAIL_N;
+            if pts_tot < TRAIL_N then
+                pts_tot = pts_tot + 1;
+            end
+        end
+    with
+        every SDL_REDRAW do
+            loop/TRAIL_N i in pts_tot do
+                _filledCircleRGBA(_REN, pts[i].x, pts[i].y, 3,
+                                       0xBB,0xBB,0xBB,0xFF);
+            end
+            _filledCircleRGBA(_REN, (int)ball.x, (int)ball.y, (int)ball.radius,
+                                   0x00,0x00,0x00,0xFF);
+        end
+    end
+end
+
+par/or do
+    await SDL_QUIT;
+with
+    every SDL_REDRAW do
+        _SDL_SetRenderDrawColor(_REN, 0xFF,0xFF,0xFF,0xFF);
+        _SDL_RenderFillRect(_REN, null);
+    end
+with
+    var Player p1 with
+        this.ball   = Ball(300,200,BALL_RADIUS);
+        this.button = _SDL_BUTTON_LEFT;
+    end;
+    var Player p2 with
+        this.ball   = Ball(300,200,BALL_RADIUS);
+        this.button = _SDL_BUTTON_RIGHT;
+    end;
+    await FOREVER;
+with
+    #include "click.ceu"
+with
+    every SDL_REDRAW do
+        _SDL_RenderPresent(_REN);
+    end
+end
+
+escape 0;

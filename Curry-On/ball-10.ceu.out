@@ -1,0 +1,145 @@
+#define HEADER_TITLE "Ball - 06"    // class, 2p, graph
+#include "header.ceu"
+
+#define DCL_INT(a,v)                \
+    var Integral_Over_Time _ with   \
+        this.accumulator = a;       \
+        this.value       = v;       \
+    end
+
+class Integral_Over_Time with
+    var float& accumulator;
+    var float& value;
+do
+    every dt in SDL_DT do
+        accumulator = accumulator + value * dt/1000.0;
+    end
+end
+
+class Move_Until_Button with
+    var int button;
+    var float& pos;
+    var float v0, a0;
+do
+    DCL_INT(v0,  a0);
+    DCL_INT(pos, v0);
+    var _SDL_MouseButtonEvent* but =
+        await SDL_MOUSEBUTTONDOWN
+            until but:button == button;
+end
+
+data Ball with
+    var float x;
+    var float y;
+    var float radius;
+end
+
+
+        class Player with
+            <...>
+            var IO&  io;
+        do
+            <...>
+                every v in io.e_in do
+                    ball.radius += v;
+                    emit io.e_out => -v;
+                end
+            <...>
+        end
+
+
+
+
+    with
+        every TRAIL_MS ms do
+            pts[pts_nxt].x = ball.x;
+            pts[pts_nxt].y = ball.y;
+            pts_nxt = (pts_nxt + 1) % TRAIL_N;
+            if pts_tot < TRAIL_N then
+                pts_tot = pts_tot + 1;
+            end
+        end
+    with
+        every SDL_REDRAW do
+            loop/TRAIL_N i in pts_tot do
+                _filledCircleRGBA(_REN, pts[i].x, pts[i].y, 3,
+                                       0xBB,0xBB,0xBB,0xFF);
+            end
+            _filledCircleRGBA(_REN, (int)ball.x, (int)ball.y, (int)ball.radius,
+                                   0x00,0x00,0x00,0xFF);
+        end
+    end
+end
+
+class Food with
+    var Ball ball;
+do
+    watching (5000 + _rand()%5000) ms do
+        every SDL_REDRAW do
+            _filledCircleRGBA(_REN, (int)ball.x, (int)ball.y, (int)ball.radius,
+                                    0xCC,0x00,0x00,0xFF);
+        end
+    end
+end
+
+par/or do
+    await SDL_QUIT;
+with
+    every SDL_REDRAW do
+        _SDL_SetRenderDrawColor(_REN, 0xFF,0xFF,0xFF,0xFF);
+        _SDL_RenderFillRect(_REN, null);
+    end
+with
+
+    // restarts every time p1 or p2 dies
+    loop do
+        var IO io1, io2;
+        <...>   // links io1<=>io2
+
+        var Player p1(..., io1);
+        var Player p2(..., io2);
+
+        // holds all dynamic instances in a lexical scope
+        pool Food[] foods;
+
+        // aborts whenever p1 or p2 dies
+        watching p1,p2 do
+            par do
+                // creates a new food into the pool periodically
+                every <random> ms do
+                    spawn Food(...) in foods;
+                end
+            with
+                // checks for collisions every frame
+                every NEXT_FRAME do
+                    // iterates over the foods
+                    loop food in foods do
+                        // on collision
+                        if <collision-food-vs-p1> then
+                            // pushes data
+                            emit p1.io.e_in => food:ball.radius;
+                            // removes the food from the pool
+                            kill food;
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    await FOREVER;
+
+
+
+
+
+
+with
+    #include "click.ceu"
+with
+    every SDL_REDRAW do
+        _SDL_RenderPresent(_REN);
+    end
+end
+
+escape 0;

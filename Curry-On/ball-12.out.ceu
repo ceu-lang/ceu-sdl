@@ -1,0 +1,162 @@
+#define HEADER_TITLE "Ball - 6"    // class, spawn, col
+#include "header.ceu"
+
+#define DCL_INT(a,v)                \
+    var Integral_Over_Time _ with   \
+        this.accumulator = a;       \
+        this.value       = v;       \
+    end
+
+class Integral_Over_Time with
+    var float& accumulator;
+    var float& value;
+do
+    every dt in SDL_DT do
+        accumulator = accumulator + value * dt/1000.0;
+    end
+end
+
+class Move_Until_Button with
+    var int button;
+    var float& pos;
+    var float v0, a0;
+do
+    DCL_INT(v0,  a0);
+    DCL_INT(pos, v0);
+
+    await 2s;
+
+    if button == 0 then
+        await (500+_rand()%3000) ms;
+    else
+        var _SDL_MouseButtonEvent* but =
+            await SDL_MOUSEBUTTONDOWN
+                until but:button == button;
+    end
+end
+
+data Ball with
+    var float x;
+    var float y;
+    var float radius;
+end
+
+class Player with
+    var bool is_npc;
+    var Ball ball;
+    var int  button;
+do
+    var int pts_tot = 0;
+    var int pts_nxt = 0;
+    var SDL_Point[5] pts;
+
+    par do
+        await SDL_MOUSEBUTTONDOWN;
+        loop do
+            do Move_Until_Button with
+                this.button = outer.button;
+                this.pos = ball.x;
+                this.v0  = 20;
+                this.a0  = 20;
+            end;
+            do Move_Until_Button with
+                this.button = outer.button;
+                this.pos = ball.y;
+                this.v0  = 20;
+                this.a0  = 20;
+            end;
+            do Move_Until_Button with
+                this.button = outer.button;
+                this.pos = ball.x;
+                this.v0  = -20;
+                this.a0  = -20;
+            end;
+            do Move_Until_Button with
+                this.button = outer.button;
+                this.pos = ball.y;
+                this.v0  = -20;
+                this.a0  = -20;
+            end;
+        end
+    with
+        every 500ms do
+            pts[pts_nxt].x = ball.x;
+            pts[pts_nxt].y = ball.y;
+            pts_nxt = (pts_nxt + 1) % 5;
+            if pts_tot < 5 then
+                pts_tot = pts_tot + 1;
+            end
+        end
+    with
+        every SDL_REDRAW do
+            loop/5 i in pts_tot do
+                _filledCircleRGBA(_REN, pts[i].x, pts[i].y, 3,
+                                       0xBB,0xBB,0xBB,0xFF);
+            end
+
+            var int clr;
+            if this.is_npc then
+                clr = 0x88;
+            else
+                clr = 0x00;
+            end
+            _filledCircleRGBA(_REN, (int)ball.x, (int)ball.y, (int)ball.radius,
+                                   clr,clr,clr,0xFF);
+        end
+    end
+end
+
+par/or do
+    await SDL_QUIT;
+with
+    every SDL_REDRAW do
+        _SDL_SetRenderDrawColor(_REN, 0xFF,0xFF,0xFF,0xFF);
+        _SDL_RenderFillRect(_REN, null);
+    end
+with
+
+    // restarts every time p1 or p2 dies
+    loop do
+
+        // holds all dynamic instances in a lexical scope
+        pool Player[] players;
+
+        // creates p1 and p2 dynamically into the pool
+        var Player*? p1 = spawn Player(...) in players;
+        var Player*? p2 = spawn Player(...) in players;
+
+        // aborts whenever p1 or p2 dies
+        watching p1,p2 do
+            par do
+                // creates a new NPC into the pool every 5 seconds
+                every 5s do
+                    spawn Player(...) in players;
+                end
+            with
+                // checks for collisions every frame
+                every SDL_DT do
+                    // iterates over the pool (NxN)
+                    loop tmp1 in players do
+                        loop tmp2 in players do
+                            if <check-collision-tmp1-vs-tmp2> then
+                                // aborts the colliding organisms
+                                kill *tmp1;
+                                kill *tmp2;
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+
+with
+    #include "click.ceu"
+with
+    every SDL_REDRAW do
+        _SDL_RenderPresent(_REN);
+    end
+end
+
+escape 0;

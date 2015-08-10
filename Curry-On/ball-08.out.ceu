@@ -1,0 +1,38 @@
+
+
+    // INPUTS
+    input int NEXT_FRAME;
+    input int MOUSE_BUTTON;
+
+    // ABSTRACTIONS
+    class Integral_Over_Time with
+        var float& accumulator;
+        var float& value;
+    do
+        <...>
+    end
+    class Move_Until_Button with
+        var float& pos;
+        var float  v0, a0;
+    do
+        <...>
+    end
+
+    // PROGRAM DATA
+    data Ball with
+        var float x;
+        var float y;
+        var float radius;
+    end
+    var Ball ball = Ball(130,130,8);
+
+    // PROGRAM FLOW
+    await MOUSE_BUTTON;
+    loop do
+        do Move_Until_Button(ball.x&,  20,  20);
+        do Move_Until_Button(ball.y&, -20, -20);
+        do Move_Until_Button(ball.x&,  20,  20);
+        do Move_Until_Button(ball.y&, -20, -20);
+    end
+
+

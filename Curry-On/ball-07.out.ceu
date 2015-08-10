@@ -1,0 +1,65 @@
+
+    class Move_Until_Button with
+        var float& pos;
+        var float  v0, a0;
+    do
+        var Integral_Over_Time _ (v0&,  a0&);
+        var Integral_Over_Time _ (pos&, v0&);
+        await MOUSE_BUTTON;
+    end
+
+    // declare an instance and await it terminate
+    do
+        var Move_Until_Button move (ball.x&, 20, 20);
+        await move;
+    end
+
+    // same as above but anonymous
+    do Move_Until_Button(ball.x&, 20, 20);
+
+
+    loop do
+        MOVE_UNTIL_BUTTON(ball.x,  20,  20);
+        MOVE_UNTIL_BUTTON(ball.y,  20,  20);
+        MOVE_UNTIL_BUTTON(ball.x, -20, -20);
+        MOVE_UNTIL_BUTTON(ball.y, -20, -20);
+    end
+
+
+
+    <...>                   // inputs, ball, integral declarations
+
+    await MOUSE_BUTTON;     // wait for the click to start
+
+    loop do
+        do
+            // move right
+            var float vx=20, ax=20;
+            var Integral_Over_Time _ (vx&,     ax&);
+            var Integral_Over_Time _ (ball.x&, vx&);
+            await MOUSE_BUTTON;
+        end
+        do
+            // move down
+            var float vy=20, ay=20;
+            var Integral_Over_Time _ (vy&,     ay&);
+            var Integral_Over_Time _ (ball.y&, vy&);
+            await MOUSE_BUTTON;     // wait for the click to turn
+        end
+        do
+            // move left
+            var float vx=-20, ax=-20;
+            var Integral_Over_Time _ (vx&,     ax&);
+            var Integral_Over_Time _ (ball.x&, vx&);
+            await MOUSE_BUTTON;     // wait for the click to turn
+        end
+        do
+            // move up
+            var float vy=-20, ay=-20;
+            var Integral_Over_Time _ (vy&,     ay&);
+            var Integral_Over_Time _ (ball.y&, vy&);
+            await MOUSE_BUTTON;     // wait for the click to turn
+        end
+    end
+
+

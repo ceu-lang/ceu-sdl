@@ -24,6 +24,8 @@ native @const _GL_SCISSOR_TEST, _GL_TEXTURE_2D;
 native _glEnable(), _glDisable(), _glScissor();
 
 native @plain _SDL_Rect, _SDL_Point, _SDL_Color,
+              _SDL_MouseButtonEvent,
+              _SDL_Renderer,
               _SDL_TouchFingerEvent,
               _SDL_Texture;
 
@@ -143,12 +145,12 @@ native do
     }
 
     int SDL_Circle_vs_Point (SDL_Point* pos, int rad, SDL_Point* pt) {
-        return sqrt( pow(pos->x-pt->x,2) + pow(pos->y-pt->y,2) ) < rad;
+        return (pow(pos->x-pt->x,2) + pow(pos->y-pt->y,2)) <= pow(rad+rad,2);
     }
 
     int SDL_Circle_vs_Circle (SDL_Point* pos1, int rad1, SDL_Point* pos2, int rad2) {
-        return sqrt( pow(pos1->x-pos2->x,2) + pow(pos1->y-pos2->y,2) )
-                < rad1+rad2;
+        return (pow(pos1->x-pos2->x,2) + pow(pos1->y-pos2->y,2))
+                <= pow(rad1+rad2,2);
     }
 ##endif
 end

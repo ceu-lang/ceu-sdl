@@ -1,0 +1,27 @@
+
+    <...>                   // inputs & ball declarations
+
+    class Integral_Over_Time with
+        var float& accumulator;
+        var float& value;
+    do
+        every dt in NEXT_FRAME do
+            accumulator = accumulator + value;
+        end
+    end
+
+    await MOUSE_BUTTON;     // wait for the click to start
+
+    var float vx = 20;      // pixels per second
+    var float ax = 20;      // pixels per second per second
+
+    var Integral_Over_Time _ (vx&,     ax&);
+    var Integral_Over_Time _ (ball.x&, vx&);
+        // organism bodies execute in parallel
+        // with their enclosing block
+
+    <...>                   // whatever comes next is in parallel
+
+
+    await FOREVER;
+

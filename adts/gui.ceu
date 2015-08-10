@@ -1,0 +1,216 @@
+#include "c.ceu"
+#include "sdl.ceu"
+#include "sdl-gfx.ceu"
+
+input void OS_START;
+input void SDL_REDRAW;
+input void SDL_QUIT;
+input int  SDL_DT;
+
+var _SDL_Window&? win;
+    finalize
+        win = _SDL_CreateWindow("Logo", _SDL_WINDOWPOS_CENTERED,
+                                        _SDL_WINDOWPOS_CENTERED,
+                                        400, 400,
+                                        _SDL_WINDOW_SHOWN);
+    with
+        _SDL_DestroyWindow(&win);
+    end
+
+var int w, h;
+_SDL_GetWindowSize(&win, &w, &h);
+var SDL_Rect bg = SDL_Rect(0,0 , w,h);
+
+var _SDL_Renderer&? ren;
+    finalize
+        ren = _SDL_CreateRenderer(&win, -1, 0);
+    with
+        _SDL_DestroyRenderer(&ren);
+    end
+
+interface IWidget with
+    event (int, int, int, int) redim;
+end
+
+data Split with
+    tag HORIZONTAL;
+or
+    tag VERTICAL;
+end
+
+data Grid with
+    tag NIL;
+or
+    tag EMPTY;
+or
+    tag SIMPLE with
+        var IWidget* w;
+    end
+or
+    tag SPLIT with
+        var Split dir;
+        var Grid* g1;
+        var Grid* g2;
+    end
+end
+
+class Rectangle with
+    interface IWidget;
+
+    var _SDL_Renderer& ren;
+    var SDL_Color      color;
+do
+    var SDL_Rect rect;
+    par do
+        every (x, y, w, h) in this.redim do
+            //_printf("> [%p] x=%d, y=%d, w=%d, h=%d\n", this, x, y, w, h);
+            rect = SDL_Rect(x,y,w,h);
+        end
+    with
+        every SDL_REDRAW do
+            _SDL_SetRenderDrawColor(&ren, color.r,color.g,color.b, color.a);
+            _SDL_RenderFillRect(&ren, (_SDL_Rect*)&rect);
+        end
+    end
+end
+
+par/or do
+    await SDL_QUIT;
+with
+    every SDL_REDRAW do
+        _SDL_SetRenderDrawColor(&ren, 0xFF,0xFF,0xFF, 0xFF);
+        _SDL_RenderFillRect(&ren, (_SDL_Rect*)&bg);
+    end
+with
+    var Rectangle r1 with
+        this.ren = ren;
+        this.color = SDL_Color(0x00,0x00,0xAA,0xFF);
+    end;
+    var Rectangle r2 with
+        this.ren = ren;
+        this.color = SDL_Color(0x00,0xAA,0x00,0xFF);
+    end;
+    var Rectangle r3 with
+        this.ren = ren;
+        this.color = SDL_Color(0x00,0xAA,0xAA,0xFF);
+    end;
+    var Rectangle r4 with
+        this.ren = ren;
+        this.color = SDL_Color(0xAA,0x00,0xAA,0xFF);
+    end;
+
+    var Rectangle r5 with
+        this.ren = ren;
+        this.color = SDL_Color(0xFF,0x00,0x00,0xFF);
+    end;
+    _printf("r1=%p r2=%p r3=%p r4=%p r5=%p\n",
+        &r1, &r2, &r3, &r4, &r5);
+
+    pool Grid[20] grid;
+    grid = new Grid.SPLIT(Split.HORIZONTAL(),
+                Grid.SPLIT(Split.VERTICAL(),
+                    Grid.SIMPLE(&r1),
+                    Grid.SIMPLE(&r2)),
+                Grid.SPLIT(Split.VERTICAL(),
+                    Grid.SIMPLE(&r3),
+                    Grid.SIMPLE(&r4)));
+
+    var int xx = 0;
+    var int yy = 0;
+    var int ww = 400;
+    var int hh = 400;
+
+// SIMPLE.w, obrigatorio watching
+// de maneira geral
+//  - ADTs nao podem ter ponteiros
+//  - excecao, orgs
+//  -   nesse caso, watching obrigatorio
+
+// traverse/escape
+//      var int v = traverse ...;
+
+    par do
+        await 2s;
+        kill &r1;
+        await 2s;
+        grid:SPLIT.g2:SPLIT.g2 = new Grid.SIMPLE(&r5);
+    with
+        traverse g in grid with
+            var int x = 0;
+            var int y = 0;
+            var int w = 400;
+            var int h = 400;
+        do
+            //_printf("[%p] x=%d, y=%d, w=%d, h=%d\n", g, x, y, w, h);
+            watching g do
+                if g:EMPTY then
+                    var SDL_Rect r = SDL_Rect(x+5,y+5,w-10,h-10);
+                    every SDL_REDRAW do
+                        _SDL_SetRenderDrawColor(&ren, 0xBB,0xBB,0xBB, 0xFF);
+                        _SDL_RenderFillRect(&ren, (_SDL_Rect*)&r);
+                    end
+
+                else/if g:SIMPLE then
+                    watching g do
+                        watching *(g:SIMPLE.w) do
+                            emit g:SIMPLE.w:redim => (x,y,w,h);
+                            await FOREVER;
+                        end
+                        escape 1;   // natural end
+                    end
+                    kill *g:SIMPLE.w;
+
+                else/if g:SPLIT then
+                    par/or do
+                        var int w_, h_;
+                        if g:SPLIT.dir.HORIZONTAL then
+                            w_ = w;
+                            h_ = h/2;
+                        else
+                            w_ = w/2;
+                            h_ = h;
+                        end
+                        traverse g:SPLIT.g1 with
+                            this.x = x;
+                            this.y = y;
+                            this.w = w_;
+                            this.h = h_;
+                        end;
+                        g = g:SPLIT.g2;
+                    with
+                        var int x_, y_, w_, h_;
+                        if g:SPLIT.dir.HORIZONTAL then
+                            x_ = x;
+                            y_ = h/2;
+                            w_ = w;
+                            h_ = h/2;
+                        else
+                            x_ = w/2;
+                            y_ = y;
+                            w_ = w/2;
+                            h_ = h;
+                        end
+                        traverse g:SPLIT.g2 with
+                            this.x = x_;
+                            this.y = y_;
+                            this.w = w_;
+                            this.h = h_;
+                        end;
+                        g = g:SPLIT.g1;
+                    end
+
+                else
+                    _ceu_out_assert(0, "not implemented");
+                end
+            end
+
+            escape 0;   // aborted end
+        end
+    end
+with
+    every SDL_REDRAW do
+        _SDL_RenderPresent(&ren);
+    end
+end
+
+escape 1;
