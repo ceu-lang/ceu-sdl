@@ -24,6 +24,8 @@ native @const _GL_SCISSOR_TEST, _GL_TEXTURE_2D;
 native _glEnable(), _glDisable(), _glScissor();
 
 native @plain _SDL_Rect, _SDL_Point, _SDL_Color,
+              _SDL_MouseButtonEvent,
+              _SDL_Renderer,
               _SDL_TouchFingerEvent,
               _SDL_Texture;
 

@@ -280,7 +280,7 @@ with
         end
         _SDL_RenderPresent(_UITM_REN);
     end
-#if 0
+#if 1
 with
     loop do
         var _SDL_KeyboardEvent* key = await SDL_KEYDOWN_
@@ -302,8 +302,10 @@ with
         finalize with
             _CEU_TIMEMACHINE_ON = 0;
         end
+/*
+*/
 
-        pause/if in_tm do
+        pause/if g.in_tm do
             par/or do
                 loop do
                     key = await SDL_KEYDOWN_
@@ -318,6 +320,7 @@ with
                 end
             with
                 #include "input.ceu"
+                do Input;
             end
         end
     end
@@ -332,7 +335,6 @@ with
             end
         end
         fps = c;
-        //_printf("[FPS=%d]\n", fps);
     end
 end
 

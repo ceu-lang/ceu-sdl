@@ -18,12 +18,10 @@ input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONUP;
 // * remaining space from division
 
 class UIGridItem with
-    var UI*  ui;
+    var UI*? ui;
     var int  idx;
 do
-    watching ui do
-        await FOREVER;
-    end
+    await *ui!;
 end
 
 class UIGrid with
@@ -53,25 +51,14 @@ class UIGrid with
     var   int            pad_x=0, pad_y=0;
 
     var   int            lay_lins, lay_cols;
-    var   int&  lay;
+    var   int[]&  lay;
 
     // TODO: bg after pool
     pool  UIGridItem[]   uis;
     var   int            uis_n = 0;
 do
-    var SDL_Rect&? cell_rects;
-    finalize
-        this.cell_rects = _malloc(uis_n * sizeof(SDL_Rect));
-    with
-        _free(&this.cell_rects);
-    end
-
-    var SDL_Rect&? ui_rects;
-    finalize
-        this.ui_rects = _malloc(uis_n * sizeof(SDL_Rect));
-    with
-        _free(&this.ui_rects);
-    end
+    var SDL_Rect[] cell_rects;
+    var SDL_Rect[] ui_rects;
 
     /* METHODS */
 
@@ -87,9 +74,9 @@ do
 
         // TODO: save all cur in a vector and do this loop once, after 
         // calculating them all
-        loop (UIGridItem*)item in this.uis do
+        loop item in this.uis do
             if item:idx == -1 then
-                call/rec item:ui:go_bg(&this.rect, true);    // -1 = BG item
+                call/rec item:ui!:go_bg(&this.rect, true);    // -1 = BG item
             end
         end
 
@@ -102,6 +89,9 @@ do
                             - this.spc_y - 2*this.pad_y;
 
         var int cur = -1;
+        $this.cell_rects = 0;
+        $this.ui_rects   = 0;
+
         var int x, y;
 
         loop/UI_GRID_MAX_LINS l in this.lay_lins do
@@ -119,31 +109,29 @@ do
                 end
 
                 var int i1   = l*this.lay_cols + c;
-                var int lay1 = (&this.lay)[i1];
+                var int lay1 = this.lay[i1];
 
                 if (lay1 > cur) then      // always increasing items
                     cur = lay1;
                     _assert(cur < this.uis_n);
 
-                    var SDL_Rect* cell_rect = (SDL_Rect*)&(&this.cell_rects)[cur];
-                        cell_rect:x = x;
-                        cell_rect:y = y;
-                        cell_rect:w = one_x + 2*this.pad_x;
-                        cell_rect:h = one_y + 2*this.pad_y;
+                    var SDL_Rect cell_rect = SDL_Rect(x,
+                                                      y,
+                                                      one_x + 2*this.pad_x,
+                                                      one_y + 2*this.pad_y);
 
-                    var SDL_Rect* ui_rect = (SDL_Rect*)&(&this.ui_rects)[cur];
-                        ui_rect:x = x+this.pad_x;
-                        ui_rect:y = y+this.pad_y;
-                        ui_rect:w = one_x;
-                        ui_rect:h = one_y;
+                    var SDL_Rect ui_rect = SDL_Rect(x+this.pad_x,
+                                                    y+this.pad_y,
+                                                    one_x,
+                                                    one_y);
 
                     // colspan
                     loop/UI_GRID_MAX_COLS j in this.lay_cols-c-1 do
-                        var int lay2 = (&this.lay)[i1 + j+1];
+                        var int lay2 = this.lay[i1 + j+1];
                         if (lay1 == lay2) then
-                            cell_rect:w = cell_rect:w + this.spc_x
+                            cell_rect.w = cell_rect.w + this.spc_x
                                          + one_x  + 2*this.pad_x;
-                            ui_rect:w   = ui_rect:w   + this.spc_x
+                            ui_rect.w   = ui_rect.w   + this.spc_x
                                          + one_x  + 2*this.pad_x;
                         else
                             break;
@@ -152,11 +140,11 @@ do
 
                     // linspan
                     loop/UI_GRID_MAX_LINS j in this.lay_lins-l-1 do
-                        var int lay2 = (&this.lay)[i1 + (j+1)*this.lay_cols];
+                        var int lay2 = this.lay[i1 + (j+1)*this.lay_cols];
                         if (lay1 == lay2) then
-                            cell_rect:h = cell_rect:h + this.spc_y +
+                            cell_rect.h = cell_rect.h + this.spc_y +
                                            one_y + 2*this.pad_y;
-                            ui_rect:h   = ui_rect:h   + this.spc_y +
+                            ui_rect.h   = ui_rect.h   + this.spc_y +
                                            one_y + 2*this.pad_y;
                         else
                             break;
@@ -165,11 +153,14 @@ do
 
                     // TODO: save all cur in a vector and do this loop once, 
                     // after calculating them all
-                    loop (UIGridItem*)item in this.uis do
+                    loop item in this.uis do
                         if item:idx == cur then
-                            call/rec item:ui:go_bg(ui_rect, true);
+                            call/rec item:ui!:go_bg(&ui_rect, true);
                         end
                     end
+
+                    this.cell_rects = cell_rects .. [cell_rect];
+                    this.ui_rects   = ui_rects   .. [ui_rect];
                 end
             end
         end
@@ -192,14 +183,14 @@ do
     par do
         // OK_UICLICKED
         // OK_CLICKED
-        loop do
-            var _SDL_MouseButtonEvent* but = await SDL_MOUSEBUTTONUP;
+        every but_ in SDL_MOUSEBUTTONUP do
+            var _SDL_MouseButtonEvent but = *but_;
             loop/UI_GRID_MAX_UIS i in uis_n do
-                if _SDL_Rect_vs_Mouse((_SDL_Rect*)&(&ui_rects)[i], but) then
+                if _SDL_Rect_vs_Mouse((_SDL_Rect*)&ui_rects[i], &but) then
                     emit ok_uiclicked => i;
                 end
             end
-            if _SDL_Rect_vs_Mouse((_SDL_Rect*)&this.rect, but) then
+            if _SDL_Rect_vs_Mouse((_SDL_Rect*)&this.rect, &but) then
                 emit ok_clicked;
             end
         end
@@ -208,40 +199,40 @@ do
             // TODO: clr_bg vs bg_clr
             if bg_clr? then
                 _SDL_SetRenderDrawColor(&ren,
-                    bg_clr.r,bg_clr.g,bg_clr.b,bg_clr.a);
+                    bg_clr!.r,bg_clr!.g,bg_clr!.b,bg_clr!.a);
                 _SDL_RenderFillRect(&ren, (_SDL_Rect*)&this.rect);
             end
             if clr_bg? then
                 _SDL_SetRenderDrawColor(&ren,
-                        clr_bg.r,clr_bg.g,clr_bg.b,clr_bg.a);
+                        clr_bg!.r,clr_bg!.g,clr_bg!.b,clr_bg!.a);
                 _SDL_RenderFillRect(&ren, (_SDL_Rect*)&rect);
             end
             loop/UI_GRID_MAX_UIS i in uis_n do
                 if clr_cell_bg? then
                     _SDL_SetRenderDrawColor(&ren,
-                        clr_cell_bg.r,clr_cell_bg.g,clr_cell_bg.b,clr_cell_bg.a);
-                    _SDL_RenderFillRect(&ren, (_SDL_Rect*)&(&cell_rects)[i]);
+                        clr_cell_bg!.r,clr_cell_bg!.g,clr_cell_bg!.b,clr_cell_bg!.a);
+                    _SDL_RenderFillRect(&ren, (_SDL_Rect*)&cell_rects[i]);
                 end
                 if clr_ui_bg? then
                     _SDL_SetRenderDrawColor(&ren,
-                        clr_ui_bg.r,clr_ui_bg.g,clr_ui_bg.b,clr_ui_bg.a);
-                    _SDL_RenderFillRect(&ren, (_SDL_Rect*)&(&ui_rects)[i]);
+                        clr_ui_bg!.r,clr_ui_bg!.g,clr_ui_bg!.b,clr_ui_bg!.a);
+                    _SDL_RenderFillRect(&ren, (_SDL_Rect*)&ui_rects[i]);
                 end
                 if clr_cell_fr? then
                     _SDL_SetRenderDrawColor(&ren,
-                        clr_cell_fr.r,clr_cell_fr.g,clr_cell_fr.b,clr_cell_fr.a);
-                    _SDL_RenderDrawRect(&ren, (_SDL_Rect*)&(&cell_rects)[i]);
+                        clr_cell_fr!.r,clr_cell_fr!.g,clr_cell_fr!.b,clr_cell_fr!.a);
+                    _SDL_RenderDrawRect(&ren, (_SDL_Rect*)&cell_rects[i]);
                 end
                 if clr_ui_fr? then
                     _SDL_SetRenderDrawColor(&ren,
-                        clr_ui_fr.r,clr_ui_fr.g,clr_ui_fr.b,clr_ui_fr.a);
-                    _SDL_RenderDrawRect(&ren, (_SDL_Rect*)&(&ui_rects)[i]);
+                        clr_ui_fr!.r,clr_ui_fr!.g,clr_ui_fr!.b,clr_ui_fr!.a);
+                    _SDL_RenderDrawRect(&ren, (_SDL_Rect*)&ui_rects[i]);
                 end
             end
 
             if clr_fr? then
                 _SDL_SetRenderDrawColor(&ren,
-                        clr_fr.r,clr_fr.g,clr_fr.b,clr_fr.a);
+                        clr_fr!.r,clr_fr!.g,clr_fr!.b,clr_fr!.a);
                 _SDL_RenderDrawRect(&ren, (_SDL_Rect*)&rect);
             end
         end
@@ -263,56 +254,56 @@ var _SDL_Window&? win;
     end
 var int win_w;
 var int win_h;
-    _SDL_GetWindowSize(&win, &win_w, &win_h);
+    _SDL_GetWindowSize(&win!, &win_w, &win_h);
 
 var _SDL_Renderer&? ren;
     finalize
-        ren = _SDL_CreateRenderer(&win, -1, 0);
+        ren = _SDL_CreateRenderer(&win!, -1, 0);
     with
-        _SDL_DestroyRenderer(&ren);
+        _SDL_DestroyRenderer(&ren!);
     end
-
-native _lay1, _lay2;
-native do
-    int lay1[16] = {
-         0, -1, -1, -1,
-        -1,  1,  1, -1,
-        -1,  1,  1, -1,
-        -1, -1, -1,  2
-    };
-    int lay2[3] = {
-        0, 1, 2
-    };
-end
 
 par/or do
     await SDL_QUIT;
 with
+    var int[] lay1 = [
+         0, -1, -1, -1,
+        -1,  1,  1, -1,
+        -1,  1,  1, -1,
+        -1, -1, -1,  2
+    ];
+
     var UIGrid g1 with
-        this.ren      = ren;
+        this.ren      = ren!;
         this.spc_x    = 10;
         this.spc_y    = 10;
-        this.lay_lins = 4;
-        this.lay_cols = 4;
-        this.lay      = _lay1;
         this.uis_n    = 3;
         this.clr_bg      = SDL_COLOR_GRAY;
         this.clr_fr      = SDL_COLOR_RED;
         this.clr_cell_bg = SDL_COLOR_WHITE;
         this.clr_cell_fr = SDL_COLOR_BLACK;
+
+        this.lay_lins = 4;
+        this.lay_cols = 4;
+        this.lay = lay1;
     end;
 
+    var int[] lay2 = [
+        0, 1, 2
+    ];
+
     var UIGrid g2 with
-        this.ren      = ren;
+        this.ren      = ren!;
         this.pad_x    = 5;
         this.pad_y    = 5;
-        this.lay_lins = 1;
-        this.lay_cols = 3;
-        this.lay      = _lay2;
         this.uis_n    = 3;
         this.clr_cell_fr = SDL_COLOR_BLACK;
         this.clr_ui_bg   = SDL_COLOR_YELLOW;
         this.clr_ui_fr   = SDL_COLOR_RED;
+
+        this.lay_lins = 1;
+        this.lay_cols = 3;
+        this.lay = lay2;
     end;
 
     var SDL_Rect r = SDL_Rect(win_w/4, win_h/4,
@@ -360,7 +351,7 @@ with
     end
 with
     every SDL_REDRAW do
-        _SDL_RenderPresent(&ren);
+        _SDL_RenderPresent(&ren!);
     end
 end
 
