@@ -69,7 +69,7 @@ interface UI with
     //event void           ok_redraw_pre;
     //event void           ok_redraw_pos;
     event void           ok_clicked;
-    //event _SDL_Point*    go_move;
+    //event _SDL_Point&&    go_move;
 
     var   _SDL_Renderer& ren;
     var   SDL_Rect       rect;
@@ -81,8 +81,8 @@ interface UI with
     var   int            align_bg_x;
     var   int            align_bg_y;
 
-    function @rec (SDL_Rect* rect)=>void go;
-    function @rec (SDL_Rect* bg, bool should_redim_)=>void go_bg;
+    function @rec (SDL_Rect&& rect)=>void go;
+    function @rec (SDL_Rect&& bg, bool should_redim_)=>void go_bg;
 end
 
 #endif

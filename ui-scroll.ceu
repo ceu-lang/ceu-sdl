@@ -5,7 +5,7 @@
 #include "ui.ceu"
 
 input void SDL_REDRAW;
-input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
+input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONDOWN;
 
 class UIScroll with
     interface UI;
@@ -22,7 +22,7 @@ class UIScroll with
 do
     /* METHODS */
 
-    function @rec (SDL_Rect* r)=>void go do
+    function @rec (SDL_Rect&& r)=>void go do
         if r != null then
             this.rect.w = r:w;
             this.rect.h = r:h;
@@ -32,7 +32,7 @@ do
         call/rec this.ui.go(r);
     end
 
-    function @rec (SDL_Rect* bg, bool should_redim_)=>void go_bg do
+    function @rec (SDL_Rect&& bg, bool should_redim_)=>void go_bg do
         _assert(bg != null);
         if should_redim_ then
             this.rect.w = bg:w;
@@ -50,14 +50,14 @@ do
 
     par do
         loop do
-            var _SDL_MouseButtonEvent* but = await SDL_MOUSEBUTTONDOWN;
+            var _SDL_MouseButtonEvent&& but = await SDL_MOUSEBUTTONDOWN;
 
             var SDL_Point pt1 = SDL_Point(but:x,but:y);
             var SDL_Point pt2;
 
             loop do
                 await 50ms;
-                var int s = _SDL_GetMouseState(&pt2.x, &pt2.y);
+                var int s = _SDL_GetMouseState(&&pt2.x, &&pt2.y);
                 if not s then
                     break;
                 end
@@ -158,12 +158,12 @@ do
                                            rect.y + rect.h - 6,
                                            rect.w*rect.w / ui.rect.w,
                                            5);
-                _SDL_SetRenderDrawBlendMode(&ren, _SDL_BLENDMODE_BLEND);
-                _SDL_SetRenderDrawColor(&ren, clr_scroll.r,
+                _SDL_SetRenderDrawBlendMode(&&ren, _SDL_BLENDMODE_BLEND);
+                _SDL_SetRenderDrawColor(&&ren, clr_scroll.r,
                                               clr_scroll.g,
                                               clr_scroll.b,
                                               clr_scroll.a);
-                _SDL_RenderFillRect(&ren, (_SDL_Rect*)&rs);
+                _SDL_RenderFillRect(&&ren, (_SDL_Rect&&)&&rs);
             end
 
             if should_go_y then
@@ -171,15 +171,15 @@ do
                                            rect.y + (rect.y-ui.rect.y) * rect.h / ui.rect.h,
                                            5,
                                            rect.h*rect.h / ui.rect.h);
-                _SDL_SetRenderDrawBlendMode(&ren, _SDL_BLENDMODE_BLEND);
-                _SDL_SetRenderDrawColor(&ren, clr_scroll.r,
+                _SDL_SetRenderDrawBlendMode(&&ren, _SDL_BLENDMODE_BLEND);
+                _SDL_SetRenderDrawColor(&&ren, clr_scroll.r,
                                               clr_scroll.g,
                                               clr_scroll.b,
                                               clr_scroll.a);
-                _SDL_RenderFillRect(&ren, (_SDL_Rect*)&rs);
+                _SDL_RenderFillRect(&&ren, (_SDL_Rect&&)&&rs);
             end
 
-            _SDL_SetRenderDrawBlendMode(&ren, _SDL_BLENDMODE_NONE);
+            _SDL_SetRenderDrawBlendMode(&&ren, _SDL_BLENDMODE_NONE);
         end
     end
 end
@@ -195,20 +195,20 @@ var int win_w;
 var int win_h;
 var _SDL_Window&? win;
     finalize
-        win = _SDL_CreateWindow("UI - Scroll",
+        win = &_SDL_CreateWindow("UI - Scroll",
                             500, 1300, 400, 200, _SDL_WINDOW_SHOWN);
     with
-        _SDL_DestroyWindow(&win!);
+        _SDL_DestroyWindow(&&win!);
     end
 
-_SDL_GetWindowSize(&win!, &win_w, &win_h);
+_SDL_GetWindowSize(&&win!, &&win_w, &&win_h);
 var SDL_Rect win_r = SDL_Rect(0,0, win_w,win_h);
 
 var _SDL_Renderer&? ren;
     finalize
-        ren = _SDL_CreateRenderer(&win!, -1, 0);
+        ren = &_SDL_CreateRenderer(&&win!, -1, 0);
     with
-        _SDL_DestroyRenderer(&ren!);
+        _SDL_DestroyRenderer(&&ren!);
     end
 
 par/or do
@@ -216,8 +216,8 @@ par/or do
 with
     every SDL_REDRAW do
 
-        _SDL_SetRenderDrawColor(&ren!, 0x00,0x00,0x00, 0);
-        _SDL_RenderFillRect(&ren!, (_SDL_Rect*)&win_r);
+        _SDL_SetRenderDrawColor(&&ren!, 0x00,0x00,0x00, 0);
+        _SDL_RenderFillRect(&&ren!, (_SDL_Rect&&)&&win_r);
     end
 with
     var int[] lay = [
@@ -228,10 +228,10 @@ with
     ];
 
     var UIGrid grid with
-        this.ren = ren!;
+        this.ren = &ren!;
         this.lay_lins = 4;
         this.lay_cols = 4;
-        this.lay = lay;
+        this.lay = &lay;
         this.uis_n = 16;
         this.spc_x     = 10;
         this.spc_y     = 10;
@@ -242,7 +242,7 @@ with
     end;
 
     var SDL_Rect r = SDL_Rect(0,0, 2*win_r.w,2*win_r.h);
-    call/rec grid.go(&r);
+    call/rec grid.go(&&r);
     grid.should_redim = false;
 
     par do
@@ -258,18 +258,18 @@ with
             c.a = 0x77;
 
         var UIScroll scroll with
-            this.ren = ren!;
-            this.ui  = grid;
-            this.clr_scroll = c;
+            this.ren = &ren!;
+            this.ui  = &grid;
+            this.clr_scroll = &c;
         end;
-        call/rec scroll.go(&win_r);
+        call/rec scroll.go(&&win_r);
 
         await FOREVER;
     end
 
 with
     every SDL_REDRAW do
-        _SDL_RenderPresent(&ren!);
+        _SDL_RenderPresent(&&ren!);
     end
 end
 

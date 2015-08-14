@@ -1,9 +1,9 @@
 #include "sdl.ceu"
 #include "sdl-gfx.ceu"
 
-input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN_;
-input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONUP_;
-input _SDL_MouseMotionEvent* SDL_MOUSEMOTION_;
+input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONDOWN_;
+input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONUP_;
+input _SDL_MouseMotionEvent&& SDL_MOUSEMOTION_;
 
 native do
     /* must be assigned externally */
@@ -74,7 +74,7 @@ class UITimeMachine with
     event void go_redraw;
 do
     var int ren_w, ren_h;
-    _SDL_GetRendererOutputSize(_UITM_REN, &ren_w, &ren_h);
+    _SDL_GetRendererOutputSize(_UITM_REN, &&ren_w, &&ren_h);
     var int x = ren_w/6;
     var int w = ren_w - x*2;
     var int h = ren_h/80;
@@ -93,10 +93,10 @@ do
         var int dx = rc.w / (_UITM_TEX_N+1);
         loop i in _UITM_TEX_N do
             var SDL_Rect ri;
-            _SDL_QueryTexture(_UITM_TEXS[i], null, null, &ri.w, &ri.h);
+            _SDL_QueryTexture(_UITM_TEXS[i], null, null, &&ri.w, &&ri.h);
             ri.x = rc.x + (i+1)*dx - ri.w/2;
             ri.y = rc.y + (rc.h-ri.h)/2;
-            rcs[i] = ri;
+            rcs = rcs .. [ri];
         end
     end
 
@@ -108,15 +108,15 @@ do
             await this.go_off;
         with
             loop do
-                var _SDL_MouseButtonEvent* e = await SDL_MOUSEBUTTONDOWN_
-                                               until _SDL_Rect_vs_Mouse((_SDL_Rect*)&r,e);
+                var _SDL_MouseButtonEvent&& e = await SDL_MOUSEBUTTONDOWN_
+                                                until _SDL_Rect_vs_Mouse((_SDL_Rect&&)&&r,e);
                 emit tm.go_seek => (tm.time_total * (e:x-x) / (float)w);
                 bk_speed = -4;
                 fw_speed = -4;
                 watching SDL_MOUSEBUTTONUP_ do
                     every SDL_MOUSEMOTION_ do
                         var int x_,y_;
-                        _SDL_GetMouseState(&x_, &y_);
+                        _SDL_GetMouseState(&&x_, &&y_);
                         do
                             var int to = (tm.time_total * (x_-x) / (float)w);
                             if to < 0 then
@@ -131,16 +131,16 @@ do
             end
         with
             loop do
-                var _SDL_MouseButtonEvent* e = await SDL_MOUSEBUTTONDOWN_;
+                var _SDL_MouseButtonEvent&& e = await SDL_MOUSEBUTTONDOWN_;
                 var int i = -1;
                 loop ii in _UITM_TEX_N do
-                    if _SDL_Rect_vs_Mouse((_SDL_Rect*)&rcs[ii], e) then
+                    if _SDL_Rect_vs_Mouse((_SDL_Rect&&)&&rcs[ii], e) then
                         i = ii;
                         break;
                     end
                 end
                 e = await SDL_MOUSEBUTTONUP_;
-                if _SDL_Rect_vs_Mouse((_SDL_Rect*)&rcs[i], e) then
+                if _SDL_Rect_vs_Mouse((_SDL_Rect&&)&&rcs[i], e) then
                     if i == 0 then                          // FIRST
                         emit tm.go_seek => 0;
                     else/if i == 1 then                     // REWIND
@@ -183,7 +183,7 @@ do
                     _boxRGBA(_UITM_REN, rc.x, rc.y, rc.x+rc.w, rc.y+rc.h,
                              0xAA,0xAA,0xAA,0xAA);
                     loop i in _UITM_TEX_N do
-                        _SDL_RenderCopy(_UITM_REN, _UITM_TEXS[i], null, (_SDL_Rect*)&rcs[i]);
+                        _SDL_RenderCopy(_UITM_REN, _UITM_TEXS[i], null, (_SDL_Rect&&)&&rcs[i]);
                     end
                 end
             end

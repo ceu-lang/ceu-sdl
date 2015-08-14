@@ -25,8 +25,8 @@
 
 input void SDL_QUIT_;
 input int  SDL_DT_;
-input _SDL_KeyboardEvent* SDL_KEYDOWN_;
-input _SDL_KeyboardEvent* SDL_KEYUP_;
+input _SDL_KeyboardEvent&& SDL_KEYDOWN_;
+input _SDL_KeyboardEvent&& SDL_KEYUP_;
 
 #include "c.ceu"
 #include "sdl.ceu"
@@ -43,7 +43,7 @@ class App with
     event int ok;
 do
     var uint seed = _time(null);
-    _RAND_SEED := &seed;    // App is supposed to live until "sim" is alive
+    _RAND_SEED := &&seed;    // App is supposed to live until "sim" is alive
     _srand(seed);
     #define srand(x)
 
@@ -125,7 +125,7 @@ do
                 par do
                     every key in SDL_KEYDOWN do
                         _queue_put(_CEU_IN_SDL_KEYDOWN,
-                                   sizeof(_SDL_KeyboardEvent), (byte*)key
+                                   sizeof(_SDL_KeyboardEvent), (byte&&)key
 #ifdef TM_SNAP
                                             , 0
 #endif
@@ -137,7 +137,7 @@ do
                 with
                     every key in SDL_KEYUP do
                         _queue_put(_CEU_IN_SDL_KEYUP,
-                                   sizeof(_SDL_KeyboardEvent), (byte*)key
+                                   sizeof(_SDL_KeyboardEvent), (byte&&)key
 #ifdef TM_SNAP
                                         , 0
 #endif
@@ -151,17 +151,17 @@ do
             await this.go_off;
         end
     with
-        var _tceu_queue* qu;
+        var _tceu_queue&& qu;
         every qu in this.go_queue do
             var int                evt = qu:evt;
-            var _SDL_KeyboardEvent val = *((_SDL_KeyboardEvent*)qu:buf);
+            var _SDL_KeyboardEvent val = *((_SDL_KeyboardEvent&&)qu:buf);
             if evt == _CEU_IN_SDL_KEYDOWN then
                 async(val) do
-                    emit SDL_KEYDOWN => &val;
+                    emit SDL_KEYDOWN => &&val;
                 end
             else/if evt == _CEU_IN_SDL_KEYUP then
                 async(val) do
-                    emit SDL_KEYUP => &val;
+                    emit SDL_KEYUP => &&val;
                 end
             else
                 _assert(0);
@@ -204,11 +204,11 @@ do
     emit g.tm_.go_on;
 
     par/or do
-        var _SDL_KeyboardEvent* key = await SDL_KEYUP_
+        var _SDL_KeyboardEvent&& key = await SDL_KEYUP_
                                       until key:keysym.sym == this.k_alt;
     with
         loop do
-            var _SDL_KeyboardEvent* key = await SDL_KEYDOWN_;
+            var _SDL_KeyboardEvent&& key = await SDL_KEYDOWN_;
             var int sym2 = key:keysym.sym;
             if sym2 == this.k_left then
                 if g.tm_.time_total-g.tm_.time_now < 2000 then
@@ -243,7 +243,7 @@ par/or do
     await SDL_QUIT_;
 with
     loop do
-        var _SDL_KeyboardEvent* key = await SDL_KEYDOWN_;
+        var _SDL_KeyboardEvent&& key = await SDL_KEYDOWN_;
         var int sym = key:keysym.sym;
         if sym == _SDLK_ESCAPE then
             emit g.in_tm => true;
@@ -283,7 +283,7 @@ with
 #if 1
 with
     loop do
-        var _SDL_KeyboardEvent* key = await SDL_KEYDOWN_
+        var _SDL_KeyboardEvent&& key = await SDL_KEYDOWN_
                                       until key:keysym.sym == _SDLK_LCTRL;
         var bool ok =
             par do
