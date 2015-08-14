@@ -74,7 +74,7 @@ var App app;
 #define TM_INPUT_REDRAW SDL_REDRAW
 //#define TM_DELAY(v)     _SDL_Delay(v)
 
-#if 0
+#if 1
 #define TM_QUEUE
 #define TM_QUEUE_N (10*60*60 * (2+8+32))
                      /* 10e/s for 1h */
@@ -91,7 +91,7 @@ var App app;
 #define TM_QUEUE_WCLOCK_REUSE
 #endif
 
-#if 1
+#if 0
 #define TM_DIFF
 #define TM_DIFF_N 1000000000    // 1GB
 #endif
@@ -151,10 +151,9 @@ do
             await this.go_off;
         end
     with
-        var _tceu_queue&& qu;
-        every qu in this.go_queue do
-            var int                evt = qu:evt;
-            var _SDL_KeyboardEvent val = *((_SDL_KeyboardEvent&&)qu:buf);
+        every this.go_queue do
+            var int                evt = _QU:evt;
+            var _SDL_KeyboardEvent val = *((_SDL_KeyboardEvent&&)_QU:buf);
             if evt == _CEU_IN_SDL_KEYDOWN then
                 async(val) do
                     emit SDL_KEYDOWN => &&val;
@@ -174,13 +173,13 @@ var IOTimeMachine io;
 #endif  // TM_QUEUE
 
 var TimeMachine tm with
-    this.app = app;
+    this.app = &app;
 #ifdef TM_QUEUE
-    this.io  = io;
+    this.io  = &io;
 #endif
 end;
 var UITimeMachine uitm with
-    this.tm = tm;
+    this.tm = &tm;
 end;
 
 class G with
@@ -191,7 +190,7 @@ do
 end
 var G g with
     this.blur = false;
-    this.tm_  = tm;
+    this.tm_  = &tm;
 end;
 
 class TimeKeyController with
@@ -260,7 +259,7 @@ with
                 this.k_alt   = _SDLK_LALT;
                 this.k_left  = _SDLK_a;
                 this.k_right = _SDLK_d;
-                this.g       = g;
+                this.g       = &g;
             end;
         else/if sym==_SDLK_RALT and _TIME2>0 then
             _TIME2 = _TIME2 - 1;
@@ -268,7 +267,7 @@ with
                 this.k_alt   = _SDLK_RALT;
                 this.k_left  = _SDLK_LEFT;
                 this.k_right = _SDLK_RIGHT;
-                this.g       = g;
+                this.g       = &g;
             end;
         end
     end

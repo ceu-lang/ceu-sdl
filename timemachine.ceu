@@ -68,9 +68,9 @@ native @nohold _snap_seek();
 
 #ifdef TM_QUEUE
 interface IIOTimeMachine with
-    event void          go_on;
-    event void          go_off;
-    event _tceu_queue&& go_queue;
+    event void go_on;
+    event void go_off;
+    event void go_queue;
 end
 #endif
 
@@ -326,7 +326,7 @@ do
 
                             var _tceu_queue&? qu;
                             finalize
-                                qu = _queue_nxt(time_now, time_req);
+                                qu = &_queue_nxt(time_now, time_req);
                             with
                                 nothing;
                             end
@@ -335,11 +335,11 @@ do
                             end
                             this.ticking = true;
 
-                            if qu.evt == _CEU_IN__WCLOCK then
+                            if qu!.evt == _CEU_IN__WCLOCK then
 #ifdef TM_QUEUE_WCLOCK_REUSE
                                 dt = (1000/_CEU_FPS);
 #else
-                                dt = ((_tceu_queue_dt&&)&&qu):dt;
+                                dt = ((_tceu_queue_dt&&)&&qu!):dt;
 #endif
                                 _assert(dt >= 0);
                                 time_now = time_now + dt;
@@ -350,7 +350,8 @@ do
                                 end
                                 this.locked = false;
                             else
-                                emit io.go_queue => &&qu;
+                                _QU := &&qu!;
+                                emit io.go_queue;
                             end
 
 #elif defined TM_DIFF
@@ -531,6 +532,7 @@ do
             u8   nxt_n;
 #endif
         } tceu_queue_state;
+        tceu_queue* QU = NULL;
     end
 
     native do
