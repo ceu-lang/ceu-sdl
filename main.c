@@ -12,7 +12,9 @@ int CEU_TIMEMACHINE_ON = 0;
 #define CEU_TIMEMACHINE_ON 0
 #endif
 
+#ifndef SIMULATION_TEST
 #define CEU_FPS 50
+#endif
 
 // definitely lost: 2,478 bytes in 17 blocks
 
@@ -82,6 +84,8 @@ int main (int argc, char *argv[])
         goto END;
 #endif
 
+#ifndef SIMULATION_TEST
+
 #ifdef CEU_IN_OS_START_
     ceu_sys_go(&app, CEU_IN_OS_START_, NULL);
 #ifdef CEU_RET
@@ -115,6 +119,8 @@ if (!CEU_TIMEMACHINE_ON) {
 #endif
 }
 #endif
+
+#endif  /* SIMULATION_TEST */
 
     SDL_Event evt;
 #ifdef __ANDROID__
@@ -166,6 +172,8 @@ if (!CEU_TIMEMACHINE_ON) {
         {
             has = SDL_WaitEventTimeout(&evt, tm);
         }
+
+#ifndef SIMULATION_TEST
 
         u32 now = SDL_GetTicks();
         s32 dt_ms = (now - old);
@@ -451,6 +459,8 @@ if (!CEU_TIMEMACHINE_ON) {
         }
 }
 #endif
+
+#endif  /* SIMULATION_TEST */
 
 /* TODO: "_" events */
 #ifdef CEU_ASYNCS
