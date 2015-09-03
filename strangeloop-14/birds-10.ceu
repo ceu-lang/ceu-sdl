@@ -55,9 +55,9 @@ do
     with
         every SDL_REDRAW do
             if ((int)((sin+PI/2)/PI)) % 2 == 0 then
-                _SDL_RenderCopy(&ren, _TEX_DOWN, null, &r);
+                _SDL_RenderCopy(&&ren, _TEX_DOWN, null, &&r);
             else
-                _SDL_RenderCopy(&ren, _TEX_UP, null, &r);
+                _SDL_RenderCopy(&&ren, _TEX_UP, null, &&r);
             end
         end
     end
@@ -78,7 +78,7 @@ with
         par/or do
             every 750ms do
                 spawn Bird in birds with
-                    this.ren   = _REN;
+                    this.ren   = &_ID(_REN);
 #ifdef CEU_TIMEMACHINE
                     this.r.y   =  20 + _drand()%350;
                     this.speed = 100 + _drand()%100;
@@ -90,21 +90,17 @@ with
             end
         with
             every SDL_DT do
+                var Bird&&?[] tocol;
                 loop b1 in birds do
-                    watching *b1 do
-                        loop b2 in birds do
-                            var bool hit = false;
-                            watching *b2 do
-                                if b1!=b2 and _SDL_HasIntersection(&b1:r,&b2:r) then
-                                    hit = true;
-                                    //emit b1:go_collide;
-                                    emit b2:go_collide;
-                                end
-                            end
-                            if hit then
-                                emit b1:go_collide;
-                            end
+                    loop b2 in birds do
+                        if b1!=b2 and _SDL_HasIntersection(&&b1:r,&&b2:r) then
+                            tocol = []..tocol..[b1];
                         end
+                    end
+                end
+                loop i in $tocol do
+                    if tocol[i]? then
+                        emit tocol[i]!:go_collide;
                     end
                 end
             end

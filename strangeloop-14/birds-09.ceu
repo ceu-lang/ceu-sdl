@@ -52,9 +52,9 @@ do
     with
         every SDL_REDRAW do
             if ((int)((sin+PI/2)/PI)) % 2 == 0 then
-                _SDL_RenderCopy(&ren, _TEX_DOWN, null, &r);
+                _SDL_RenderCopy(&&ren, _TEX_DOWN, null, &&r);
             else
-                _SDL_RenderCopy(&ren, _TEX_UP, null, &r);
+                _SDL_RenderCopy(&&ren, _TEX_UP, null, &&r);
             end
         end
     end
@@ -75,7 +75,7 @@ with
 #endif
             every 1s do
                 spawn Bird in birds with
-                    this.ren   = _REN;
+                    this.ren   = &_ID(_REN);
 #ifdef CEU_TIMEMACHINE
             this.r.y   =  20 + _drand()%350;
             this.speed = 100 + _drand()%100;

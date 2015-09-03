@@ -29,7 +29,7 @@ await 2s;
     if button == 0 then
         await (500+_rand()%3000) ms;
     else
-        var _SDL_MouseButtonEvent* but =
+        var _SDL_MouseButtonEvent&& but =
             await SDL_MOUSEBUTTONDOWN
                 until but:button == button;
     end
@@ -48,6 +48,10 @@ do
     var int pts_tot = 0;
     var int pts_nxt = 0;
     var SDL_Point[5] pts;
+    loop i in $$pts do
+        var SDL_Point pt = SDL_Point(0,0);
+        pts = []..pts..[pt];
+    end
 
     par do
         await SDL_MOUSEBUTTONDOWN;
@@ -107,11 +111,11 @@ with
     end
 with
     pool Player[] ps;
-    var Player*? p1 = spawn Player in ps with
+    var Player&&? p1 = spawn Player in ps with
         this.ball   = Ball(200,130,8);
         this.button = _SDL_BUTTON_LEFT;
     end;
-    var Player*? p2 = spawn Player in ps with
+    var Player&&? p2 = spawn Player in ps with
         this.ball   = Ball(300,130,8);
         this.button = _SDL_BUTTON_RIGHT;
     end;

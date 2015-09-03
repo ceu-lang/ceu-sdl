@@ -13,8 +13,8 @@ end
 input void SDL_QUIT;
 input void SDL_REDRAW;
 input int  SDL_DT;
-input _SDL_KeyboardEvent*    SDL_KEYDOWN;
-input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
+input _SDL_KeyboardEvent&&    SDL_KEYDOWN;
+input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONDOWN;
 
 #ifdef CEU_TIMEMACHINE
 input int SDL_DT;
@@ -29,7 +29,7 @@ with
     _SDL_DestroyWindow(_WIN);
 end
 
-_SDL_GetWindowSize(_WIN, &_REN_W, &_REN_H);
+_SDL_GetWindowSize(_WIN, &&_REN_W, &&_REN_H);
 
 finalize
     _REN = _SDL_CreateRenderer(_WIN, -1, 0);
@@ -130,7 +130,7 @@ par/or do
             end
         with
             loop do
-                var _SDL_KeyboardEvent* key = await SDL_KEYDOWN;
+                var _SDL_KeyboardEvent&& key = await SDL_KEYDOWN;
                 if key:keysym.sym==_SDLK_r or key:keysym.sym==_SDLK_DOWN or
                                               key:keysym.sym==_SDLK_UP then
                     ex = ex;

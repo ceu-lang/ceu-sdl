@@ -48,9 +48,9 @@ do
     with
         every SDL_REDRAW do
             if ((int)((sin+PI/2)/PI)) % 2 == 0 then
-                _SDL_RenderCopy(&ren, _TEX_DOWN, null, &r);
+                _SDL_RenderCopy(&&ren, _TEX_DOWN, null, &&r);
             else
-                _SDL_RenderCopy(&ren, _TEX_UP, null, &r);
+                _SDL_RenderCopy(&&ren, _TEX_UP, null, &&r);
             end
         end
     end
@@ -63,12 +63,12 @@ par/or do
     end
 with
     var Bird b1 with
-        this.ren   = _REN;
+        this.ren   = &_ID(_REN);
         this.r.y   = 100;
         this.speed = 100;
     end;
     var Bird b2 with
-        this.ren   = _REN;
+        this.ren   = &_ID(_REN);
         this.r.y   = 300;
         this.speed = 200;
     end;

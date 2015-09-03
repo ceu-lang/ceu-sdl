@@ -26,12 +26,12 @@ class UITexture with
     var int pad_x = 0;
     var int pad_y = 0;
 
-    function (SDL_Rect&& r)=>void go;
-    function (SDL_Rect&& bg, bool should_redim_)=>void go_bg;
+    function @rec (SDL_Rect&& r)=>void go;
+    function @rec (SDL_Rect&& bg, bool should_redim_)=>void go_bg;
 do
     /* METHODS */
 
-    function (SDL_Rect&& r)=>void go do
+    function @rec (SDL_Rect&& r)=>void go do
         _assert(r != null);
         _assert(not this.should_redim);
         // ignoring r:w / r:h (no redim)
@@ -189,12 +189,12 @@ with
     end;
 
     var SDL_Rect r_txt = SDL_Rect(0,0,0,0);
-    ui_txt.go(&&r_txt);
+    call/rec ui_txt.go(&&r_txt);
 
     await 1s;
     ui_txt.align_bg_x = _UI_ALIGN_RIGHT;
     ui_txt.align_bg_y = _UI_ALIGN_BOTTOM;
-    ui_txt.go_bg(&&win_r, false);
+    call/rec ui_txt.go_bg(&&win_r, false);
 
     var UITexture ui1 with
         this.ren = &ren!;
@@ -219,7 +219,7 @@ with
                 if r1.w < 5 then r1.w = 5; end
                 r1.h = r1.h + _rand() % 3 - 1;
                 if r1.h < 5 then r1.h = 5; end
-                ui1.go_bg(&&r1, false);
+                call/rec ui1.go_bg(&&r1, false);
                 await 10ms;
             end
 
@@ -229,7 +229,7 @@ with
                 if r1.w < 5 then r1.w = 5; end
                 r1.h = r1.h + _rand() % 3 - 1;
                 if r1.h < 5 then r1.h = 5; end
-                ui1.go_bg(&&r1, false);
+                call/rec ui1.go_bg(&&r1, false);
                 await 10ms;
             end
 
@@ -239,7 +239,7 @@ with
                 if r1.w < 5 then r1.w = 5; end
                 r1.h = r1.h + _rand() % 3 - 1;
                 if r1.h < 5 then r1.h = 5; end
-                ui1.go_bg(&&r1, false);
+                call/rec ui1.go_bg(&&r1, false);
                 await 10ms;
             end
 
@@ -249,7 +249,7 @@ with
                 if r1.w < 5 then r1.w = 5; end
                 r1.h = r1.h + _rand() % 3 - 1;
                 if r1.h < 5 then r1.h = 5; end
-                ui1.go_bg(&&r1, false);
+                call/rec ui1.go_bg(&&r1, false);
                 await 10ms;
             end
         end
@@ -261,11 +261,11 @@ with
                 loop j in 3 do
                     ui1.align_bg_x = i;
                     ui1.align_bg_y = j;
-                    ui1.go_bg(&&r1, false);
+                    call/rec ui1.go_bg(&&r1, false);
 
                     ui2.align_bg_x = i;
                     ui2.align_bg_y = j;
-                    ui2.go_bg(&&r2, false);
+                    call/rec ui2.go_bg(&&r2, false);
 
                     await 1s;
                 end
@@ -279,7 +279,7 @@ with
                 loop j in 3 do
                     ui2.align_x = i;
                     ui2.align_y = j;
-                    ui2.go(&&r);
+                    call/rec ui2.go(&&r);
                     await 1s;
                 end
             end

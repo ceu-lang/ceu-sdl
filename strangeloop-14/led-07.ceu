@@ -16,9 +16,9 @@ do
                     is_on = not is_on;
                 end
             with
-                var _SDL_MouseButtonEvent* but =
+                var _SDL_MouseButtonEvent&& but =
                         await SDL_MOUSEBUTTONDOWN
-                        until _SDL_Circle_vs_Mouse((_SDL_Point*)&this.p, 50, but);
+                        until _SDL_Circle_vs_Mouse((_SDL_Point&&)&&this.p, 50, but);
             end
             await 2s;
         end
@@ -59,9 +59,9 @@ with
             end;
             await FOREVER;
         with
-            var _SDL_MouseButtonEvent* but =
+            var _SDL_MouseButtonEvent&& but =
                     await SDL_MOUSEBUTTONDOWN
-                    until _SDL_Circle_vs_Mouse((_SDL_Point*)&stop, 30, but);
+                    until _SDL_Circle_vs_Mouse((_SDL_Point&&)&&stop, 30, but);
         end
     end
 with

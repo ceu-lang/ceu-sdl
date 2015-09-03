@@ -1,10 +1,10 @@
 #define HEADER_TITLE "Ball - 06"    // class, 2p, graph
 #include "header.ceu"
 
-#define DCL_INT(a,v)                \
-    var Integral_Over_Time _ with   \
-        this.accumulator = a;       \
-        this.value       = v;       \
+#define DCL_INT(a,v)                 \
+    var Integral_Over_Time _ with    \
+        this.accumulator = &a;       \
+        this.value       = &v;       \
     end
 
 class Integral_Over_Time with
@@ -23,7 +23,7 @@ class Move_Until_Button with
 do
     DCL_INT(v0,  a0);
     DCL_INT(pos, v0);
-    var _SDL_MouseButtonEvent* but =
+    var _SDL_MouseButtonEvent&& but =
         await SDL_MOUSEBUTTONDOWN
             until but:button == button;
 end
@@ -49,36 +49,40 @@ do
     var int pts_tot = 0;
     var int pts_nxt = 0;
     var SDL_Point[TRAIL_N] pts;
+    loop i in $$pts do
+        var SDL_Point pt = SDL_Point(0,0);
+        pts = []..pts..[pt];
+    end
 
     var int a = 0;
 
     par/or do
-        var _SDL_MouseButtonEvent* but =
+        var _SDL_MouseButtonEvent&& but =
             await SDL_MOUSEBUTTONDOWN
                 until but:button == button;
 
         loop do
             do Move_Until_Button with
                 this.button = outer.button;
-                this.pos = ball.x;
+                this.pos = &ball.x;
                 this.v0  = 20;
                 this.a0  = 20;
             end;
             do Move_Until_Button with
                 this.button = outer.button;
-                this.pos = ball.y;
+                this.pos = &ball.y;
                 this.v0  = 20;
                 this.a0  = 20;
             end;
             do Move_Until_Button with
                 this.button = outer.button;
-                this.pos = ball.x;
+                this.pos = &ball.x;
                 this.v0  = -20;
                 this.a0  = -20;
             end;
             do Move_Until_Button with
                 this.button = outer.button;
-                this.pos = ball.y;
+                this.pos = &ball.y;
                 this.v0  = -20;
                 this.a0  = -20;
             end;
@@ -140,12 +144,12 @@ with
         var Player p1 with
             this.ball   = Ball(300,200,BALL_RADIUS);
             this.button = _SDL_BUTTON_LEFT;
-            this.io     = io1;
+            this.io     = &io1;
         end;
         var Player p2 with
             this.ball   = Ball(300,200,BALL_RADIUS);
             this.button = _SDL_BUTTON_RIGHT;
-            this.io     = io2;
+            this.io     = &io2;
         end;
 
         watching p1 do
@@ -185,26 +189,42 @@ with
                 end
             with
                 every SDL_DT do
+                    var bool col1 = false;
+                    var bool col2 = false;
+                    var Food&&? tokill;
                     loop food in foods do
+                        col1 = false;
+                        col2 = false;
+
                         var SDL_Point pt0 = SDL_Point(food:ball.x, food:ball.y);
                         var SDL_Point pt1 = SDL_Point(p1.ball.x,   p1.ball.y);
                         var SDL_Point pt2 = SDL_Point(p2.ball.x,   p2.ball.y);
-                        watching *food do
-                            if _SDL_Circle_vs_Circle(
-                                    (_SDL_Point*)&pt0, food:ball.radius,
-                                    (_SDL_Point*)&pt1, p1.ball.radius)
-                            then
-                                emit p1.io.e_in => food:ball.radius;
-                                kill *food;
-                            end
-                            if _SDL_Circle_vs_Circle(
-                                    (_SDL_Point*)&pt0, food:ball.radius,
-                                    (_SDL_Point*)&pt2, p2.ball.radius)
-                            then
-                                emit p2.io.e_in => food:ball.radius;
-                                kill *food;
-                            end
+                        if _SDL_Circle_vs_Circle(
+                                (_SDL_Point&&)&&pt0, food:ball.radius,
+                                (_SDL_Point&&)&&pt1, p1.ball.radius)
+                        then
+                            col1 = true;
                         end
+                        if _SDL_Circle_vs_Circle(
+                                (_SDL_Point&&)&&pt0, food:ball.radius,
+                                (_SDL_Point&&)&&pt2, p2.ball.radius)
+                        then
+                            col2 = true;
+                        end
+
+                        if col1 or col2 then
+                            tokill = food;
+                            break;
+                        end
+                    end
+                    if tokill? then
+                        if col1 then
+                            emit p1.io.e_in => tokill!:ball.radius;
+                        end
+                        if col2 then
+                            emit p2.io.e_in => tokill!:ball.radius;
+                        end
+                        kill *tokill!;
                     end
                 end
             end

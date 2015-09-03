@@ -3,8 +3,8 @@
 
 #define DCL_INT(a,v)                \
     var Integral_Over_Time _ with   \
-        this.accumulator = a;       \
-        this.value       = v;       \
+        this.accumulator = &a;      \
+        this.value       = &v;      \
     end
 
 class Integral_Over_Time with
@@ -23,7 +23,7 @@ class Move_Until_Button with
 do
     DCL_INT(v0,  a0);
     DCL_INT(pos, v0);
-    var _SDL_MouseButtonEvent* but =
+    var _SDL_MouseButtonEvent&& but =
         await SDL_MOUSEBUTTONDOWN
             until but:button == button;
 end
@@ -41,33 +41,37 @@ do
     var int pts_tot = 0;
     var int pts_nxt = 0;
     var SDL_Point[TRAIL_N] pts;
+    loop i in $$pts do
+        var SDL_Point pt = SDL_Point(0,0);
+        pts = []..pts..[pt];
+    end
 
     par do
-        var _SDL_MouseButtonEvent* but =
+        var _SDL_MouseButtonEvent&& but =
             await SDL_MOUSEBUTTONDOWN
                 until but:button == button;
         loop do
             do Move_Until_Button with
                 this.button = outer.button;
-                this.pos = ball.x;
+                this.pos = &ball.x;
                 this.v0  = 20;
                 this.a0  = 20;
             end;
             do Move_Until_Button with
                 this.button = outer.button;
-                this.pos = ball.y;
+                this.pos = &ball.y;
                 this.v0  = 20;
                 this.a0  = 20;
             end;
             do Move_Until_Button with
                 this.button = outer.button;
-                this.pos = ball.x;
+                this.pos = &ball.x;
                 this.v0  = -20;
                 this.a0  = -20;
             end;
             do Move_Until_Button with
                 this.button = outer.button;
-                this.pos = ball.y;
+                this.pos = &ball.y;
                 this.v0  = -20;
                 this.a0  = -20;
             end;

@@ -29,7 +29,7 @@ do
     if button == 0 then
         await (500+_rand()%3000) ms;
     else
-        var _SDL_MouseButtonEvent* but =
+        var _SDL_MouseButtonEvent&& but =
             await SDL_MOUSEBUTTONDOWN
                 until but:button == button;
     end
@@ -49,6 +49,10 @@ do
     var int pts_tot = 0;
     var int pts_nxt = 0;
     var SDL_Point[TRAIL_N] pts;
+    loop i in $$pts do
+        var SDL_Point pt = SDL_Point(0,0);
+        pts = []..pts..[pt];
+    end
 
     par do
         await SDL_MOUSEBUTTONDOWN;
@@ -116,7 +120,7 @@ with
 with
     loop do
         pool Player[] players;
-        var Player*? p1 = spawn Player in players with
+        var Player&&? p1 = spawn Player in players with
             this.is_npc = false;
             this.ball   = Ball(200,130,8);
             this.button = _SDL_BUTTON_LEFT;
@@ -124,7 +128,7 @@ with
 
         watching *p1 do
 
-            var Player*? p2 = spawn Player in players with
+            var Player&&? p2 = spawn Player in players with
                 this.is_npc = false;
                 this.ball   = Ball(300,130,8);
                 this.button = _SDL_BUTTON_RIGHT;
@@ -153,7 +157,7 @@ with
                                     var SDL_Point pt1 = SDL_Point(tmp1:ball.x,tmp1:ball.y);
                                     var SDL_Point pt2 = SDL_Point(tmp2:ball.x,tmp2:ball.y);
                                     if tmp1 != tmp2 and
-                                       _SDL_Circle_vs_Circle((_SDL_Point*)&pt1,8,(_SDL_Point*)&pt2,8)
+                                       _SDL_Circle_vs_Circle((_SDL_Point&&)&pt1,8,(_SDL_Point&&)&pt2,8)
                                     then
                                         watching *tmp2 do
                                             kill *tmp1;

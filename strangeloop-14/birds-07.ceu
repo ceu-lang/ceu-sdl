@@ -69,7 +69,7 @@ with
     pool Bird[2] birds;
     every 1s do
         spawn Bird in birds with
-            this.ren   = _REN;
+            this.ren   = &_ID(_REN);
 #ifdef CEU_TIMEMACHINE
             this.r.y   =  20 + _drand()%350;
             this.speed = 100 + _drand()%100;

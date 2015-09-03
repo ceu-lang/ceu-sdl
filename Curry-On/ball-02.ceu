@@ -13,6 +13,10 @@ end
 var int pts_tot = 0;
 var int pts_nxt = 0;
 var SDL_Point[TRAIL_N] pts;
+loop i in $$pts do
+    var SDL_Point pt = SDL_Point(0,0);
+    pts = []..pts..[pt];
+end
 
 data Ball with
     var float x;

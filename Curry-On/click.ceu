@@ -11,13 +11,13 @@ _assert(_TEX != null);
 par do
     var SDL_Rect r = SDL_Rect(20,330, 48,48);
     loop do
-        var _SDL_MouseButtonEvent* but =
+        var _SDL_MouseButtonEvent&& but =
             await SDL_MOUSEBUTTONDOWN
                 until but:button == _SDL_BUTTON_LEFT;
 
         watching 250ms do
             every SDL_REDRAW do
-                _SDL_RenderCopy(_REN, _TEX, null, (_SDL_Rect*)&r);
+                _SDL_RenderCopy(_REN, _TEX, null, (_SDL_Rect&&)&&r);
                 _SDL_RenderPresent(_REN);
             end
         end
@@ -25,13 +25,13 @@ par do
 with
     var SDL_Rect r = SDL_Rect(530,330, 48,48);
     loop do
-        var _SDL_MouseButtonEvent* but =
+        var _SDL_MouseButtonEvent&& but =
             await SDL_MOUSEBUTTONDOWN
                 until but:button == _SDL_BUTTON_RIGHT;
 
         watching 200ms do
             every SDL_REDRAW do
-                _SDL_RenderCopy(_REN, _TEX, null, (_SDL_Rect*)&r);
+                _SDL_RenderCopy(_REN, _TEX, null, (_SDL_Rect&&)&&r);
                 _SDL_RenderPresent(_REN);
             end
         end

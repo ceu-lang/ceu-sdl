@@ -83,9 +83,9 @@ do
         every SDL_REDRAW do
             if is_visible then
                 if ((int)((sin+PI/2)/PI)) % 2 == 0 then
-                    _SDL_RenderCopy(&ren, _TEX_DOWN, null, &r);
+                    _SDL_RenderCopy(&&ren, _TEX_DOWN, null, &&r);
                 else
-                    _SDL_RenderCopy(&ren, _TEX_UP, null, &r);
+                    _SDL_RenderCopy(&&ren, _TEX_UP, null, &&r);
                 end
             end
         end
@@ -106,7 +106,7 @@ with
     par do
         every 750ms do
             spawn Bird in birds with
-                this.ren   = _REN;
+                this.ren   = &_ID(_REN);
 #ifdef CEU_TIMEMACHINE
                 this.r.y   =  20 + _drand()%350;
                 this.speed = 100 + _drand()%100;
@@ -118,25 +118,26 @@ with
         end
     with
         every SDL_DT do
+            var Bird&&?[] tocol;
             loop b1 in birds do
                 loop b2 in birds do
-                    if b1!=b2 and _SDL_HasIntersection(&b1:r,&b2:r) then
-                        watching *b1 do
-                            watching *b2 do
-                                emit b1:go_collide;
-                                emit b2:go_collide;
-                            end
-                        end
+                    if b1!=b2 and _SDL_HasIntersection(&&b1:r,&&b2:r) then
+                        tocol = []..tocol..[b1];
                     end
+                end
+            end
+            loop i in $tocol do
+                if tocol[i]? then
+                    emit tocol[i]!:go_collide;
                 end
             end
         end
     with
         loop do
-            var _SDL_MouseButtonEvent* mse = await SDL_MOUSEBUTTONDOWN;
-            var Bird* ptr = null;
+            var _SDL_MouseButtonEvent&& mse = await SDL_MOUSEBUTTONDOWN;
+            var Bird&& ptr = null;
             loop b in birds do
-                if _SDL_Rect_vs_Mouse(&b:r,mse) then
+                if _SDL_Rect_vs_Mouse(&&b:r,mse) then
                     ptr = b;
                     break;
                 end
