@@ -42,6 +42,26 @@ int CEU_TIMEMACHINE_ON = 0;
 
 #include <assert.h>
 
+#define ceu_out_assert(v) ceu_sys_assert(v)
+void ceu_sys_assert (int v) {
+    assert(v);
+}
+
+#define ceu_out_log(m,s) ceu_sys_log(m,s)
+void ceu_sys_log (int mode, long s) {
+    switch (mode) {
+        case 0:
+            printf("%s", (char*)s);
+            break;
+        case 1:
+            printf("%lX", s);
+            break;
+        case 2:
+            printf("%ld", s);
+            break;
+    }
+}
+
 #include "_ceu_app.h"
 
 s32 WCLOCK_nxt;
