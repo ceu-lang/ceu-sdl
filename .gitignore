@@ -4,7 +4,6 @@ _ceu_*
 *.ceu_m4
 *.exe
 chess_clock/
-fnts/
 gol/
 imgs/
 mtg_*/
