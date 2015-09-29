@@ -2,27 +2,27 @@
 
 input void SDL_REDRAW;
 input void SDL_QUIT;
-input _SDL_KeyboardEvent*    SDL_KEYDOWN;
-input _SDL_MouseButtonEvent* SDL_MOUSEBUTTONDOWN;
+input _SDL_KeyboardEvent&&    SDL_KEYDOWN;
+input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONDOWN;
 
 var _SDL_Window&? win;
     finalize
-        win = _SDL_CreateWindow("SDL 4", _SDL_WINDOWPOS_CENTERED,
+        win = &_SDL_CreateWindow("SDL 4", _SDL_WINDOWPOS_CENTERED,
                                          _SDL_WINDOWPOS_CENTERED,
                                          800, 480,
                                          _SDL_WINDOW_SHOWN);
     with
-        _SDL_DestroyWindow(&win);
+        _SDL_DestroyWindow(&&win!);
     end
 
 var int w, h;
-_SDL_GetWindowSize(&win, &w, &h);
+_SDL_GetWindowSize(&&win!, &&w, &&h);
 
 var _SDL_Renderer&? ren;
     finalize
-        ren = _SDL_CreateRenderer(&win, -1, 0);
+        ren = &_SDL_CreateRenderer(&&win!, -1, 0);
     with
-        _SDL_DestroyRenderer(&ren);
+        _SDL_DestroyRenderer(&&ren!);
     end
 
 var SDL_Rect  bg     = SDL_Rect(0,0 , w,h);
@@ -42,7 +42,8 @@ do
 
     par/or do
         pause/if go_pause do
-            every (this.dt) ms do
+            loop do
+                await (this.dt) ms;
                 rct.x = rct.x + 1;
                 if rct.x > 500 then
                     break;
@@ -52,9 +53,9 @@ do
     with
         var bool is_paused = false;
         loop do
-            var _SDL_MouseButtonEvent* but = await SDL_MOUSEBUTTONDOWN;
+            var _SDL_MouseButtonEvent&& but = await SDL_MOUSEBUTTONDOWN;
             if but:button == _SDL_BUTTON_LEFT then
-                if _SDL_Rect_vs_Mouse((_SDL_Rect*)&rct, but) then
+                if _SDL_Rect_vs_Mouse((_SDL_Rect&&)&&rct, but) then
                     is_paused = not is_paused;
                     emit go_pause => is_paused;
                 end
@@ -62,8 +63,8 @@ do
         end
     with
         every SDL_REDRAW do
-            _SDL_SetRenderDrawColor(&ren, clr.r,clr.g,clr.b,0xFF);
-            _SDL_RenderFillRect(&ren, (_SDL_Rect*)&rct);
+            _SDL_SetRenderDrawColor(&&ren, clr.r,clr.g,clr.b,0xFF);
+            _SDL_RenderFillRect(&&ren, (_SDL_Rect&&)&&rct);
         end
     end
     //await FOREVER;    // disappears but remains on memory
@@ -75,8 +76,8 @@ par/or do
     await SDL_QUIT;
 with
     every SDL_REDRAW do
-        _SDL_SetRenderDrawColor(&ren, bg_clr.r,bg_clr.g,bg_clr.b,0xFF);
-        _SDL_RenderFillRect(&ren, (_SDL_Rect*)&bg);
+        _SDL_SetRenderDrawColor(&&ren!, bg_clr.r,bg_clr.g,bg_clr.b,0xFF);
+        _SDL_RenderFillRect(&&ren!, (_SDL_Rect&&)&&bg);
     end
 with
     loop do
@@ -87,7 +88,7 @@ with
                     every 1s do
                         native _rand();
                         spawn Rect in rs with
-                            this.ren = ren;
+                            this.ren = &ren!;
                             this.dt  =  10 + _rand()%20;
                             this.rct = SDL_Rect(100,100+_rand()%300, 0,0);
                         end;
@@ -97,7 +98,7 @@ with
         with
             var int is_paused = false;
             loop do
-                var _SDL_KeyboardEvent* key = await SDL_KEYDOWN;
+                var _SDL_KeyboardEvent&& key = await SDL_KEYDOWN;
                 if key:keysym.sym == _SDLK_ESCAPE then
                     break;
                 else/if key:keysym.sym == _SDLK_p then
@@ -109,7 +110,7 @@ with
     end
 with
     every SDL_REDRAW do
-        _SDL_RenderPresent(&ren);
+        _SDL_RenderPresent(&&ren!);
     end
 end
 

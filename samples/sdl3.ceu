@@ -5,22 +5,22 @@ input void SDL_QUIT;
 
 var _SDL_Window&? win;
     finalize
-        win = _SDL_CreateWindow("SDL 3", _SDL_WINDOWPOS_CENTERED,
+        win = &_SDL_CreateWindow("SDL 3", _SDL_WINDOWPOS_CENTERED,
                                          _SDL_WINDOWPOS_CENTERED,
                                          800, 480,
                                          _SDL_WINDOW_SHOWN);
     with
-        _SDL_DestroyWindow(&win);
+        _SDL_DestroyWindow(&&win!);
     end
 
 var int w, h;
-_SDL_GetWindowSize(&win, &w, &h);
+_SDL_GetWindowSize(&&win!, &&w, &&h);
 
 var _SDL_Renderer&? ren;
     finalize
-        ren = _SDL_CreateRenderer(&win, -1, 0);
+        ren = &_SDL_CreateRenderer(&&win!, -1, 0);
     with
-        _SDL_DestroyRenderer(&ren);
+        _SDL_DestroyRenderer(&&ren!);
     end
 
 var SDL_Rect  bg     = SDL_Rect(0,0 , w,h);
@@ -34,7 +34,8 @@ do
     var SDL_Color clr = SDL_Color(0xFF, 0xFF, 0xFF, 0xFF);
 
     par/or do
-        every (1000/this.v) ms do
+        loop do
+            await (1000/this.v) ms;
             rect.x = rect.x + 1;
             if rect.x > 500 then
                 break;
@@ -42,8 +43,8 @@ do
         end
     with
         every SDL_REDRAW do
-            _SDL_SetRenderDrawColor(&ren, clr.r,clr.g,clr.b,0xFF);
-            _SDL_RenderFillRect(&ren, (_SDL_Rect*)&rect);
+            _SDL_SetRenderDrawColor(&&ren, clr.r,clr.g,clr.b,0xFF);
+            _SDL_RenderFillRect(&&ren, (_SDL_Rect&&)&&rect);
         end
     end
 end
@@ -52,8 +53,8 @@ par/or do
     await SDL_QUIT;
 with
     every SDL_REDRAW do
-        _SDL_SetRenderDrawColor(&ren, bg_clr.r,bg_clr.g,bg_clr.b,0xFF);
-        _SDL_RenderFillRect(&ren, (_SDL_Rect*)&bg);
+        _SDL_SetRenderDrawColor(&&ren!, bg_clr.r,bg_clr.g,bg_clr.b,0xFF);
+        _SDL_RenderFillRect(&&ren!, (_SDL_Rect&&)&&bg);
     end
 with
     loop do
@@ -64,7 +65,7 @@ with
                 pool Rect[5] rs;
                 every 1s do
                     spawn Rect in rs with
-                        this.ren  = ren;
+                        this.ren  = &ren!;
                         this.rect = SDL_Rect(100, 100+_rand()%300, 20,20);
                         this.v    = 5 + _rand()%100;
                     end;
@@ -74,7 +75,7 @@ with
     end
 with
     every SDL_REDRAW do
-        _SDL_RenderPresent(&ren);
+        _SDL_RenderPresent(&&ren!);
     end
 end
 
