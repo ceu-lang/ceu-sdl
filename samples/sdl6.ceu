@@ -11,22 +11,22 @@ input int  SDL_DT;
 
 var _SDL_Window&? win;
     finalize
-        win = _SDL_CreateWindow("SDL 6", _SDL_WINDOWPOS_CENTERED,
+        win = &_SDL_CreateWindow("SDL 6", _SDL_WINDOWPOS_CENTERED,
                                          _SDL_WINDOWPOS_CENTERED,
                                          800, 480,
                                          _SDL_WINDOW_SHOWN);
     with
-        _SDL_DestroyWindow(&win);
+        _SDL_DestroyWindow(&&win!);
     end
 
 var int w, h;
-_SDL_GetWindowSize(&win, &w, &h);
+_SDL_GetWindowSize(&&win!, &&w, &&h);
 
 var _SDL_Renderer&? ren;
     finalize
-        ren = _SDL_CreateRenderer(&win, -1, 0);
+        ren = &_SDL_CreateRenderer(&&win!, -1, 0);
     with
-        _SDL_DestroyRenderer(&ren);
+        _SDL_DestroyRenderer(&&ren!);
     end
 
 /* Maximum of 10k Rectangles on a dedicated memory pool */
@@ -78,7 +78,8 @@ do
         var s32 dt;
         var float fx = x;
 
-        every dt in SDL_DT do
+        loop do
+            await SDL_DT;
             fx = fx + (float)(this.vel*dt)/1000;    // update my position
             rct.x = fx;
 
@@ -96,8 +97,8 @@ do
     with
         /* redraw myself every frame */
         every SDL_REDRAW do
-            _SDL_SetRenderDrawColor(&ren, clr.r,clr.g,clr.b,0xFF);
-            _SDL_RenderFillRect(&ren, (_SDL_Rect*)&rct);
+            _SDL_SetRenderDrawColor(&&ren, clr.r,clr.g,clr.b,0xFF);
+            _SDL_RenderFillRect(&&ren, (_SDL_Rect&&)&&rct);
         end
     end
 end
@@ -106,8 +107,8 @@ par/or do
     await SDL_QUIT;                     // terminates everything
 with
     every SDL_REDRAW do
-        _SDL_SetRenderDrawColor(&ren, 0,0,0, 0xFF);
-        _SDL_RenderFillRect(&ren, null);  // DRAW 1: clear screen
+        _SDL_SetRenderDrawColor(&&ren!, 0,0,0, 0xFF);
+        _SDL_RenderFillRect(&&ren!, null);  // DRAW 1: clear screen
     end
 with
     loop do
@@ -115,27 +116,6 @@ with
             await 30s;                  // kill all rectangles and restart
         with
             pool Rect[10000] rs;
-/*
-*/
-/*
-            do
-                var Rect[500] _ with
-                    this.vel   = 50 + _rand()%20;
-                    this.rct.x = 50 + _rand()%930;
-                    this.rct.y = _rand()%750;
-                    this.ren   = &ren;
-                end;
-                loop i in 10000 do
-                    spawn Rect in rs with
-                        this.vel   = 50 + _rand()%20;
-                        this.rct.x = 50 + _rand()%930;
-                        this.rct.y = _rand()%750;
-                        this.ren   = &ren;
-                    end;
-                end
-                await FOREVER;
-            end
-*/
             do
                 every 40ms do
                     loop i in 30 do       // create 30 rectangles every 40ms
@@ -143,18 +123,16 @@ with
                             this.vel   = 50 + _rand()%20;
                             this.rct.x = 50;
                             this.rct.y = _rand()%750;
-                            this.ren   = ren;
+                            this.ren   = &ren!;
                         end;
                     end
                 end
             end                         // DRAW 2: (all rectangles react here)
         end
     end
-/*
-*/
 with
     every SDL_REDRAW do
-        _SDL_RenderPresent(&ren);        // DRAW 3: update screen
+        _SDL_RenderPresent(&&ren!);        // DRAW 3: update screen
     end
 with
     /* calculate FPS */
