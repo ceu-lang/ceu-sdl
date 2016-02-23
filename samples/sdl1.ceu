@@ -3,9 +3,6 @@
 input void SDL_REDRAW;
 input void SDL_QUIT;
 
-var int  x;
-var int? x;
-
 var _SDL_Window&? win;
     finalize
         win = &_SDL_CreateWindow("SDL 1", _SDL_WINDOWPOS_CENTERED,
@@ -16,7 +13,7 @@ var _SDL_Window&? win;
         _SDL_DestroyWindow(&&win!);
     end
 
-var int w, h;
+var int w=0, h=0;
 _SDL_GetWindowSize(&&win!, &&w, &&h);
 
 var _SDL_Renderer&? ren;
