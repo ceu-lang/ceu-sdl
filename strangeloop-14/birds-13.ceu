@@ -108,10 +108,10 @@ with
             spawn Bird in birds with
                 this.ren   = &_ID(_REN);
 #ifdef CEU_TIMEMACHINE
-                this.r.y   =  20 + _drand()%350;
+                this.r     = _SDL_Rect(0, 20+_drand()%350, 0,0);
                 this.speed = 100 + _drand()%100;
 #else
-                this.r.y   =  20 + _rand()%350;
+                this.r     = _SDL_Rect(0, 20+_rand()%350, 0,0);
                 this.speed = 100 + _rand()%100;
 #endif
             end;

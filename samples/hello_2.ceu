@@ -1,5 +1,5 @@
 class HelloWorld with
-    var   int  id;
+    var   int  id = 0;
     event void stop;
 do
     par/or do

@@ -4,8 +4,8 @@
 input void SDL_REDRAW;
 input void SDL_QUIT;
 
-var int win_w;
-var int win_h;
+var int win_w = 0;
+var int win_h = 0;
 var _SDL_Window&? win;
     finalize
         win = &_SDL_CreateWindow("(2) Hello World!",

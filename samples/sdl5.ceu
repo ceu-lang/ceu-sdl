@@ -13,7 +13,7 @@ var _SDL_Window&? win;
         _SDL_DestroyWindow(&&win!);
     end
 
-var int w, h;
+var int w=0, h=0;
 _SDL_GetWindowSize(&&win!, &&w, &&h);
 
 var _SDL_Renderer&? ren;
@@ -48,7 +48,7 @@ var _TTF_Font&? fnt;
 
 var _SDL_Texture&? str_tex;
 var SDL_Rect str_r = SDL_Rect(10,10, 200,20);
-do
+//do
     var SDL_Color clr = SDL_Color(0xFF, 0xFF, 0xFF, 0xFF);
     var _SDL_Surface&? sfc;
     finalize
@@ -62,7 +62,7 @@ do
     with
         _SDL_DestroyTexture(&&str_tex!);
     end
-end
+//end
 
 _Mix_OpenAudio(22050, _AUDIO_S16SYS, 2, 4096);
     finalize with

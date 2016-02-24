@@ -1,7 +1,7 @@
 native _printf();
 
 class HelloWorld with
-    var int id;
+    var int id = 0;
 do
     every 1s do
         _printf("[%d] Hello world!\n", this.id);

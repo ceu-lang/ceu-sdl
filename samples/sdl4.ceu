@@ -15,7 +15,7 @@ var _SDL_Window&? win;
         _SDL_DestroyWindow(&&win!);
     end
 
-var int w, h;
+var int w=0, h=0;
 _SDL_GetWindowSize(&&win!, &&w, &&h);
 
 var _SDL_Renderer&? ren;

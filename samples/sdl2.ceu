@@ -13,7 +13,7 @@ var _SDL_Window&? win;
         _SDL_DestroyWindow(&&win!);
     end
 
-var int w, h;
+var int w=0, h=0;
 _SDL_GetWindowSize(&&win!, &&w, &&h);
 
 var _SDL_Renderer&? ren;
@@ -31,10 +31,7 @@ class Rect with
     var SDL_Rect       rect;
     var int            v;
 do
-    var _SDL_Color clr;
-        clr.r = 0xFF;
-        clr.g = 0xFF;
-        clr.b = 0xFF;
+    var _SDL_Color clr = _SDL_Color(0xFF,0xFF,0xFF);
 
     par/or do
         loop do
@@ -62,21 +59,15 @@ with
 with
     loop do
         var Rect r1 with
-            this.ren    = &ren!;
-            this.rect.x = 100;
-            this.rect.y = 100;
-            this.rect.w = 20;
-            this.rect.h = 20;
-            this.v      = 100;
+            this.ren  = &ren!;
+            this.rect = SDL_Rect(100,100,20,20);
+            this.v    = 100;
         end;
 
         var Rect r2 with
-            this.ren    = &ren!;
-            this.rect.x = 100;
-            this.rect.y = 200;
-            this.rect.w = 40;
-            this.rect.h = 40;
-            this.v      = 25;
+            this.ren  = &ren!;
+            this.rect = SDL_Rect(100,200,40,40);
+            this.v    = 25;
         end;
 
         await 10s;

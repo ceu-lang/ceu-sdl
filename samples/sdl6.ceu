@@ -19,7 +19,7 @@ var _SDL_Window&? win;
         _SDL_DestroyWindow(&&win!);
     end
 
-var int w, h;
+var int w=0, h=0;
 _SDL_GetWindowSize(&&win!, &&w, &&h);
 
 var _SDL_Renderer&? ren;
@@ -75,11 +75,9 @@ do
             clr.b = clr.b + _rand()%5 - 2;
         end
     with
-        var s32 dt;
         var float fx = x;
-
         loop do
-            await SDL_DT;
+            var int dt = await SDL_DT;
             fx = fx + (float)(this.vel*dt)/1000;    // update my position
             rct.x = fx;
 
@@ -120,10 +118,9 @@ with
                 every 40ms do
                     loop i in 30 do       // create 30 rectangles every 40ms
                         spawn Rect in rs with
-                            this.vel   = 50 + _rand()%20;
-                            this.rct.x = 50;
-                            this.rct.y = _rand()%750;
-                            this.ren   = &ren!;
+                            this.vel = 50 + _rand()%20;
+                            this.rct = SDL_Rect(50, _rand()%750, 0,0);
+                            this.ren = &ren!;
                         end;
                     end
                 end

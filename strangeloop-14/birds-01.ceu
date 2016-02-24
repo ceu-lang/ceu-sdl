@@ -64,12 +64,12 @@ par/or do
 with
     var Bird b1 with
         this.ren   = &_ID(_REN);
-        this.r.y   = 100;
+        this.r     = _SDL_Rect(0,100,0,0);
         this.speed = 100;
     end;
     var Bird b2 with
         this.ren   = &_ID(_REN);
-        this.r.y   = 300;
+        this.r     = _SDL_Rect(0,300,0,0);
         this.speed = 200;
     end;
     await FOREVER;
