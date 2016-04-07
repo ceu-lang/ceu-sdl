@@ -1,12 +1,8 @@
-CFLAGS = -DCEU_DEBUG #-DCEU_DEBUG_TRAILS
+CFLAGS += -DCEU_DEBUG #-DCEU_DEBUG_TRAILS
 #CFLAGS = -DSDL_MATH
 
-all:
-	ceu --cpp-args "-I ." $(CEUFILE)
-	#gcc main.c $(CFLAGS) -lSDL2
-	gcc -g -Os main.c $(CFLAGS) -lpthread -lm \
-		-lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lSDL2_net -lSDL2_gfx \
-		-o $(basename $(CEUFILE)).exe
+CFLAGS += -lpthread -lm \
+		  -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lSDL2_net -lSDL2_gfx
 
 sim:
 	ceu --timemachine --cpp-args "-I . -DCEUFILE=$(CEUFILE)" sim.ceu
@@ -40,9 +36,3 @@ ui-grid:
 ui-texture:
 	ceu --cpp-args "-D __UI_TEXTURE_CEU" ui-texture.ceu
 	gcc main.c $(CFLAGS) -lSDL2 -lSDL2_image -lSDL2_gfx -lSDL2_ttf -lm
-
-clean:
-	find . -name "*.exe"  | xargs rm -f
-	find . -name "_ceu_*" | xargs rm -f
-
-.PHONY: all clean
