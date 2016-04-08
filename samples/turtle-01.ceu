@@ -11,28 +11,26 @@ input int  SDL_DT;
 
 /* SDL INITIALIZATION */
 
-global do
-    native do
-        SDL_Renderer* REN = NULL;
-        int REN_W, REN_H;
-    end
+native do
+    SDL_Renderer* REN = NULL;
+    int REN_W, REN_H;
+end
 
-    var _SDL_Window&? win;
-        finalize
-            win = _SDL_CreateWindow("Turtle 1", _SDL_WINDOWPOS_CENTERED,
-                                                _SDL_WINDOWPOS_CENTERED,
-                                                400, 400,
-                                                _SDL_WINDOW_SHOWN);
-        with
-            _SDL_DestroyWindow(&win);
-        end
-    _SDL_GetWindowSize(&win, &_REN_W, &_REN_H);
-
+var _SDL_Window&? win;
     finalize
-        _REN = _SDL_CreateRenderer(&win, -1, 0);
+        win = &_SDL_CreateWindow("Turtle 1", _SDL_WINDOWPOS_CENTERED,
+                                             _SDL_WINDOWPOS_CENTERED,
+                                             400, 400,
+                                             _SDL_WINDOW_SHOWN);
     with
-        _SDL_DestroyRenderer(_REN);
+        _SDL_DestroyWindow(&&win!);
     end
+_SDL_GetWindowSize(&&win!, &&_REN_W, &&_REN_H);
+
+finalize
+    _REN = _SDL_CreateRenderer(&&win!, -1, 0);
+with
+    _SDL_DestroyRenderer(_REN);
 end
 
 /* TURTLE LANGUAGE SPECIFICATION */
@@ -49,13 +47,13 @@ or
     end
 or
     tag SEQUENCE with
-        var Command* one;
-        var Command* two;
+        var Command one;
+        var Command two;
     end
 or
     tag REPEAT with
-        var int      times;
-        var Command* command;
+        var int     times;
+        var Command command;
     end
 end
 
@@ -174,34 +172,34 @@ with
     await 1s;
 
     /* EXECUTES THE PROGRAM */
-    traverse cmd in cmds do
-        watching cmd do                 // aborts if the current node is mutated
+    traverse cmd in &&cmds do
+        watching *cmd do                 // aborts if the current node is mutated
             //if cmd:NOTHING then         // base case
                 //nothing;
 
             if cmd:ROTATE then     // rotation
                 do TurtleRotate with
-                    this.turtle  = turtle;
-                    this.angle   = cmd:ROTATE.angle;
+                    this.turtle = &turtle;
+                    this.angle  = cmd:ROTATE.angle;
                 end;
 
             else/if cmd:MOVE then       // movement
                 do TurtleMove with
-                    this.turtle    = turtle;
-                    this.pixels    = cmd:MOVE.pixels;
+                    this.turtle = &turtle;
+                    this.pixels = cmd:MOVE.pixels;
                 end;
 
             else/if cmd:SEQUENCE then   // sequence is recursive
-                traverse cmd:SEQUENCE.one;
-                traverse cmd:SEQUENCE.two;
+                traverse &&cmd:SEQUENCE.one;
+                traverse &&cmd:SEQUENCE.two;
 
             else/if cmd:REPEAT then     // repeat N times (also recursive)
                 loop i in cmd:REPEAT.times do
-                    traverse cmd:REPEAT.command;
+                    traverse &&cmd:REPEAT.command;
                 end
 
             else
-                _ceu_out_assert(0, "not implemented");
+                _ceu_out_assert(0);
             end
         end
     end
