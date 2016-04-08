@@ -21,7 +21,10 @@ class UITexture with
     var   float           rect_mul  = 1;     // for ok_clicked
 
     var   _SDL_Texture&   tex;
+
+// TODO
     var   int             w=0, h=0;  // original dimensions
+    var   SDL_Rect       rect = SDL_Rect(0,0,0,0);
 
     var int pad_x = 0;
     var int pad_y = 0;

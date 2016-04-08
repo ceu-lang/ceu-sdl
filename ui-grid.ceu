@@ -53,6 +53,9 @@ class UIGrid with
     var   int            lay_lins, lay_cols;
     var   int[]&  lay;
 
+// TODO
+    var   SDL_Rect       rect = SDL_Rect(0,0,0,0);
+
     // TODO: bg after pool
     pool  UIGridItem[]   uis;
     var   int            uis_n = 0;
@@ -92,7 +95,7 @@ do
         $this.cell_rects = 0;
         $this.ui_rects   = 0;
 
-        var int x, y;
+        var int x=0, y=0;
 
         loop/UI_GRID_MAX_LINS l in this.lay_lins do
             x = x0 + this.spc_x;     // starts from spc_x
@@ -159,8 +162,8 @@ do
                         end
                     end
 
-                    this.cell_rects = cell_rects .. [cell_rect];
-                    this.ui_rects   = ui_rects   .. [ui_rect];
+                    this.cell_rects = [] .. cell_rects .. [cell_rect];
+                    this.ui_rects   = [] .. ui_rects   .. [ui_rect];
                 end
             end
         end
@@ -252,8 +255,8 @@ var _SDL_Window&? win;
     with
         _SDL_DestroyWindow(&&win!);
     end
-var int win_w;
-var int win_h;
+var int win_w=0;
+var int win_h=0;
     _SDL_GetWindowSize(&&win!, &&win_w, &&win_h);
 
 var _SDL_Renderer&? ren;

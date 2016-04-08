@@ -17,6 +17,9 @@ class UIScroll with
     var int align_bg_x = _UI_ALIGN_CENTER;
     var int align_bg_y = _UI_ALIGN_MIDDLE;
 
+// TODO
+    var   SDL_Rect       rect = SDL_Rect(0,0,0,0);
+
     var UI&          ui;
     var SDL_Color&   clr_scroll;
 do
@@ -53,7 +56,7 @@ do
             var _SDL_MouseButtonEvent&& but = await SDL_MOUSEBUTTONDOWN;
 
             var SDL_Point pt1 = SDL_Point(but:x,but:y);
-            var SDL_Point pt2;
+            var SDL_Point pt2 = SDL_Point(0,0);
 
             loop do
                 await 50ms;
@@ -191,8 +194,8 @@ end
 
 input void SDL_QUIT;
 
-var int win_w;
-var int win_h;
+var int win_w=0;
+var int win_h=0;
 var _SDL_Window&? win;
     finalize
         win = &_SDL_CreateWindow("UI - Scroll",
