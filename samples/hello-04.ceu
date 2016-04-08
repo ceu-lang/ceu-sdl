@@ -6,7 +6,7 @@ do
     end
 end
 
-do
+watching 5s do
     var int i = 1;
     every 1s do
         spawn HelloWorld with
@@ -15,3 +15,5 @@ do
         i = i + 1;
     end
 end
+
+escape 0;

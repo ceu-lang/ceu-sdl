@@ -1,8 +1,7 @@
-#ifndef ALL
-
 #include "sdl.ceu"
 #include "sdl-gfx.ceu"
 
+input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONDOWN;
 input void SDL_REDRAW;
 input void SDL_QUIT;
 
@@ -10,7 +9,7 @@ var int win_w = 0;
 var int win_h = 0;
 var _SDL_Window&? win;
     finalize
-        win = &_SDL_CreateWindow("(3) Hello World!",
+        win = &_SDL_CreateWindow("Blink 03",
                 _SDL_WINDOWPOS_UNDEFINED, _SDL_WINDOWPOS_UNDEFINED,
                 800, 480, _SDL_WINDOW_SHOWN);
     with
@@ -26,25 +25,16 @@ var _SDL_Renderer&? ren;
         _SDL_DestroyRenderer(&&ren!);
     end
 
-#else
-
-_SDL_SetWindowTitle(&&win!, "(3) Hello World!");
-
-#endif
-
 var bool is_on = false;
 
 par/or do
     await SDL_QUIT;
 with
     loop do
-        par/or do
-            loop do
-                await 500ms;
+        watching SDL_MOUSEBUTTONDOWN do
+            every 500ms do
                 is_on = not is_on;
             end
-        with
-            await 5s;
         end
         await 2s;
     end

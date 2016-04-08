@@ -23,4 +23,6 @@ hello2.id = 5;
 await 3s;
 emit hello2.stop;
 
-await FOREVER;
+await 2s;
+
+escape 0;

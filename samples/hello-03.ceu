@@ -1,3 +1,5 @@
+native _printf();
+
 class HelloWorld with
     var int id = 0;
 do
@@ -6,8 +8,13 @@ do
     end
 end
 
-var HelloWorld hello1, hello2;
+var HelloWorld hello1;
 hello1.id = 1;
-hello2.id = 2;
+do
+    var HelloWorld hello2;
+    hello2.id = 2;
+    await 5s;
+end
+await 5s;
 
-await FOREVER;
+escape 0;

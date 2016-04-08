@@ -2,11 +2,20 @@
 # EDIT
 ###############################################################################
 
-CEU_DIR  ?= $(error set path to "<ceu>" repository)
+CEU_DIR  ?= ../ceu
+#CEU_DIR  ?= $(error set path to "<ceu>" repository)
 
 ###############################################################################
 # DO NOT EDIT
 ###############################################################################
+
+samples:
+	for i in samples/*.ceu; do			\
+		echo "#######################";	\
+		echo "# $$i";					\
+		echo "#######################";	\
+		make SRC=$$i all || exit 1;		\
+	done
 
 ARCH_DIR ?= arch
 include $(CEU_DIR)/Makefile

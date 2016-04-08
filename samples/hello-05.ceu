@@ -6,7 +6,7 @@ do
     end
 end
 
-loop do
+watching 10s do
     par/or do
         await 5s;
     with
@@ -22,3 +22,5 @@ loop do
         end
     end
 end
+
+escape 0;
