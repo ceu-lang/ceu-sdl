@@ -190,7 +190,7 @@ end
 #ifdef __UI_SCROLL_CEU
 
 #include "sdl-colors.ceu"
-#include "ui-grid.ceu"
+#include "grid.ceu"
 
 input void SDL_QUIT;
 
@@ -255,7 +255,7 @@ with
         end
     with
         await 5s;
-        _printf("oi\n");
+        _printf("===> Starting scrolling...\n");
 
         var SDL_Color c = SDL_COLOR_BLUE;
             c.a = 0x77;
