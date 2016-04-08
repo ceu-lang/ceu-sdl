@@ -2,12 +2,11 @@
 # EDIT
 ###############################################################################
 
-ARCH_DIR_ABS ?= $(error set path to "<ceu-sdl>/arch" repository)
-CEU_DIR      ?= $(error set path to "<ceu>" repository)
+CEU_DIR  ?= $(error set path to "<ceu>" repository)
 
 ###############################################################################
 # DO NOT EDIT
 ###############################################################################
 
-CEU_EXE = $(PWD)/ceu
+ARCH_DIR ?= arch
 include $(CEU_DIR)/Makefile
