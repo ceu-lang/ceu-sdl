@@ -2,20 +2,13 @@
 # EDIT
 ###############################################################################
 
-CEU_DIR  ?= ../ceu
-#CEU_DIR  ?= $(error set path to "<ceu>" repository)
+CEU_DIR  ?= $(error set path to "<ceu>" repository)
 
 ###############################################################################
 # DO NOT EDIT
 ###############################################################################
 
-samples:
-	for i in samples/*.ceu; do			\
-		echo "#######################";	\
-		echo "# $$i";					\
-		echo "#######################";	\
-		make all SRC=$$i || exit 1;		\
-	done
+_all: samples
 
 ui:
 	export CEU_FLAGS_CPP="-D__UI_TEXTURE_CEU"; make all SRC=arch/ui/texture.ceu
