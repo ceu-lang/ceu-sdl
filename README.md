@@ -1,5 +1,11 @@
 SDL binding for Céu.
 
+[SDL](http://www.libsdl.org/) works in typical platforms (e.g., Windows, Mac, 
+Linux, Android) and provides basic input & output functionality (e.g., timers, 
+keyboard, mouse, display):
+
+https://github.com/fsantanna/ceu-sdl/
+
 Céu is a reactive language that aims to offer a higher-level and safer 
 alternative to C.
 
