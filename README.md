@@ -40,23 +40,23 @@ Then, you need to install `ceu`:
 
 https://github.com/fsantanna/ceu/
 
-## Download and Install `ceu-sdl`:
+## Download and Configure `ceu-sdl`:
 
-Then, you need to download and install `ceu-sdl`:
+Then, you need to download and configure `ceu-sdl`:
 
 ```
 $ git clone https://github.com/fsantanna/ceu-sdl/
 $ cd ceu-sdl/
 ```
 
-Then, you need to edit `Makefile` to point to your `ceu` directory:
+Edit the `Makefile` to point to your `ceu` directory:
 
 ```
 $ vi Makefile
 CEU_DIR ?= <path to "ceu" repository>  # EDIT THIS LINE
 ```
 
-Then, run `make link` to properly point to your `ceu` repository:
+Run `make link` to properly point to your `ceu` repository:
 
 ```
 $ make link
