@@ -22,15 +22,9 @@ Join our chat at https://gitter.im/fsantanna/ceu
 
 # Quick Start
 
-## Install `ceu`:
-
-First, you need to install `ceu`:
-
-https://github.com/fsantanna/ceu/
-
 ## Install `sdl`:
 
-Then, you need to install `sdl`:
+First, you need to install `sdl`:
 
 ```
 # Ubuntu:
@@ -40,12 +34,32 @@ $ sudo apt-get install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-t
 - SDL: http://www.libsdl.org/
 ```
 
-## Edit `Makefile`:
+## Install `ceu`:
+
+Then, you need to install `ceu`:
+
+https://github.com/fsantanna/ceu/
+
+## Download and Install `ceu-sdl`:
+
+Then, you need to download and install `ceu-sdl`:
+
+```
+$ git clone https://github.com/fsantanna/ceu-sdl/
+$ cd ceu-sdl/
+```
 
 Then, you need to edit `Makefile` to point to your `ceu` directory:
 
 ```
+$ vi Makefile
 CEU_DIR ?= <path to "ceu" repository>  # EDIT THIS LINE
+```
+
+Then, run `make link` to properly point to your `ceu` repository:
+
+```
+$ make link
 ```
 
 ## Run the examples
