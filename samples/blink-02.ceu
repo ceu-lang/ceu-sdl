@@ -5,25 +5,7 @@ input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONDOWN;
 input void SDL_REDRAW;
 input void SDL_QUIT;
 
-var int win_w = 0;
-var int win_h = 0;
-var _SDL_Window&? win;
-    finalize
-        win = &_SDL_CreateWindow("Blink 02",
-                _SDL_WINDOWPOS_UNDEFINED, _SDL_WINDOWPOS_UNDEFINED,
-                800, 480, _SDL_WINDOW_SHOWN);
-    with
-        _SDL_DestroyWindow(&&win!);
-    end
-
-_SDL_GetWindowSize(&&win!, &&win_w, &&win_h);
-
-var _SDL_Renderer&? ren;
-    finalize
-        ren = &_SDL_CreateRenderer(&&win!, -1, 0);
-    with
-        _SDL_DestroyRenderer(&&ren!);
-    end
+var SDL sdl = SDL.build("Blink 02", 640,480);
 
 var bool is_on = false;
 
@@ -38,14 +20,14 @@ with
     await FOREVER;
 with
     every SDL_REDRAW do
-        _boxRGBA(&&ren!, 0,0,win_w,win_h, 0xCC,0xCC,0xCC,0xFF);
-        _filledCircleRGBA(&&ren!, 200,200,50, 0xFF,0xFF,0xFF,0xFF);
+        _boxRGBA(&&sdl.ren, 0,0,sdl.w,sdl.h, 0xCC,0xCC,0xCC,0xFF);
+        _filledCircleRGBA(&&sdl.ren, 200,200,50, 0xFF,0xFF,0xFF,0xFF);
         if is_on then
-            _filledCircleRGBA(&&ren!, 200,200,47, 0x00,0x88,0x00,0xFF);
+            _filledCircleRGBA(&&sdl.ren, 200,200,47, 0x00,0x88,0x00,0xFF);
         else
-            _filledCircleRGBA(&&ren!, 200,200,47, 0x00,0x00,0x00,0xFF);
+            _filledCircleRGBA(&&sdl.ren, 200,200,47, 0x00,0x00,0x00,0xFF);
         end
-        _SDL_RenderPresent(&&ren!);
+        _SDL_RenderPresent(&&sdl.ren);
     end
 end
 

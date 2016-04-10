@@ -3,32 +3,14 @@
 input void SDL_REDRAW;
 input void SDL_QUIT;
 
-var _SDL_Window&? win;
-    finalize
-        win = &_SDL_CreateWindow("SDL 5", _SDL_WINDOWPOS_CENTERED,
-                                         _SDL_WINDOWPOS_CENTERED,
-                                         800, 480,
-                                         _SDL_WINDOW_SHOWN);
-    with
-        _SDL_DestroyWindow(&&win!);
-    end
+var SDL sdl = SDL.build("SDL 5", 800,480);
 
-var int w=0, h=0;
-_SDL_GetWindowSize(&&win!, &&w, &&h);
-
-var _SDL_Renderer&? ren;
-    finalize
-        ren = &_SDL_CreateRenderer(&&win!, -1, 0);
-    with
-        _SDL_DestroyRenderer(&&ren!);
-    end
-
-var SDL_Rect  bg     = SDL_Rect(0,0 , w,h);
+var SDL_Rect  bg     = SDL_Rect(0,0 , sdl.w,sdl.h);
 var SDL_Color bg_clr = SDL_Color(0x00, 0x00, 0x00, 0xFF);
 
 var _SDL_Texture&? tex;
     finalize
-        tex = &_IMG_LoadTexture(&&ren!, "samples/img.png");
+        tex = &_IMG_LoadTexture(&&sdl.ren, "samples/img.png");
     with
         _SDL_DestroyTexture(&&tex!);
     end
@@ -58,7 +40,7 @@ var SDL_Rect str_r = SDL_Rect(10,10, 200,20);
         _SDL_FreeSurface(&&sfc!);
     end
     finalize
-        str_tex = &_SDL_CreateTextureFromSurface(&&ren!, &&sfc!);
+        str_tex = &_SDL_CreateTextureFromSurface(&&sdl.ren, &&sfc!);
     with
         _SDL_DestroyTexture(&&str_tex!);
     end
@@ -83,11 +65,11 @@ with
     end
 with
     every SDL_REDRAW do
-        _SDL_SetRenderDrawColor(&&ren!, 0x00,0x00,0x00,0xFF);
-        _SDL_RenderFillRect(&&ren!, (_SDL_Rect&&)&&bg);
-        _SDL_RenderCopy(&&ren!, &&tex!, null, (_SDL_Rect&&)&&tex_r);
-        _SDL_RenderCopy(&&ren!, &&str_tex!, null, (_SDL_Rect&&)&&str_r);
-        _SDL_RenderPresent(&&ren!);
+        _SDL_SetRenderDrawColor(&&sdl.ren, 0x00,0x00,0x00,0xFF);
+        _SDL_RenderFillRect(&&sdl.ren, (_SDL_Rect&&)&&bg);
+        _SDL_RenderCopy(&&sdl.ren, &&tex!, null, (_SDL_Rect&&)&&tex_r);
+        _SDL_RenderCopy(&&sdl.ren, &&str_tex!, null, (_SDL_Rect&&)&&str_r);
+        _SDL_RenderPresent(&&sdl.ren);
     end
 end
 

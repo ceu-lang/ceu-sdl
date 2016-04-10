@@ -9,25 +9,7 @@ input void SDL_REDRAW;
 input void SDL_QUIT;
 input int  SDL_DT;
 
-var _SDL_Window&? win;
-    finalize
-        win = &_SDL_CreateWindow("SDL 6", _SDL_WINDOWPOS_CENTERED,
-                                         _SDL_WINDOWPOS_CENTERED,
-                                         800, 480,
-                                         _SDL_WINDOW_SHOWN);
-    with
-        _SDL_DestroyWindow(&&win!);
-    end
-
-var int w=0, h=0;
-_SDL_GetWindowSize(&&win!, &&w, &&h);
-
-var _SDL_Renderer&? ren;
-    finalize
-        ren = &_SDL_CreateRenderer(&&win!, -1, 0);
-    with
-        _SDL_DestroyRenderer(&&ren!);
-    end
+var SDL sdl = SDL.build("SDL 6", 800,480);
 
 /* Maximum of 10k Rectangles on a dedicated memory pool */
 
@@ -105,8 +87,8 @@ par/or do
     await SDL_QUIT;                     // terminates everything
 with
     every SDL_REDRAW do
-        _SDL_SetRenderDrawColor(&&ren!, 0,0,0, 0xFF);
-        _SDL_RenderFillRect(&&ren!, null);  // DRAW 1: clear screen
+        _SDL_SetRenderDrawColor(&&sdl.ren, 0,0,0, 0xFF);
+        _SDL_RenderFillRect(&&sdl.ren, null);  // DRAW 1: clear screen
     end
 with
     loop do
@@ -120,7 +102,7 @@ with
                         spawn Rect in rs with
                             this.vel = 50 + _rand()%20;
                             this.rct = SDL_Rect(50, _rand()%750, 0,0);
-                            this.ren = &ren!;
+                            this.ren = &sdl.ren;
                         end;
                     end
                 end
@@ -129,7 +111,7 @@ with
     end
 with
     every SDL_REDRAW do
-        _SDL_RenderPresent(&&ren!);        // DRAW 3: update screen
+        _SDL_RenderPresent(&&sdl.ren);  // DRAW 3: update screen
     end
 with
     /* calculate FPS */

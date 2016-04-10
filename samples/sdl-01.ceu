@@ -3,27 +3,9 @@
 input void SDL_REDRAW;
 input void SDL_QUIT;
 
-var _SDL_Window&? win;
-    finalize
-        win = &_SDL_CreateWindow("SDL 1", _SDL_WINDOWPOS_CENTERED,
-                                         _SDL_WINDOWPOS_CENTERED,
-                                         800, 480,
-                                         _SDL_WINDOW_SHOWN);
-    with
-        _SDL_DestroyWindow(&&win!);
-    end
+var SDL sdl = SDL.build("SDL 1", 800,480);
 
-var int w=0, h=0;
-_SDL_GetWindowSize(&&win!, &&w, &&h);
-
-var _SDL_Renderer&? ren;
-    finalize
-        ren = &_SDL_CreateRenderer(&&win!, -1, 0);
-    with
-        _SDL_DestroyRenderer(&&ren!);
-    end
-
-var SDL_Rect  bg     = SDL_Rect(0,0 , w,h);
+var SDL_Rect  bg     = SDL_Rect(0,0 , sdl.w,sdl.h);
 var SDL_Color bg_clr = SDL_Color(0xFF, 0xFF, 0x00, 0xFF);
 
 var SDL_Rect  fg     = SDL_Rect(100,100 , 100,100);
@@ -38,13 +20,13 @@ with
     end
 with
     every SDL_REDRAW do
-        _SDL_SetRenderDrawColor(&&ren!, bg_clr.r,bg_clr.g,bg_clr.b,0xFF);
-        _SDL_RenderFillRect(&&ren!, (_SDL_Rect&&)&&bg);
+        _SDL_SetRenderDrawColor(&&sdl.ren, bg_clr.r,bg_clr.g,bg_clr.b,0xFF);
+        _SDL_RenderFillRect(&&sdl.ren, (_SDL_Rect&&)&&bg);
 
-        _SDL_SetRenderDrawColor(&&ren!, fg_clr.r,fg_clr.g,fg_clr.b,0xFF);
-        _SDL_RenderFillRect(&&ren!, (_SDL_Rect&&)&&fg);
+        _SDL_SetRenderDrawColor(&&sdl.ren, fg_clr.r,fg_clr.g,fg_clr.b,0xFF);
+        _SDL_RenderFillRect(&&sdl.ren, (_SDL_Rect&&)&&fg);
 
-        _SDL_RenderPresent(&&ren!);
+        _SDL_RenderPresent(&&sdl.ren);
     end
 end
 

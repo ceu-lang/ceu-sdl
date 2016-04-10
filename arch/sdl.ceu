@@ -156,4 +156,44 @@ native do
 ##endif
 end
 
+class SDL with
+    input:
+        var char[] title;
+        var int w, h;
+    output:
+        var _SDL_Window&   win;
+        var _SDL_Renderer& ren;
+
+    function (char&& title, int w, int h)=>SDL build;
+do
+    function (char&& title, int w, int h)=>SDL build do
+        this.title = [] .. title;
+        this.w = w;
+        this.h = h;
+    end
+
+    var _SDL_Window&? win_;
+    finalize
+        win_ = &_SDL_CreateWindow(
+                    &&title,
+                    _SDL_WINDOWPOS_CENTERED, _SDL_WINDOWPOS_CENTERED,
+                    this.w, this.h,
+                    _SDL_WINDOW_SHOWN
+               );
+    with
+        _SDL_DestroyWindow(&&win_!);
+    end
+    this.win = &win_!;
+
+    var _SDL_Renderer&? ren_;
+    finalize
+        ren_ = &_SDL_CreateRenderer(&&win, -1, 0);
+    with
+        _SDL_DestroyRenderer(&&ren_!);
+    end
+    this.ren = &ren_!;
+
+    await FOREVER;
+end
+
 #endif
