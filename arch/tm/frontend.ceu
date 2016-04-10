@@ -5,7 +5,7 @@ input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONDOWN_;
 input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONUP_;
 input _SDL_MouseMotionEvent&& SDL_MOUSEMOTION_;
 
-native do
+native/pre do
     /* must be assigned externally */
     #define UITM_TEX_N 6
 
@@ -73,7 +73,7 @@ class UITimeMachine with
 
     event void go_redraw;
 do
-    var int ren_w, ren_h;
+    var int ren_w=0, ren_h=0;
     _SDL_GetRendererOutputSize(_UITM_REN, &&ren_w, &&ren_h);
     var int x = ren_w/6;
     var int w = ren_w - x*2;
@@ -92,11 +92,11 @@ do
     do
         var int dx = rc.w / (_UITM_TEX_N+1);
         loop i in _UITM_TEX_N do
-            var SDL_Rect ri;
+            var SDL_Rect ri = SDL_Rect(0,0,0,0);
             _SDL_QueryTexture(_UITM_TEXS[i], null, null, &&ri.w, &&ri.h);
             ri.x = rc.x + (i+1)*dx - ri.w/2;
             ri.y = rc.y + (rc.h-ri.h)/2;
-            rcs = rcs .. [ri];
+            rcs = [] .. rcs .. [ri];
         end
     end
 
@@ -115,7 +115,7 @@ do
                 fw_speed = -4;
                 watching SDL_MOUSEBUTTONUP_ do
                     every SDL_MOUSEMOTION_ do
-                        var int x_,y_;
+                        var int x_=0,y_=0;
                         _SDL_GetMouseState(&&x_, &&y_);
                         do
                             var int to = (tm.time_total * (x_-x) / (float)w);

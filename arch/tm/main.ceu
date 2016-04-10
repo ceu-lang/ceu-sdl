@@ -23,10 +23,10 @@
 //          - entre intervalos, usa eventos gravados
 //          - teoricamente, só precisa dos eventos
 
-input void SDL_QUIT_;
-input int  SDL_DT_;
-input _SDL_KeyboardEvent&& SDL_KEYDOWN_;
-input _SDL_KeyboardEvent&& SDL_KEYUP_;
+input void                 SDL_QUIT_;
+input int                  SDL_DT,      SDL_DT_;
+input _SDL_KeyboardEvent&& SDL_KEYDOWN, SDL_KEYDOWN_;
+input _SDL_KeyboardEvent&& SDL_KEYUP,   SDL_KEYUP_;
 
 #include "c.ceu"
 #include "sdl.ceu"
@@ -39,7 +39,7 @@ native do
     int TIME2 = 3;
 end
 
-class App with
+class TM_App with
     event int ok;
 do
     var uint seed = _time(null);
@@ -51,13 +51,9 @@ do
     #define _Mix_PlayChannel(a,b,c) if not _CEU_TIMEMACHINE_ON then _Mix_PlayChannel(a,b,c); end
 
     var int ret = do
-#ifdef CEUFILE
         #define _STRINGIFY(X) #X
         #define STRINGIFY(X) _STRINGIFY(X)
-        #include STRINGIFY(CEUFILE)
-#else
-        #include "main.ceu"
-#endif
+        #include STRINGIFY(TM_SRC)
     end;
 
     emit this.ok => ret;
@@ -65,7 +61,7 @@ do
     #undef _SDL_RenderPresent
     #undef _Mix_PlayChannel
 end
-var App app;
+var TM_App tm_app;
 
 /* The "Time Machine" must be declared after "The Application".
  * The "tm" must record the events *after* the "app" reacts to them.
@@ -105,13 +101,13 @@ var App app;
 #define TM_SNAP_N  6*60  /* 10s*6*60=1h  (360*56K-rocks = 1.8Mb) */
 #endif
 
-_printf("APP %ld\n", sizeof(_CEU_App));
+_printf("APP %ld\n", sizeof(_CEU_TM_App));
 _printf("KEY %ld\n", sizeof(_SDL_KeyboardEvent));
 
-#include "timemachine.ceu"
+#include "tm/backend.ceu"
 
 #define _UITM_REN _REN
-#include "ui-timemachine.ceu"
+#include "tm/frontend.ceu"
 
 #ifdef TM_QUEUE
 
@@ -173,7 +169,7 @@ var IOTimeMachine io;
 #endif  // TM_QUEUE
 
 var TimeMachine tm with
-    this.app = &app;
+    this.app = &tm_app;
 #ifdef TM_QUEUE
     this.io  = &io;
 #endif
@@ -277,7 +273,7 @@ with
         if g.blur then
             _boxRGBA(_REN, 0, 0, _REN_W, _REN_H, 0xAA,0x88,0x88,0x88);
         end
-        _SDL_RenderPresent(_UITM_REN);
+        _SDL_RenderPresent(_REN);
     end
 #if 1
 with
@@ -318,7 +314,7 @@ with
                     end
                 end
             with
-                #include "input.ceu"
+                #include "tm/input.ceu"
                 do Input;
             end
         end

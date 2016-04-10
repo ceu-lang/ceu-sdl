@@ -1,0 +1,117 @@
+/*
+ * Simulate input from the players.
+ */
+
+class Input with
+#ifdef SIMULATION_TEST
+    var   int  dt      = 0;      /* not used */
+#else
+    var   int  dt      = (1000/_CEU_FPS);
+#endif
+    var   bool visible = true;
+    event void ok;
+do
+    par/or do
+#ifdef CEU_TIMEMACHINE
+        every key in SDL_KEYDOWN_ do
+            visible = true;
+            if key:keysym.sym==_SDLK_LEFT then
+                dt = dt + 10;
+            else/if key:keysym.sym==_SDLK_RIGHT then
+                dt = dt - 10;
+                if dt < 0 then
+                    dt = 0;
+                end
+            else/if key:keysym.sym==_SDLK_DOWN then
+                dt = 30;
+            else/if key:keysym.sym==_SDLK_UP then
+                visible = false;
+            end
+        end
+#else
+        await FOREVER;
+#endif
+    with
+        // Simulate forever.
+        var int time = 0;
+        loop do
+            // To emit external events, we need to be inside an "async" block.
+            var int& t = &time;
+            async(t, dt, visible) do
+                /*
+                 * 1. make some time elapse (0->99)ms
+                 */
+#ifdef SIMULATION_TEST
+                var int dt = _rand() % 100;
+                emit (dt)ms;
+                emit SDL_DT => dt;
+                //emit SDL_REDRAW;
+                t = t + dt;
+#else
+                var int n = 5; //_rand() % 5;   // (0->4 * MS) for each event
+                loop i in n do
+                    emit (1000/_CEU_FPS)ms;
+                    emit SDL_DT => (1000/_CEU_FPS);
+                    if visible then
+                        emit SDL_REDRAW;
+                        _SDL_Delay(dt);
+                    end
+                    t = t + (1000/_CEU_FPS);
+                end
+#endif
+
+                /*
+                 * 2. Choose a random key from those used in the game and emit it.
+                 */
+                var _SDL_KeyboardEvent e_key = _SDL_KeyboardEvent();
+                var int pct = _rand() % 100;
+                var int key;
+                if pct < 10 then
+                    e_key.keysym.sym = _SDLK_w;
+                else/if pct < 20 then
+                    e_key.keysym.sym = _SDLK_s;
+                else/if pct < 30 then
+                    e_key.keysym.sym = _SDLK_a;
+                else/if pct < 40 then
+                    e_key.keysym.sym = _SDLK_d;
+                else/if pct < 50 then
+                    e_key.keysym.sym = _SDLK_UP;
+                else/if pct < 60 then
+                    e_key.keysym.sym = _SDLK_DOWN;
+                else/if pct < 70 then
+                    e_key.keysym.sym = _SDLK_LEFT;
+                else/if pct < 80 then
+                    e_key.keysym.sym = _SDLK_RIGHT;
+                else/if pct < 85 then
+                    e_key.keysym.sym = _SDLK_z;
+                else/if pct < 90 then
+                    e_key.keysym.sym = _SDLK_SEMICOLON;
+                else/if pct < 95 then
+                    e_key.keysym.sym = _SDLK_x;
+                else
+                    e_key.keysym.sym = _SDLK_PERIOD;
+                end
+                e_key.type = _SDL_KEYDOWN;
+                emit SDL_KEYDOWN => &&e_key;
+
+#ifndef SIMULATION_TEST
+                if visible or t>10*60*1000 then
+                    if not visible then
+                        _printf("10min\n");
+                    end
+                    t = 0;
+                    emit SDL_REDRAW;
+                end
+#endif
+            end
+            if t == 0 then
+                emit this.ok;
+            end
+#ifdef SIMULATION_TEST
+            if t>60*60*1000 then
+                    break;
+            end
+#endif
+        end
+    end
+end

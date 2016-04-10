@@ -8,7 +8,7 @@ CEU_DIR  ?= $(error set path to "<ceu>" repository)
 # DO NOT EDIT
 ###############################################################################
 
-ARCH_DIR ?= arch
+ARCH_DIR = arch
 include $(CEU_DIR)/Makefile
 
 link:
