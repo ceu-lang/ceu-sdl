@@ -39,7 +39,10 @@ native do
     int TIME2 = 3;
 end
 
+var SDL sdl = SDL.build("TIMEMACHINE", 800,480);
+
 class TM_App with
+    var SDL& sdl;
     event int ok;
 do
     var uint seed = _time(null);
@@ -61,7 +64,9 @@ do
     #undef _SDL_RenderPresent
     #undef _Mix_PlayChannel
 end
-var TM_App tm_app;
+var TM_App tm_app with
+    this.sdl = &sdl;
+end;
 
 /* The "Time Machine" must be declared after "The Application".
  * The "tm" must record the events *after* the "app" reacts to them.
@@ -105,8 +110,6 @@ _printf("APP %ld\n", sizeof(_CEU_TM_App));
 _printf("KEY %ld\n", sizeof(_SDL_KeyboardEvent));
 
 #include "tm/backend.ceu"
-
-#define _UITM_REN _REN
 #include "tm/frontend.ceu"
 
 #ifdef TM_QUEUE
@@ -175,6 +178,7 @@ var TimeMachine tm with
 #endif
 end;
 var UITimeMachine uitm with
+    this.sdl = &sdl;
     this.tm = &tm;
 end;
 
@@ -271,9 +275,9 @@ with
     every SDL_REDRAW do
         emit uitm.go_redraw;
         if g.blur then
-            _boxRGBA(_REN, 0, 0, _REN_W, _REN_H, 0xAA,0x88,0x88,0x88);
+            _boxRGBA(&&sdl.ren, 0,0,sdl.w,sdl.h, 0xAA,0x88,0x88,0x88);
         end
-        _SDL_RenderPresent(_REN);
+        _SDL_RenderPresent(&&sdl.ren);
     end
 #if 1
 with

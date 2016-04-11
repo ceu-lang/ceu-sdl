@@ -65,7 +65,6 @@ do
                  */
                 var _SDL_KeyboardEvent e_key = _SDL_KeyboardEvent();
                 var int pct = _rand() % 100;
-                var int key;
                 if pct < 10 then
                     e_key.keysym.sym = _SDLK_w;
                 else/if pct < 20 then
