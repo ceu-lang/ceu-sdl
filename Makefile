@@ -9,7 +9,7 @@ CEU_DIR ?= $(error set absolute path to "<ceu>" repository)
 ###############################################################################
 
 SDL_DIR ?= .
-ARCH_DIR ?= arch
+ARCH_DIR ?= $(SDL_DIR)/arch
 include $(CEU_DIR)/Makefile
 
 ifneq ($(MAKECMDGOALS),link)
