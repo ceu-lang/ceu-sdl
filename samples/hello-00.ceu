@@ -1,7 +1,0 @@
-watching 5s do
-    loop do
-        await 1s;
-        _printf("Hello world!\n");
-    end
-end
-escape 0;

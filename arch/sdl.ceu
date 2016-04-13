@@ -158,18 +158,29 @@ end
 
 class SDL with
     input:
-        var char[] title;
+        var int flags;
         var int w, h;
+        var char[] title;
     output:
         var _SDL_Window&   win;
         var _SDL_Renderer& ren;
 
-    function (char&& title, int w, int h)=>SDL build;
+    function (int flags, int w, int h, char&& title)=>SDL build;
 do
-    function (char&& title, int w, int h)=>SDL build do
-        this.title = [] .. title;
+    function (int flags, int w, int h, char&& title)=>SDL build do
+        this.flags = flags;
         this.w = w;
         this.h = h;
+        this.title = [] .. title;
+    end
+
+    var int err = _SDL_Init(this.flags);
+    if err != 0 then
+        _printf("SDL_Init failed: %s\n", _SDL_GetError());
+        _ceu_out_assert(0);
+    end
+    finalize with
+        _SDL_Quit();    // TODO: slow
     end
 
     var _SDL_Window&? win_;

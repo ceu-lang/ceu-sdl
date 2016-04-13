@@ -77,18 +77,7 @@ int SDL_main (int argc, char *argv[])
 int main (int argc, char *argv[])
 #endif
 {
-    int err = SDL_Init(SDL_INIT_EVERYTHING);
-    if (err != 0) {
-        printf("SDL_Init failed: %s\n", SDL_GetError());
-        return err;
-    }
-
     WCLOCK_nxt = CEU_WCLOCK_INACTIVE;
-    u32 old = SDL_GetTicks();
-#ifdef CEU_FPS
-    int fps_next = (1000/CEU_FPS);
-#endif
-
     tceu_app app;
         app.data = (tceu_org*) &CEU_DATA;
         app.init = &ceu_app_init;
@@ -102,6 +91,11 @@ int main (int argc, char *argv[])
 #ifdef CEU_RET
     if (! app.isAlive)
         goto END;
+#endif
+
+    u32 old = SDL_GetTicks();
+#ifdef CEU_FPS
+    int fps_next = (1000/CEU_FPS);
 #endif
 
 #ifndef SIMULATION_TEST
@@ -498,7 +492,6 @@ END:
     // only reachable if LOCKED
     CEU_THREADS_MUTEX_UNLOCK(&app.threads_mutex);
 #endif
-    SDL_Quit();         // TODO: slow
 #ifdef CEU_RET
     return app.ret;
 #else

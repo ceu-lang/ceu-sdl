@@ -3,7 +3,7 @@
 input void SDL_REDRAW;
 input void SDL_QUIT;
 
-var SDL sdl = SDL.build("SDL 2", 800,480);
+var SDL sdl = SDL.build(_SDL_INIT_EVERYTHING, 800,480, "SDL 2");
 
 var SDL_Rect  bg     = SDL_Rect(0,0 , sdl.w,sdl.h);
 var SDL_Color bg_clr = SDL_Color(0x00, 0x00, 0x00, 0xFF);

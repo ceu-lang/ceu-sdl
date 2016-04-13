@@ -9,7 +9,7 @@ input void SDL_REDRAW;
 input void SDL_QUIT;
 input int  SDL_DT;
 
-var SDL sdl = SDL.build("SDL 6", 800,480);
+var SDL sdl = SDL.build(_SDL_INIT_EVERYTHING, 800,480, "SDL 6");
 
 /* Maximum of 10k Rectangles on a dedicated memory pool */
 

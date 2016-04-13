@@ -5,7 +5,7 @@ input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONDOWN;
 input void SDL_REDRAW;
 input void SDL_QUIT;
 
-var SDL sdl = SDL.build("Blink 03", 640,480);
+var SDL sdl = SDL.build(_SDL_INIT_EVERYTHING, 640,480, "Blink 03");
 
 var bool is_on = false;
 
