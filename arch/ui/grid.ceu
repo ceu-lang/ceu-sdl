@@ -248,23 +248,7 @@ end
 
 input void SDL_QUIT;
 
-var _SDL_Window&? win;
-    finalize
-        win = &_SDL_CreateWindow("UI - Grid",
-                            500, 1300, 800, 480, _SDL_WINDOW_SHOWN);
-    with
-        _SDL_DestroyWindow(&&win!);
-    end
-var int win_w=0;
-var int win_h=0;
-    _SDL_GetWindowSize(&&win!, &&win_w, &&win_h);
-
-var _SDL_Renderer&? ren;
-    finalize
-        ren = &_SDL_CreateRenderer(&&win!, -1, 0);
-    with
-        _SDL_DestroyRenderer(&&ren!);
-    end
+var SDL sdl = SDL.build(_SDL_INIT_EVERYTHING, 800,480, "UI - Grid");
 
 par/or do
     await SDL_QUIT;
@@ -277,7 +261,7 @@ with
     ];
 
     var UIGrid g1 with
-        this.ren      = &ren!;
+        this.ren      = &sdl.ren;
         this.spc_x    = 10;
         this.spc_y    = 10;
         this.uis_n    = 3;
@@ -296,7 +280,7 @@ with
     ];
 
     var UIGrid g2 with
-        this.ren      = &ren!;
+        this.ren      = &sdl.ren;
         this.pad_x    = 5;
         this.pad_y    = 5;
         this.uis_n    = 3;
@@ -309,8 +293,8 @@ with
         this.lay = &lay2;
     end;
 
-    var SDL_Rect r = SDL_Rect(win_w/4, win_h/4,
-                              win_w/2, win_h/2);
+    var SDL_Rect r = SDL_Rect(sdl.w/4, sdl.h/4,
+                              sdl.w/2, sdl.h/2);
 
     spawn UIGridItem in g1.uis with
         this.ui  = &&g2;
@@ -354,7 +338,7 @@ with
     end
 with
     every SDL_REDRAW do
-        _SDL_RenderPresent(&&ren!);
+        _SDL_RenderPresent(&&sdl.ren);
     end
 end
 

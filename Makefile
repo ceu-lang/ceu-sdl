@@ -23,6 +23,6 @@ link:
 	ln -s `readlink -f $(CEU_DIR)/arch` $(SDL_DIR)/arch/up
 
 ui-test:
-	make all CEU_FLAGS_CPP="-D__UI_TEXTURE_CEU" SRC=arch/ui/texture.ceu
-	make all CEU_FLAGS_CPP="-D__UI_GRID_CEU"    SRC=arch/ui/grid.ceu
-	make all CEU_FLAGS_CPP="-D__UI_SCROLL_CEU"  SRC=arch/ui/scroll.ceu
+	make all C_FLAGS="-D__UI_TEXTURE_CEU" SRC=$(SDL_DIR)/arch/ui/texture.ceu
+	make all C_FLAGS="-D__UI_GRID_CEU"    SRC=$(SDL_DIR)/arch/ui/grid.ceu
+	make all C_FLAGS="-D__UI_SCROLL_CEU"  SRC=$(SDL_DIR)/arch/ui/scroll.ceu

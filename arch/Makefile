@@ -1,7 +1,7 @@
-C_FLAGS += -DCEU_DEBUG #-DCEU_DEBUG_TRAILS
+C_FLAGS_ += -DCEU_DEBUG #-DCEU_DEBUG_TRAILS
 #C_FLAGS = -DSDL_MATH
 
-C_FLAGS += -lpthread -lm \
+C_FLAGS_ += -lpthread -lm \
 		  -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lSDL2_net -lSDL2_gfx
 
 sim:

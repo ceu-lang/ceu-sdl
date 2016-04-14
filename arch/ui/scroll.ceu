@@ -194,33 +194,14 @@ end
 
 input void SDL_QUIT;
 
-var int win_w=0;
-var int win_h=0;
-var _SDL_Window&? win;
-    finalize
-        win = &_SDL_CreateWindow("UI - Scroll",
-                            500, 1300, 400, 200, _SDL_WINDOW_SHOWN);
-    with
-        _SDL_DestroyWindow(&&win!);
-    end
-
-_SDL_GetWindowSize(&&win!, &&win_w, &&win_h);
-var SDL_Rect win_r = SDL_Rect(0,0, win_w,win_h);
-
-var _SDL_Renderer&? ren;
-    finalize
-        ren = &_SDL_CreateRenderer(&&win!, -1, 0);
-    with
-        _SDL_DestroyRenderer(&&ren!);
-    end
+var SDL sdl = SDL.build(_SDL_INIT_EVERYTHING, 400,200, "UI - Scroll");
 
 par/or do
     await SDL_QUIT;
 with
     every SDL_REDRAW do
-
-        _SDL_SetRenderDrawColor(&&ren!, 0x00,0x00,0x00, 0);
-        _SDL_RenderFillRect(&&ren!, (_SDL_Rect&&)&&win_r);
+        _SDL_SetRenderDrawColor(&&sdl.ren, 0x00,0x00,0x00, 0);
+        _SDL_RenderFillRect(&&sdl.ren, null);
     end
 with
     var int[] lay = [
@@ -231,7 +212,7 @@ with
     ];
 
     var UIGrid grid with
-        this.ren = &ren!;
+        this.ren = &sdl.ren;
         this.lay_lins = 4;
         this.lay_cols = 4;
         this.lay = &lay;
@@ -244,7 +225,7 @@ with
         this.clr_ui_bg = SDL_COLOR_GRAY;
     end;
 
-    var SDL_Rect r = SDL_Rect(0,0, 2*win_r.w,2*win_r.h);
+    var SDL_Rect r = SDL_Rect(0,0, 2*sdl.w,2*sdl.h);
     call/rec grid.go(&&r);
     grid.should_redim = false;
 
@@ -261,18 +242,19 @@ with
             c.a = 0x77;
 
         var UIScroll scroll with
-            this.ren = &ren!;
+            this.ren = &sdl.ren;
             this.ui  = &grid;
             this.clr_scroll = &c;
         end;
-        call/rec scroll.go(&&win_r);
+        var SDL_Rect r = SDL_Rect(0,0,sdl.w,sdl.h);
+        call/rec scroll.go(&&r);
 
         await FOREVER;
     end
 
 with
     every SDL_REDRAW do
-        _SDL_RenderPresent(&&ren!);
+        _SDL_RenderPresent(&&sdl.ren);
     end
 end
 
