@@ -186,7 +186,7 @@ do
     var _SDL_Window&? win_;
     finalize
         win_ = &_SDL_CreateWindow(
-                    &&title,
+                    (_char&&)&&title,
                     _SDL_WINDOWPOS_CENTERED, _SDL_WINDOWPOS_CENTERED,
                     this.w, this.h,
                     _SDL_WINDOW_SHOWN
