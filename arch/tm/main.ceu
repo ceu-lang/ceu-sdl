@@ -28,8 +28,11 @@ input int                  SDL_DT,      SDL_DT_;
 input _SDL_KeyboardEvent&& SDL_KEYDOWN, SDL_KEYDOWN_;
 input _SDL_KeyboardEvent&& SDL_KEYUP,   SDL_KEYUP_;
 
-#include "c.ceu"
-#include "sdl.ceu"
+pre do
+    #include "c.ceu"
+    #include "sdl.ceu"
+end
+
 native do
     ##include <time.h>
     unsigned int* RAND_SEED;
@@ -39,7 +42,9 @@ native do
     int TIME2 = 3;
 end
 
-var SDL sdl = SDL.build("TIMEMACHINE", 800,480);
+#if 0
+var SDL sdl = SDL.build(_SDL_INIT_EVERYTHING, 800,480, "TIMEMACHINE");
+#endif
 
 class TM_App with
     var SDL& sdl;
