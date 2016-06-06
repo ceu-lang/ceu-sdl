@@ -83,11 +83,6 @@ int main (int argc, char *argv[])
         app.data = (tceu_org*) &CEU_DATA;
         app.init = &ceu_app_init;
 
-#ifdef CEU_THREADS
-    // just before executing CEU code
-    CEU_THREADS_MUTEX_LOCK(&app.threads_mutex);
-#endif
-
     app.init(&app);    /* calls CEU_THREADS_MUTEX_LOCK() */
 #ifdef CEU_RET
     if (! app.isAlive)
@@ -146,6 +141,7 @@ if (!CEU_TIMEMACHINE_ON) {
     {
 #ifdef CEU_THREADS
         // unlock from INIT->START->REDRAW or last loop iteration
+        ceu_threads_gc(&app, 0);
         CEU_THREADS_MUTEX_UNLOCK(&app.threads_mutex);
 #endif
 
