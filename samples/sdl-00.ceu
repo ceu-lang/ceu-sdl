@@ -1,0 +1,74 @@
+input void SDL_REDRAW;
+input void SDL_QUIT;
+
+native _SDL_Init, _SDL_INIT_EVERYTHING, _SDL_Quit, _SDL_Window_ptr, 
+       _SDL_CreateWindow, _SDL_WINDOWPOS_CENTERED, _SDL_WINDOW_SHOWN,
+       _SDL_DestroyWindow, _SDL_Renderer_ptr, _SDL_CreateRenderer,
+       _SDL_DestroyRenderer, _SDL_Rect, _SDL_SetRenderDrawColor,
+       _SDL_RenderPresent, _SDL_Delay;
+native/nohold _SDL_RenderFillRect;
+
+native/pre do
+    ##include <SDL2/SDL.h>
+    typedef SDL_Window*   SDL_Window_ptr;
+    typedef SDL_Renderer* SDL_Renderer_ptr;
+end
+
+var int err = _SDL_Init(_SDL_INIT_EVERYTHING);
+_ceu_cb_assert_msg(err == 0, "SDL_Init failed");
+    do finalize with
+        _SDL_Quit();
+    end
+
+var& _SDL_Window_ptr? win =
+    &_SDL_CreateWindow("SDL 0",
+                       _SDL_WINDOWPOS_CENTERED, _SDL_WINDOWPOS_CENTERED,
+                       800, 480,
+                       _SDL_WINDOW_SHOWN)
+        finalize (win) with
+            _SDL_DestroyWindow(win!);
+        end
+
+var& _SDL_Renderer_ptr? ren =
+    &_SDL_CreateRenderer(win!, -1, 0)
+        finalize (ren) with
+            _SDL_DestroyRenderer(ren!);
+        end
+
+var int x = 100;
+var int y = 100;
+
+par/or do
+    await SDL_QUIT;
+with
+    every 1s do
+        x = x + 10;
+        y = y + 10;
+    end
+with
+    every SDL_REDRAW do
+        var _SDL_Rect bg = { (SDL_Rect){0,0,800,480} };
+        _SDL_SetRenderDrawColor(ren!, 0xFF,0xFF,0x00,0xFF);
+        _SDL_RenderFillRect(ren!, &&bg);
+
+        var _SDL_Rect fg = { (SDL_Rect){0,0,100,100} };
+                      fg.x = x;
+                      fg.y = y;
+        _SDL_SetRenderDrawColor(ren!, 0xFF,0x00,0x00,0xFF);
+        _SDL_RenderFillRect(ren!, &&fg);
+
+        _SDL_RenderPresent(ren!);
+    end
+with
+    async do
+        loop i in [0 -> 100[ do
+            _SDL_Delay(100);
+            emit 100ms;
+            emit SDL_REDRAW;
+        end
+        emit SDL_QUIT;
+    end
+end
+
+escape 0;
+
