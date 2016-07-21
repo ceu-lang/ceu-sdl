@@ -143,6 +143,7 @@ end
 input void SDL_QUIT;
 input void SDL_REDRAW;
 input int  SDL_DT;
+input _SDL_KeyboardEvent&&    SDL_KEYDOWN,         SDL_KEYUP;
 input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP;
 
 code/delayed SDL_go (var _char&& title, var int width, var int height)
@@ -181,7 +182,24 @@ do
         end
 
 #if 1
-    await SDL_QUIT;
+    watching SDL_QUIT do
+#if 1
+        native _printf, _SDL_GetTicks;
+        loop do
+            var int n = 0;
+            var u32 old = _SDL_GetTicks();
+            watching 1s do
+                every SDL_DT do
+                    n = n + 1;
+                end
+            end;
+            var u32 now = _SDL_GetTicks();
+            _printf(">>> FPS: %d [%dms]\n", n, now-old);
+        end
+#else
+        await FOREVER;
+#endif
+    end
 #else
     watching SDL_QUIT do
         async do
@@ -281,6 +299,12 @@ native/pos do
                 case SDL_QUIT:
                     ceu_go_ext(CEU_INPUT_SDL_QUIT, &evtp);
                     break;
+                case SDL_KEYDOWN:
+                    ceu_go_ext(CEU_INPUT_SDL_KEYDOWN, &evtp);
+                    break;
+                case SDL_KEYUP:
+                    ceu_go_ext(CEU_INPUT_SDL_KEYUP, &evtp);
+                    break;
                 case SDL_MOUSEBUTTONDOWN:
                     ceu_go_ext(CEU_INPUT_SDL_MOUSEBUTTONDOWN, &evtp);
                     break;
@@ -291,7 +315,7 @@ native/pos do
         }
 
         // SDL_REDRAW
-        ceu_go_ext(CEU_INPUT_SDL_REDRAW, NULL);
+        //ceu_go_ext(CEU_INPUT_SDL_REDRAW, NULL);
     }
 
     tceu_callback_ret ceu_sdl_callback (int cmd, tceu_callback_arg p1, tceu_callback_arg p2)

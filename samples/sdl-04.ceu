@@ -1,33 +1,18 @@
 #include "sdl.ceu"
 
-input void SDL_REDRAW;
-input void SDL_QUIT;
-input _SDL_KeyboardEvent&&    SDL_KEYDOWN;
-input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONDOWN;
+//input void SDL_REDRAW;
+//input _SDL_KeyboardEvent&&    SDL_KEYDOWN;
+//input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONDOWN;
 
-var SDL sdl = SDL.build(_SDL_INIT_EVERYTHING, 800,480, "SDL 4");
-
-var SDL_Rect  bg     = SDL_Rect(0,0 , sdl.w,sdl.h);
-var SDL_Color bg_clr = SDL_Color(0x00, 0x00, 0x00, 0xFF);
-
-class Rect with
-    var _SDL_Renderer& ren;
-    var SDL_Rect       rct;
-    var int            dt;
-do
-    this.rct.w = 20;
-    this.rct.h = 20;
-
-    var SDL_Color clr = SDL_Color(0xFF, 0xFF, 0xFF, 0xFF);
-
-    event int go_pause;
+code/delayed Rect (var& _SDL_Renderer_ptr ren, var SDL_Rect rect, var int speed) => void do
+    event bool go_pause;
 
     par/or do
         pause/if go_pause do
             loop do
-                await (this.dt) ms;
-                rct.x = rct.x + 1;
-                if rct.x > 500 then
+                await (1000/speed) ms;
+                rect.x = rect.x + 3;
+                if rect.x > 500 then
                     break;
                 end
             end
@@ -37,7 +22,7 @@ do
         loop do
             var _SDL_MouseButtonEvent&& but = await SDL_MOUSEBUTTONDOWN;
             if but:button == _SDL_BUTTON_LEFT then
-                if _SDL_Rect_vs_Mouse((_SDL_Rect&&)&&rct, but) then
+                if _SDL_Rect_vs_Mouse((&&rect as _SDL_Rect&&), but) == 1 then
                     is_paused = not is_paused;
                     emit go_pause => is_paused;
                 end
@@ -45,55 +30,56 @@ do
         end
     with
         every SDL_REDRAW do
-            _SDL_SetRenderDrawColor(&&ren, clr.r,clr.g,clr.b,0xFF);
-            _SDL_RenderFillRect(&&ren, (_SDL_Rect&&)&&rct);
+            _SDL_SetRenderDrawColor(ren, 0xFF,0xFF,0xFF,0xFF);
+            _SDL_RenderFillRect(ren, &&rect as _SDL_Rect&&);
         end
     end
+
     //await FOREVER;    // disappears but remains on memory
 end
 
-event int go_pause_all;
+event bool go_pause_all;
 
-par/or do
-    await SDL_QUIT;
-with
-    every SDL_REDRAW do
-        _SDL_SetRenderDrawColor(&&sdl.ren, bg_clr.r,bg_clr.g,bg_clr.b,0xFF);
-        _SDL_RenderFillRect(&&sdl.ren, (_SDL_Rect&&)&&bg);
-    end
-with
-    loop do
-        par/or do
-            pause/if go_pause_all do
-                do
-                    pool Rect[50] rs;
-                    every 1s do
-                        native _rand();
-                        spawn Rect in rs with
-                            this.ren = &sdl.ren;
-                            this.dt  =  10 + _rand()%20;
-                            this.rct = SDL_Rect(100,100+_rand()%300, 0,0);
-                        end;
+watching SDL_go("SDL 4", 800,480) => (ren) do
+    par do
+        var SDL_Rect rct = val SDL_Rect(0,0 , 800,480);
+        every SDL_REDRAW do
+            _SDL_SetRenderDrawColor(ren, 0x00,0x00,0x00,0xFF);
+            _SDL_RenderFillRect(ren, &&rct as _SDL_Rect&&);
+        end
+    with
+        loop do
+            par/or do
+                pause/if go_pause_all do
+                    do
+                        pool[5] Rect rs;
+                        every 1s do
+                            native _rand;
+                            spawn Rect(&ren, SDL_Rect(100,50+_rand()%380,20,20),
+                                             10 + _rand()%20)
+                                    in rs;
+                        end
+                    end
+                end
+            with
+                var bool is_paused = false;
+                loop do
+                    var _SDL_KeyboardEvent&& key = await SDL_KEYDOWN;
+                    if key:keysym.sym == _SDLK_ESCAPE then
+                        break;
+                    else/if key:keysym.sym == _SDLK_p then
+                        is_paused = not is_paused;
+                        emit go_pause_all => is_paused;
                     end
                 end
             end
-        with
-            var int is_paused = false;
-            loop do
-                var _SDL_KeyboardEvent&& key = await SDL_KEYDOWN;
-                if key:keysym.sym == _SDLK_ESCAPE then
-                    break;
-                else/if key:keysym.sym == _SDLK_p then
-                    is_paused = not is_paused;
-                    emit go_pause_all => is_paused;
-                end
-            end
+        end
+    with
+        every SDL_REDRAW do
+            _SDL_RenderPresent(ren);
         end
     end
-with
-    every SDL_REDRAW do
-        _SDL_RenderPresent(&&sdl.ren);
-    end
 end
+
 
 escape 0;
