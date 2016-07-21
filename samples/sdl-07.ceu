@@ -1,5 +1,4 @@
 #include "sdl.ceu"
-#include "sdl-gfx.ceu"
 
 native _rand, _s, _t;
 

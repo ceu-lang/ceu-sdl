@@ -143,6 +143,7 @@ end
 input void SDL_QUIT;
 input void SDL_REDRAW;
 input int  SDL_DT;
+input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP;
 
 code/delayed SDL_go (var _char&& title, var int width, var int height)
                         => (var& _SDL_Renderer_ptr ren) => void
@@ -279,6 +280,12 @@ native/pos do
             switch (evt.type) {
                 case SDL_QUIT:
                     ceu_go_ext(CEU_INPUT_SDL_QUIT, &evtp);
+                    break;
+                case SDL_MOUSEBUTTONDOWN:
+                    ceu_go_ext(CEU_INPUT_SDL_MOUSEBUTTONDOWN, &evtp);
+                    break;
+                case SDL_MOUSEBUTTONUP:
+                    ceu_go_ext(CEU_INPUT_SDL_MOUSEBUTTONUP, &evtp);
                     break;
             }
         }
