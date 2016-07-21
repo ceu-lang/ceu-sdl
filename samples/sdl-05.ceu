@@ -1,75 +1,59 @@
 #include "sdl.ceu"
 
-input void SDL_REDRAW;
-input void SDL_QUIT;
+//input void SDL_REDRAW;
 
-var SDL sdl = SDL.build(_SDL_INIT_EVERYTHING, 800,480, "SDL 5");
-
-var SDL_Rect  bg     = SDL_Rect(0,0 , sdl.w,sdl.h);
-var SDL_Color bg_clr = SDL_Color(0x00, 0x00, 0x00, 0xFF);
-
-var _SDL_Texture&? tex;
-    finalize
-        tex = &_IMG_LoadTexture(&&sdl.ren, "samples/img.png");
+watching SDL_go("SDL 5", 800,480) => (ren) do
+    par do
+        var& _Mix_Chunk_ptr? snd = &_Mix_LoadWAV("samples/click1.wav")
+            finalize (snd) with
+                _Mix_FreeChunk(snd!);
+            end
+        every 5s do
+            _Mix_PlayChannel(-1, snd!, 0);
+        end
     with
-        _SDL_DestroyTexture(&&tex!);
-    end
-var SDL_Rect tex_r = SDL_Rect(100,100, 20,20);
+        var SDL_Rect bg = val SDL_Rect(0,0 , 800,480);
 
-_TTF_Init();
-    finalize with
-        _TTF_Quit();
-    end
+        var SDL_Rect img_r = val SDL_Rect(100,100, 20,20);
+        var& _SDL_Texture_ptr? img_tex =
+            &_IMG_LoadTexture(ren, "samples/img.png")
+                finalize (img_tex) with
+                    _SDL_DestroyTexture(img_tex!);
+                end;
 
-var _TTF_Font&? fnt;
-    finalize
-        fnt = &_TTF_OpenFont("samples/Deutsch.ttf", 40);
-    with
-        _TTF_CloseFont(&&fnt!);
-    end
+        var SDL_Rect str_r = val SDL_Rect(10,10, 200,20);
+        var& _SDL_Texture_ptr? str_tex;
+        do
+            var& _TTF_Font_ptr? fnt =
+                &_TTF_OpenFont("samples/Deutsch.ttf", 40)
+                    finalize (fnt) with
+                        _TTF_CloseFont(fnt!);
+                    end;
 
-var _SDL_Texture&? str_tex;
-var SDL_Rect str_r = SDL_Rect(10,10, 200,20);
-//do
-    var SDL_Color clr = SDL_Color(0xFF, 0xFF, 0xFF, 0xFF);
-    var _SDL_Surface&? sfc;
-    finalize
-        sfc = &_TTF_RenderText_Blended(&&fnt!, "Hello world!", 
-                                                        *(_SDL_Color&&)&&clr);
-    with
-        _SDL_FreeSurface(&&sfc!);
-    end
-    finalize
-        str_tex = &_SDL_CreateTextureFromSurface(&&sdl.ren, &&sfc!);
-    with
-        _SDL_DestroyTexture(&&str_tex!);
-    end
-//end
+            var& _SDL_Surface_ptr? sfc =
+                &_TTF_RenderText_Blended(fnt!, "Hello world!",
+                                         {(SDL_Color){0xFF,0xFF,0xFF,0xFF}})
+                    finalize (sfc) with
+                        _SDL_FreeSurface(sfc!);
+                    end
 
-_Mix_OpenAudio(22050, _AUDIO_S16SYS, 2, 4096);
-    finalize with
-        _Mix_CloseAudio();
-    end
-var _Mix_Chunk&? snd;
-    finalize
-        snd = &_Mix_LoadWAV("samples/click1.wav");
-    with
-        _Mix_FreeChunk(&&snd!);
-    end
+            do
+                str_tex = &_SDL_CreateTextureFromSurface(ren, sfc!);
+            finalize (str_tex) with
+                //_SDL_DestroyTexture(str_tex!);
+            end
+        end
+        do finalize with
+            _SDL_DestroyTexture(str_tex!);
+        end
 
-par/or do
-    await SDL_QUIT;
-with
-    every 5s do
-        _Mix_PlayChannel(-1, &&snd!, 0);
-    end
-with
-    every SDL_REDRAW do
-        _SDL_SetRenderDrawColor(&&sdl.ren, 0x00,0x00,0x00,0xFF);
-        _SDL_RenderFillRect(&&sdl.ren, (_SDL_Rect&&)&&bg);
-        _SDL_RenderCopy(&&sdl.ren, &&tex!, null, (_SDL_Rect&&)&&tex_r);
-        _SDL_RenderCopy(&&sdl.ren, &&str_tex!, null, (_SDL_Rect&&)&&str_r);
-        _SDL_RenderPresent(&&sdl.ren);
+        every SDL_REDRAW do
+            _SDL_SetRenderDrawColor(ren, 0x00,0x00,0x00,0xFF);
+            _SDL_RenderFillRect(ren, &&bg as _SDL_Rect&&);
+            _SDL_RenderCopy(ren, img_tex!, null, &&img_r as _SDL_Rect&&);
+            _SDL_RenderCopy(ren, str_tex!, null, &&str_r as _SDL_Rect&&);
+            _SDL_RenderPresent(ren);
+        end
     end
 end
 

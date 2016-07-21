@@ -1,62 +1,45 @@
 #include "sdl.ceu"
 
-input void SDL_REDRAW;
-input void SDL_QUIT;
+//input void SDL_REDRAW;
 
-var SDL sdl = SDL.build(_SDL_INIT_EVERYTHING, 800,480, "SDL 2");
-
-var SDL_Rect  bg     = SDL_Rect(0,0 , sdl.w,sdl.h);
-var SDL_Color bg_clr = SDL_Color(0x00, 0x00, 0x00, 0xFF);
-
-class Rect with
-    var _SDL_Renderer& ren;
-    var SDL_Rect       rect;
-    var int            v;
-do
-    var _SDL_Color clr = _SDL_Color(0xFF,0xFF,0xFF);
-
+code/delayed Rect (var& _SDL_Renderer_ptr ren, var SDL_Rect rect, var int speed) => void do
     par/or do
         loop do
-            await (1000/this.v) ms;
-            rect.x = rect.x + 1;
+            await (1000/speed) ms;
+            rect.x = rect.x + 3;
             if rect.x > 500 then
                 break;
             end
         end
     with
         every SDL_REDRAW do
-            _SDL_SetRenderDrawColor(&&ren, clr.r,clr.g,clr.b,0xFF);
-            _SDL_RenderFillRect(&&ren, (_SDL_Rect&&)&&rect);
+            _SDL_SetRenderDrawColor(ren, 0xFF,0xFF,0xFF,0xFF);
+            _SDL_RenderFillRect(ren, &&rect as _SDL_Rect&&);
         end
     end
 end
 
-par/or do
-    await SDL_QUIT;
-with
-    every SDL_REDRAW do
-        _SDL_SetRenderDrawColor(&&sdl.ren, bg_clr.r,bg_clr.g,bg_clr.b,0xFF);
-        _SDL_RenderFillRect(&&sdl.ren, (_SDL_Rect&&)&&bg);
-    end
-with
-    loop do
-        var Rect r1 with
-            this.ren  = &sdl.ren;
-            this.rect = SDL_Rect(100,100,20,20);
-            this.v    = 100;
-        end;
-
-        var Rect r2 with
-            this.ren  = &sdl.ren;
-            this.rect = SDL_Rect(100,200,40,40);
-            this.v    = 25;
-        end;
-
-        await 10s;
-    end
-with
-    every SDL_REDRAW do
-        _SDL_RenderPresent(&&sdl.ren);
+watching SDL_go("SDL 2", 800,480) => (ren) do
+    par do
+        var SDL_Rect  rct = val SDL_Rect(0,0 , 800,480);
+        every SDL_REDRAW do
+            _SDL_SetRenderDrawColor(ren, 0x00,0x00,0x00,0xFF);
+            _SDL_RenderFillRect(ren, &&rct as _SDL_Rect&&);
+        end
+    with
+        loop do
+            watching 10s do
+                par do
+                    await Rect(&ren, SDL_Rect(100,100,20,20), 25);
+                with
+                    await Rect(&ren, SDL_Rect(100,200,40,40), 10);
+                end
+            end
+        end
+    with
+        every SDL_REDRAW do
+            _SDL_RenderPresent(ren);
+        end
     end
 end
 

@@ -1,6 +1,126 @@
 #ifndef _SDL_CEU
 #define _SDL_CEU
 
+native/const _GL_SCISSOR_TEST, _GL_TEXTURE_2D;
+native _glEnable, _glDisable, _glScissor;
+
+native/plain  _SDL_Rect, _SDL_Point, _SDL_Color,
+              _SDL_MouseButtonEvent,
+              _SDL_KeyboardEvent,
+              _SDL_Renderer,
+              _SDL_TouchFingerEvent,
+              _SDL_Texture,
+              _SDL_Window;
+
+native/const  _SDL_TRUE, _SDL_FALSE,
+              _SDL_BLENDMODE_NONE, _SDL_BLENDMODE_BLEND,
+              _SDL_BUTTON_LEFT,
+              _SDL_BUTTON_RIGHT,
+              _SDL_INIT_EVERYTHING,
+              _SDL_KEYDOWN,
+              _SDL_MOUSEBUTTONDOWN,
+              _SDL_PIXELFORMAT_UNKNOWN,
+              _SDL_SCANCODE_AC_BACK,
+              _SDL_RENDERER_ACCELERATED,
+              _SDL_RENDERER_PRESENTVSYNC,
+              _SDL_TEXTINPUT,
+              _SDL_TEXTUREACCESS_STATIC,
+              _SDL_TEXTUREACCESS_TARGET,
+              _SDL_WINDOW_SHOWN,
+              _SDL_WINDOW_RESIZABLE,
+              _SDL_WINDOWEVENT_RESIZED,
+              _SDL_WINDOWPOS_CENTERED,
+              _AUDIO_S16SYS;
+
+native/const  _SDLK_ESCAPE,
+              _SDLK_BACKSPACE,
+              _SDLK_RETURN,
+              _SDLK_p;
+
+native/nohold _SDL_GL_BindTexture,
+              _SDL_CreateRenderer,
+              _SDL_CreateSoftwareRenderer,
+              _SDL_CreateTexture,
+              _SDL_CreateTextureFromSurface,
+              _SDL_CreateWindow,
+              _SDL_Delay,
+              _SDL_DestroyRenderer,
+              _SDL_DestroyTexture,
+              _SDL_DestroyWindow,
+              _SDL_FreeSurface,
+              _SDL_GetMouseState,
+              _SDL_GetRendererInfo,
+              _SDL_GetRendererOutputSize,
+              _SDL_GetWindowSize,
+              _SDL_HasIntersection,
+              _SDL_Init,
+              _SDL_QueryTexture,
+              _SDL_Quit,
+              _SDL_RenderClear,
+              _SDL_RenderCopy,
+              _SDL_RenderDrawLine,
+              _SDL_RenderDrawRect,
+              _SDL_RenderFillRect,
+              _SDL_RenderPresent,
+              _SDL_SetEventFilter,
+              _SDL_SetRenderDrawBlendMode,
+              _SDL_SetRenderDrawColor,
+              _SDL_SetRenderTarget,
+              _SDL_SetTextInputRect,
+              _SDL_SetWindowDisplayMode,
+              _SDL_SetWindowFullscreen,
+              _SDL_SetWindowTitle,
+              _SDL_StartTextInput,
+              _SDL_StopTextInput,
+              _IMG_LoadTexture,
+              _Mix_CloseAudio,
+              _Mix_FreeChunk,
+              _Mix_FreeMusic,
+              _Mix_LoadWAV,
+              _Mix_OpenAudio,
+              _Mix_PlayChannel,
+              _Mix_Playing,
+              _Mix_PlayMusic,
+              _TTF_CloseFont,
+              _TTF_Init,
+              _TTF_OpenFont,
+              _TTF_Quit,
+              _TTF_RenderText_Blended,
+              _TTF_RenderText_Shaded,
+              _TTF_RenderText_Solid,
+              _TTF_SizeText;
+
+native/nohold _bezierRGBA,
+              _boxColor,
+              _boxRGBA,
+              _circleColor,
+              _circleRGBA,
+              _filledCircleColor,
+              _filledCircleRGBA,
+              _filledPolygonRGBA,
+              _lineRGBA,
+              _pixelRGBA,
+              _polygonColor,
+              _polygonRGBA,
+              _rectangleRGBA,
+              _roundedBoxRGBA,
+              _roundedRectangleRGBA,
+              _stringColor,
+              _stringRGBA,
+              _thickLineRGBA;
+
+native/nohold _SDL_Circle_vs_Mouse,
+              _SDL_Circle_vs_Point,
+              _SDL_Circle_vs_Circle,
+              _SDL_Rect_vs_Mouse,
+              _SDL_Rect_vs_Point,
+              _SDL_Rect2Point,
+              _SDL_Point2Rect,
+              _SDL_Touch2Point;
+
+native _SDL_Window_ptr, _SDL_Renderer_ptr, _Mix_Chunk_ptr, _SDL_Texture_ptr,
+       _TTF_Font_ptr, _SDL_Surface_ptr;
+
 data SDL_Color with
     var u8 r;
     var u8 g;
@@ -20,102 +140,75 @@ data SDL_Rect with
     var int h;
 end
 
-native @const _GL_SCISSOR_TEST, _GL_TEXTURE_2D;
-native _glEnable(), _glDisable(), _glScissor();
+input void SDL_QUIT;
+input void SDL_REDRAW;
+input int  SDL_DT;
 
-native @plain _SDL_Rect, _SDL_Point, _SDL_Color,
-              _SDL_MouseButtonEvent,
-              _SDL_KeyboardEvent,
-              _SDL_Renderer,
-              _SDL_TouchFingerEvent,
-              _SDL_Texture;
+code/delayed SDL_go (var _char&& title, var int width, var int height)
+                        => (var& _SDL_Renderer_ptr ren) => void
+do
+    var int err = _SDL_Init(_SDL_INIT_EVERYTHING);
+    _ceu_callback_assert_msg(err == 0, "SDL_Init failed");
+        do finalize with
+            _SDL_Quit();
+        end
 
-native @const _SDL_TRUE, _SDL_FALSE,
-              _SDL_BLENDMODE_NONE, _SDL_BLENDMODE_BLEND,
-              _SDL_BUTTON_LEFT,
-              _SDL_BUTTON_RIGHT,
-              _SDL_KEYDOWN,
-              _SDL_MOUSEBUTTONDOWN,
-              _SDL_PIXELFORMAT_UNKNOWN,
-              _SDL_SCANCODE_AC_BACK,
-              _SDL_RENDERER_ACCELERATED,
-              _SDL_RENDERER_PRESENTVSYNC,
-              _SDL_TEXTINPUT,
-              _SDL_TEXTUREACCESS_STATIC,
-              _SDL_TEXTUREACCESS_TARGET,
-              _SDL_WINDOW_SHOWN,
-              _SDL_WINDOW_RESIZABLE,
-              _SDL_WINDOWEVENT_RESIZED,
-              _AUDIO_S16SYS;
+    var& _SDL_Window_ptr? win_ =
+        &_SDL_CreateWindow(title,
+                           _SDL_WINDOWPOS_CENTERED, _SDL_WINDOWPOS_CENTERED,
+                           width, height,
+                           _SDL_WINDOW_SHOWN)
+            finalize (win_) with
+                _SDL_DestroyWindow(win_!);
+            end
 
-native @const _SDLK_ESCAPE,
-              _SDLK_BACKSPACE,
-              _SDLK_RETURN,
-              _SDLK_p;
+    var& _SDL_Renderer_ptr? ren_ =
+        &_SDL_CreateRenderer(win_!, -1, 0)
+            finalize (ren_) with
+                _SDL_DestroyRenderer(ren_!);
+            end
+    ren = &ren_!;
 
-native @nohold _SDL_GL_BindTexture(),
-               _SDL_CreateWindow(),
-               _SDL_CreateRenderer(),
-               _SDL_CreateSoftwareRenderer(),
-               _SDL_CreateTexture(),
-               _SDL_CreateTextureFromSurface(),
-               _SDL_FreeSurface(),
-               _SDL_GetMouseState(),
-               _SDL_GetRendererInfo(),
-               _SDL_GetRendererOutputSize(),
-               _SDL_GetWindowSize(),
-               _SDL_HasIntersection(),
-               _SDL_SetWindowFullscreen(),
-               _SDL_SetRenderDrawColor(),
-               _SDL_RenderClear(),
-               _SDL_RenderDrawLine(),
-               _SDL_RenderDrawRect(),
-               _SDL_RenderFillRect(),
-               _SDL_RenderCopy(),
-               _SDL_RenderPresent(),
-               _SDL_DestroyRenderer(),
-               _SDL_DestroyTexture(),
-               _SDL_DestroyWindow(),
-               _SDL_FreeSurface(),
-               _SDL_QueryTexture(),
-               _SDL_Quit(),
-               _SDL_Delay(),
-               _SDL_SetEventFilter(),
-               _SDL_SetRenderDrawBlendMode(),
-               _SDL_SetRenderTarget(),
-               _SDL_SetTextInputRect(),
-               _SDL_SetWindowDisplayMode(),
-               _SDL_SetWindowTitle(),
-               _SDL_StartTextInput(),
-               _SDL_StopTextInput(),
-               _IMG_LoadTexture(),
-               _TTF_CloseFont(),
-               _TTF_Init(),
-               _TTF_OpenFont(),
-               _TTF_Quit(),
-               _TTF_RenderText_Blended(),
-               _TTF_RenderText_Shaded(),
-               _TTF_RenderText_Solid(),
-               _TTF_SizeText(),
-               _Mix_LoadWAV(),
-               _Mix_FreeChunk(),
-               _Mix_FreeMusic(),
-               _Mix_PlayChannel(),
-               _Mix_PlayMusic(),
-               _Mix_Playing(),
-               _Mix_CloseAudio(),
-               _Mix_OpenAudio();
+    _TTF_Init();
+        do finalize with
+            _TTF_Quit();
+        end
 
-native @nohold _SDL_Circle_vs_Mouse(),
-               _SDL_Circle_vs_Point(),
-               _SDL_Circle_vs_Circle(),
-               _SDL_Rect_vs_Mouse(),
-               _SDL_Rect_vs_Point(),
-               _SDL_Rect2Point(),
-               _SDL_Point2Rect(),
-               _SDL_Touch2Point();
+    _Mix_OpenAudio(22050, _AUDIO_S16SYS, 2, 4096);
+        do finalize with
+            _Mix_CloseAudio();
+        end
 
-native do
+#if 1
+    await SDL_QUIT;
+#else
+    watching SDL_QUIT do
+        async do
+            loop i in [0 -> 100[ do
+                _SDL_Delay(100);
+                emit 100ms;
+                emit SDL_REDRAW;
+            end
+            emit SDL_QUIT;
+        end
+    end
+#endif
+end
+
+native/pre do
+    ##include <SDL2/SDL.h>
+    ##include <SDL2/SDL_image.h>
+    ##include <SDL2/SDL_mixer.h>
+    ##include <SDL2/SDL_ttf.h>
+    ##include <SDL2/SDL2_gfxPrimitives.h>
+
+    typedef SDL_Window*   SDL_Window_ptr;
+    typedef SDL_Renderer* SDL_Renderer_ptr;
+    typedef Mix_Chunk*    Mix_Chunk_ptr;
+    typedef SDL_Texture*  SDL_Texture_ptr;
+    typedef TTF_Font*     TTF_Font_ptr;
+    typedef SDL_Surface*  SDL_Surface_ptr;
+
     int SDL_Rect_vs_Mouse (SDL_Rect* r, SDL_MouseButtonEvent* but) {
         return (but->x >= r->x) && (but->x <= r->x+r->w)
             && (but->y >= r->y) && (but->y <= r->y+r->h);
@@ -156,55 +249,63 @@ native do
 ##endif
 end
 
-class SDL with
-    input:
-        var int flags;
-        var int w, h;
-        var char[] title;
-    output:
-        var _SDL_Window&   win;
-        var _SDL_Renderer& ren;
+native/pos do
+    ##define ceu_callback_env(cmd,evt,params) ceu_sdl_callback(cmd,evt,params)
 
-    function (int flags, int w, int h, char&& title)=>SDL build;
-do
-    function (int flags, int w, int h, char&& title)=>SDL build do
-        this.flags = flags;
-        this.w = w;
-        this.h = h;
-        this.title = [] .. title;
-    end
+    static u32 old;
 
-    var int err = _SDL_Init(this.flags);
-    if err != 0 then
-        _printf("SDL_Init failed: %s\n", _SDL_GetError());
-        _ceu_out_assert(0);
-    end
-    finalize with
-        _SDL_Quit();    // TODO: slow
-    end
+    void ceu_sdl_init (void) {
+        old = SDL_GetTicks();
+    }
 
-    var _SDL_Window&? win_;
-    finalize
-        win_ = &_SDL_CreateWindow(
-                    (_char&&)&&title,
-                    _SDL_WINDOWPOS_CENTERED, _SDL_WINDOWPOS_CENTERED,
-                    this.w, this.h,
-                    _SDL_WINDOW_SHOWN
-               );
-    with
-        _SDL_DestroyWindow(&&win_!);
-    end
-    this.win = &win_!;
+    void ceu_sdl_step (void) {
+        SDL_Event evt;
+        int has = SDL_PollEvent(&evt);
 
-    var _SDL_Renderer&? ren_;
-    finalize
-        ren_ = &_SDL_CreateRenderer(&&win, -1, 0);
-    with
-        _SDL_DestroyRenderer(&&ren_!);
-    end
-    this.ren = &ren_!;
+        // WCLOCK / SDL_DT
+        {
+            u32 now = SDL_GetTicks();
+            s32 dt_ms = (now - old);
+            s32 dt_us = dt_ms*1000;
+            ceu_dbg_assert(dt_ms >= 0);
+            old = now;
+            ceu_go_ext(CEU_INPUT__WCLOCK, &dt_us);
+            ceu_go_ext(CEU_INPUT_SDL_DT, &dt_ms);
+        }
 
-    await FOREVER;
+        // OTHER EVENTS
+        if (has) {
+            SDL_Event* evtp = &evt;
+            switch (evt.type) {
+                case SDL_QUIT:
+                    ceu_go_ext(CEU_INPUT_SDL_QUIT, &evtp);
+                    break;
+            }
+        }
+
+        // SDL_REDRAW
+        ceu_go_ext(CEU_INPUT_SDL_REDRAW, NULL);
+    }
+
+    tceu_callback_ret ceu_sdl_callback (int cmd, tceu_callback_arg p1, tceu_callback_arg p2)
+    {
+        tceu_callback_ret ret;
+
+        switch (cmd) {
+            case CEU_CALLBACK_INIT:
+                ret.is_handled = 1;
+                ceu_sdl_init();
+                break;
+            case CEU_CALLBACK_STEP:
+                ret.is_handled = 1;
+                ceu_sdl_step();
+                break;
+            default:
+                ret.is_handled = 0;
+        }
+
+        return ret;
+    }
 end
 
 #endif

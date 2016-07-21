@@ -15,7 +15,7 @@ native/pre do
 end
 
 var int err = _SDL_Init(_SDL_INIT_EVERYTHING);
-_ceu_cb_assert_msg(err == 0, "SDL_Init failed");
+_ceu_callback_assert_msg(err == 0, "SDL_Init failed");
     do finalize with
         _SDL_Quit();
     end
