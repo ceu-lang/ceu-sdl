@@ -88,7 +88,8 @@ native/nohold _SDL_GL_BindTexture,
               _TTF_RenderText_Blended,
               _TTF_RenderText_Shaded,
               _TTF_RenderText_Solid,
-              _TTF_SizeText;
+              _TTF_SizeText,
+              _TTF_WasInit;
 
 native/nohold _bezierRGBA,
               _boxColor,
@@ -280,7 +281,8 @@ input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP;
 code/delayed SDL_go (var _char&& title,
                      var int width, var int height,
                      var SDL_Color? bg)
-                        => (var& _SDL_Renderer_ptr ren) => void
+                        => (var& _SDL_Renderer_ptr ren)
+                            => void
 do
     var int err = _SDL_Init(_SDL_INIT_EVERYTHING);
     _ceu_callback_assert_msg(err == 0, "SDL_Init failed");
@@ -353,5 +355,94 @@ do
 #endif
 end
 
+data SDL_Texture with
+    var& _SDL_Texture_ptr ptr;
+    var  SDL_Rect         rect;
+end
+
+code/delayed SDL_open_texture (var& _SDL_Renderer_ptr ren, var _char&& path,
+                               var int x, var int y)
+                                => (var& SDL_Texture tex)
+                                    => void
+do
+    var& _SDL_Texture_ptr? ptr = &_IMG_LoadTexture(ren, path)
+        finalize (ptr) with
+_printf("texture\n");
+            _SDL_DestroyTexture(ptr!);
+        end
+
+    var SDL_Texture tex_ = val SDL_Texture(&ptr!, SDL_Rect(x,y,_,_));
+    _SDL_QueryTexture(tex_.ptr, null, null, &&tex_.rect.w, &&tex_.rect.h);
+
+    tex = &tex_;
+
+    await FOREVER;
+end
+
+code/delayed SDL_open_font (var _char&& path, var int size)
+                                => (var& _TTF_Font_ptr font)
+                                    => void
+do
+    var& _TTF_Font_ptr? font_ =
+        &_TTF_OpenFont(path, size)
+            finalize (font_) with
+                if _TTF_WasInit() as bool then
+                    _TTF_CloseFont(font_!);
+                end
+            end;
+    font = &font_!;
+    await FOREVER;
+end
+
+code/delayed SDL_new_text (var& _SDL_Renderer_ptr ren, var& _TTF_Font_ptr font,
+                           var _char&& text, var SDL_Color color,
+                           var int x, var int y)
+                            => (var& SDL_Texture tex)
+                                => void
+do
+    var& _SDL_Texture_ptr? ptr;
+    do
+        var _SDL_Color c = _;
+                       c.r = color.r;
+                       c.g = color.g;
+                       c.b = color.b;
+                       c.a = color.a;
+
+        var& _SDL_Surface_ptr? sfc =
+            &_TTF_RenderText_Blended(font, text, c)
+                finalize (sfc) with
+                    _SDL_FreeSurface(sfc!);
+                end
+
+        do
+            ptr = &_SDL_CreateTextureFromSurface(ren, sfc!);
+        finalize (ptr) with
+            //_SDL_DestroyTexture(ptr!);
+        end
+    end
+    do finalize with
+_printf("text\n");
+        _SDL_DestroyTexture(ptr!);
+    end
+
+    var SDL_Texture tex_ = val SDL_Texture(&ptr!, SDL_Rect(x,y,_,_));
+    _SDL_QueryTexture(tex_.ptr, null, null, &&tex_.rect.w, &&tex_.rect.h);
+
+    tex = &tex_;
+
+    await FOREVER;
+end
+
+code/delayed SDL_open_sound (var _char&& path)
+                                => (var& _Mix_Chunk_ptr sound)
+                                    => void
+do
+    var& _Mix_Chunk_ptr? sound_ = &_Mix_LoadWAV("samples/click1.wav")
+        finalize (sound_) with
+            _Mix_FreeChunk(sound_!);
+        end
+    sound = &sound_!;
+    await FOREVER;
+end
 
 #endif

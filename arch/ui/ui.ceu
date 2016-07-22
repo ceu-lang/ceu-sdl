@@ -3,19 +3,12 @@
 
 #include "sdl.ceu"
 
-native @const _UI_ALIGN_LEFT, _UI_ALIGN_CENTER, _UI_ALIGN_RIGHT,
-              _UI_ALIGN_TOP,  _UI_ALIGN_MIDDLE, _UI_ALIGN_BOTTOM;
+native/const _UI_ALIGN_LEFT, _UI_ALIGN_CENTER, _UI_ALIGN_RIGHT,
+             _UI_ALIGN_TOP,  _UI_ALIGN_MIDDLE, _UI_ALIGN_BOTTOM;
 
-native @pure _UI_align(), _UI_align_bg();
+native/pure _UI_align, _UI_align_bg;
 
-#define UI_SDL_COLOR_REF(to,fr) \
-    finalize                    \
-        to = _SDL_COLOR_REF(fr);\
-    with                        \
-        nothing;                \
-    end
-
-native do
+native/pos do
 
     enum {
         UI_ALIGN_LEFT = 0,
@@ -65,24 +58,51 @@ native do
     }
 end
 
-interface UI with
-    //event void           ok_redraw_pre;
-    //event void           ok_redraw_pos;
-    event void           ok_clicked;
-    //event _SDL_Point&&    go_move;
-
-    var   _SDL_Renderer& ren;
-    var   SDL_Rect       rect;
-    var   bool           should_redim;
-    var   SDL_Color?     bg_clr;
-
-    var   int            align_x;
-    var   int            align_y;
-    var   int            align_bg_x;
-    var   int            align_bg_y;
-
-    function @rec (SDL_Rect&& rect)=>void go;
-    function @rec (SDL_Rect&& bg, bool should_redim_)=>void go_bg;
+data Ui with
+    event void       ok_clicked;
+    var   SDL_Rect   rect;
+    var   SDL_Color? bg_clr;
 end
+
+code/delayed Ui_go (var& _SDL_Renderer_ptr ren, var& Ui ui) => void do
+    par do
+        loop do
+            var _SDL_MouseButtonEvent&& but1 =
+                await SDL_MOUSEBUTTONDOWN
+                until _SDL_Rect_vs_Mouse((&&ui.rect as _SDL_Rect&&), but1) as bool;
+
+            var _SDL_MouseButtonEvent&& but2 = await SDL_MOUSEBUTTONUP;
+            if _SDL_Rect_vs_Mouse((&&ui.rect as _SDL_Rect&&), but2) as bool then
+                emit ui.ok_clicked;
+            end
+        end
+    with
+        every SDL_REDRAW do
+            if ui.bg_clr? then
+                _boxRGBA(ren, ui.rect.x,ui.rect.y,
+                             ui.rect.x+ui.rect.w,ui.rect.y+ui.rect.h,
+                             ui.bg_clr!.r, ui.bg_clr!.g, ui.bg_clr!.b, ui.bg_clr!.a);
+            end
+        end
+    end
+end
+
+#ifdef TEST_UI_CEU
+
+var SDL_Color bg = val SDL_Color(0x00,0x00,0x00,0xFF);
+
+watching SDL_go("UI", 800,480, bg) => (ren) do
+    var Ui ui = val Ui(_, SDL_Rect(100,100,100,100),
+                          SDL_Color(0xFF,0xFF,0xFF,0xFF));
+    watching Ui_go(&ren, &ui) do
+        every ui.ok_clicked do
+            ui.rect.x = ui.rect.x + 10;
+        end
+    end
+end
+
+escape 0;
+
+#endif
 
 #endif

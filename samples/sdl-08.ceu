@@ -1,0 +1,36 @@
+#include "sdl.ceu"
+
+//input void SDL_REDRAW;
+
+var SDL_Color bg = val SDL_Color(0x00,0x00,0x00,0xFF);
+
+watching SDL_go("SDL 8", 800,480, bg) => (ren) do
+    par do
+        watching SDL_open_sound("samples/click1.wav") => (sound) do
+            every 5s do
+                _Mix_PlayChannel(-1, sound, 0);
+            end
+        end
+    with
+        watching SDL_open_texture(&ren, "samples/img.png", 100,100)
+            => (img)
+        do
+            watching SDL_open_font("samples/Deutsch.ttf", 40)
+                => (font)
+            do
+                watching SDL_new_text(&ren, &font, "Hello World!",
+                                      SDL_Color(0xFF,0xFF,0xFF,0xFF),
+                                      300,200)
+                    => (text)
+                do
+                    every SDL_REDRAW do
+                        _SDL_RenderCopy(ren, img.ptr, null, &&img.rect as _SDL_Rect&&);
+                        _SDL_RenderCopy(ren, text.ptr, null, &&text.rect as _SDL_Rect&&);
+                    end
+                end
+            end
+        end
+    end
+end
+
+escape 0;
