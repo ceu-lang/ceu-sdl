@@ -19,26 +19,16 @@ code/delayed Rect (var& _SDL_Renderer_ptr ren, var SDL_Rect rect, var int speed)
     end
 end
 
-watching SDL_go("SDL 2", 800,480) => (ren) do
-    par do
-        var SDL_Rect  rct = val SDL_Rect(0,0 , 800,480);
-        every SDL_REDRAW do
-            _SDL_SetRenderDrawColor(ren, 0x00,0x00,0x00,0xFF);
-            _SDL_RenderFillRect(ren, &&rct as _SDL_Rect&&);
-        end
-    with
-        loop do
-            watching 10s do
-                par do
-                    await Rect(&ren, SDL_Rect(100,100,20,20), 25);
-                with
-                    await Rect(&ren, SDL_Rect(100,200,40,40), 10);
-                end
+var SDL_Color bg = val SDL_Color(0x00,0x00,0x00,0xFF);
+
+watching SDL_go("SDL 2", 800,480, bg) => (ren) do
+    loop do
+        watching 10s do
+            par do
+                await Rect(&ren, SDL_Rect(100,100,20,20), 25);
+            with
+                await Rect(&ren, SDL_Rect(100,200,40,40), 10);
             end
-        end
-    with
-        every SDL_REDRAW do
-            _SDL_RenderPresent(ren);
         end
     end
 end

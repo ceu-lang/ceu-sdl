@@ -40,43 +40,33 @@ end
 
 event bool go_pause_all;
 
-watching SDL_go("SDL 4", 800,480) => (ren) do
-    par do
-        var SDL_Rect rct = val SDL_Rect(0,0 , 800,480);
-        every SDL_REDRAW do
-            _SDL_SetRenderDrawColor(ren, 0x00,0x00,0x00,0xFF);
-            _SDL_RenderFillRect(ren, &&rct as _SDL_Rect&&);
-        end
-    with
-        loop do
-            par/or do
-                pause/if go_pause_all do
-                    do
-                        pool[5] Rect rs;
-                        every 1s do
-                            native _rand;
-                            spawn Rect(&ren, SDL_Rect(100,50+_rand()%380,20,20),
-                                             10 + _rand()%20)
-                                    in rs;
-                        end
-                    end
-                end
-            with
-                var bool is_paused = false;
-                loop do
-                    var _SDL_KeyboardEvent&& key = await SDL_KEYDOWN;
-                    if key:keysym.sym == _SDLK_ESCAPE then
-                        break;
-                    else/if key:keysym.sym == _SDLK_p then
-                        is_paused = not is_paused;
-                        emit go_pause_all => is_paused;
+var SDL_Color bg = val SDL_Color(0x00,0x00,0x00,0xFF);
+
+watching SDL_go("SDL 4", 800,480, bg) => (ren) do
+    loop do
+        par/or do
+            pause/if go_pause_all do
+                do
+                    pool[5] Rect rs;
+                    every 1s do
+                        native _rand;
+                        spawn Rect(&ren, SDL_Rect(100,50+_rand()%380,20,20),
+                                         10 + _rand()%20)
+                                in rs;
                     end
                 end
             end
-        end
-    with
-        every SDL_REDRAW do
-            _SDL_RenderPresent(ren);
+        with
+            var bool is_paused = false;
+            loop do
+                var _SDL_KeyboardEvent&& key = await SDL_KEYDOWN;
+                if key:keysym.sym == _SDLK_ESCAPE then
+                    break;
+                else/if key:keysym.sym == _SDLK_p then
+                    is_paused = not is_paused;
+                    emit go_pause_all => is_paused;
+                end
+            end
         end
     end
 end

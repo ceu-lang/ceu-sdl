@@ -141,12 +141,14 @@ data SDL_Rect with
 end
 
 input void SDL_QUIT;
-input void SDL_REDRAW;
+input _SDL_Renderer&&&& SDL_REDRAW;
 input int  SDL_DT;
 input _SDL_KeyboardEvent&&    SDL_KEYDOWN,         SDL_KEYUP;
 input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP;
 
-code/delayed SDL_go (var _char&& title, var int width, var int height)
+code/delayed SDL_go (var _char&& title,
+                     var int width, var int height,
+                     var SDL_Color bg)
                         => (var& _SDL_Renderer_ptr ren) => void
 do
     var int err = _SDL_Init(_SDL_INIT_EVERYTHING);
@@ -164,12 +166,13 @@ do
                 _SDL_DestroyWindow(win_!);
             end
 
-    var& _SDL_Renderer_ptr? ren_ =
+    var& _SDL_Renderer_ptr? ren__ =
         &_SDL_CreateRenderer(win_!, -1, 0)
-            finalize (ren_) with
-                _SDL_DestroyRenderer(ren_!);
+            finalize (ren__) with
+                _SDL_DestroyRenderer(ren__!);
             end
-    ren = &ren_!;
+    var& _SDL_Renderer_ptr ren_ = &ren__!;
+    ren = &ren_;
 
     _TTF_Init();
         do finalize with
@@ -183,34 +186,33 @@ do
 
 #if 1
     watching SDL_QUIT do
-#if 1
-        native _printf, _SDL_GetTicks;
-        loop do
-            var int n = 0;
-            var u32 old = _SDL_GetTicks();
-            watching 1s do
-                every SDL_DT do
-                    n = n + 1;
-                end
-            end;
-            var u32 now = _SDL_GetTicks();
-            _printf(">>> FPS: %d [%dms]\n", n, now-old);
-        end
-#else
-        await FOREVER;
-#endif
-    end
-#else
-    watching SDL_QUIT do
-        async do
-            loop i in [0 -> 100[ do
-                _SDL_Delay(100);
-                emit 100ms;
-                emit SDL_REDRAW;
+        par do
+            every ptr_ptr in SDL_REDRAW do
+                *ptr_ptr = ren_;
+                _SDL_SetRenderDrawColor(ren_, bg.r,bg.g,bg.b,bg.a);
+                _SDL_RenderClear(ren_);
             end
-            emit SDL_QUIT;
+        with
+#   if 1
+            native _printf, _SDL_GetTicks;
+            loop do
+                var int n = 0;
+                var u32 old = _SDL_GetTicks();
+                watching 1s do
+                    every SDL_DT do
+                        n = n + 1;
+                    end
+                end;
+                var u32 now = _SDL_GetTicks();
+                _printf(">>> FPS: %d [%dms]\n", n, now-old);
+            end
+#   else
+            await FOREVER;
+#   endif
         end
     end
+#else
+    await SDL_QUIT;
 #endif
 end
 
@@ -315,7 +317,14 @@ native/pos do
         }
 
         // SDL_REDRAW
-        //ceu_go_ext(CEU_INPUT_SDL_REDRAW, NULL);
+        {
+            SDL_Renderer*  ren = NULL;
+            SDL_Renderer** ren_ = &ren;
+            ceu_go_ext(CEU_INPUT_SDL_REDRAW, &ren_);
+            if (ren != NULL) {
+                SDL_RenderPresent(ren);
+            }
+        }
     }
 
     tceu_callback_ret ceu_sdl_callback (int cmd, tceu_callback_arg p1, tceu_callback_arg p2)

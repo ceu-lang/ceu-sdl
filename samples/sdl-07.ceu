@@ -1,10 +1,12 @@
 #include "sdl.ceu"
 
-native _rand, _s, _t;
+native _rand;
 
 //input void SDL_REDRAW;
 
-watching SDL_go("SDL 7", 800,480) => (ren) do
+var SDL_Color bg = val SDL_Color(0xAA,0xAA,0x00,0xFF);
+
+watching SDL_go("SDL 7", 800,480, bg) => (ren) do
 
     var SDL_Rect fg = val SDL_Rect(100,100, 100,100);
 
@@ -17,16 +19,12 @@ watching SDL_go("SDL 7", 800,480) => (ren) do
         vector[5] s16 s = [ 500, 550, 650, 525, 400 ];
         vector[5] s16 t = [ 200, 210, 250, 225, 300 ];
 
-        var SDL_Rect bg = val SDL_Rect(0,0 , 800,480);
         every SDL_REDRAW do
-            _SDL_SetRenderDrawColor(ren, 0xFF,0xFF,0x00,0xFF);
-            _SDL_RenderFillRect(ren, (&&bg as _SDL_Rect&&));
-
             _SDL_SetRenderDrawColor(ren, 0xFF,0x00,0x00,0xFF);
             _SDL_RenderFillRect(ren, (&&fg as _SDL_Rect&&));
 
-            loop i in [0->30[ do
-                _pixelRGBA(ren, 10+_rand()%50, 10+_rand()%50, 100,100,100, 0xFF);
+            loop i in [0->1000[ do
+                _pixelRGBA(ren, 200+_rand()%100, 50+_rand()%100, 100,100,100, 0xFF);
             end
 
             _filledPolygonRGBA(ren, &&s[0], &&t[0], 5, 0x00, 0xFF,0x00, 0xFF);
@@ -34,8 +32,6 @@ watching SDL_go("SDL 7", 800,480) => (ren) do
             _boxRGBA(ren, 500,200, 550,250, 0x00, 0x00, 0xFF, 0xBB);
             _roundedBoxRGBA(ren, 520,220, 570,270, 4, 0x00, 0xFF, 0x00, 0xBB);
             _roundedRectangleRGBA(ren, 540,240, 590,290, 8, 0xFF, 0x00, 0x00,0x99);
-
-            _SDL_RenderPresent(ren);
         end
     end
 end

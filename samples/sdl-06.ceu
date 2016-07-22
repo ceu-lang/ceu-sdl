@@ -1,134 +1,93 @@
-#include "c.ceu"
 #include "sdl.ceu"
 
-native do
-    int ORGS = 0;       // count the number of alive rectangles
+native _ORGS, _rand;
+native/pre do
+    int ORGS = 0;
 end
 
-input void SDL_REDRAW;
-input void SDL_QUIT;
-input int  SDL_DT;
+//input void SDL_REDRAW;
+//input int  SDL_DT;
 
-var SDL sdl = SDL.build(_SDL_INIT_EVERYTHING, 800,480, "SDL 6");
-
-/* Maximum of 10k Rectangles on a dedicated memory pool */
-
-class Rect with
-    var SDL_Rect       rct;    // My initial values
-    var int            vel;    // I have a speed set from outside
-    var _SDL_Renderer& ren;    // I redraw myself
-do
-    this.rct.w = 25;
-    this.rct.h = 25;
-
-    var int x = rct.x;
-
-    /* count the number of alive rectangles */
-    _ORGS = _ORGS + 1;          // increment on init
-        finalize with
-            _ORGS = _ORGS - 1;  // decrement on finalization
+code/delayed Rect (var& _SDL_Renderer_ptr ren, var SDL_Rect rect, var int speed) => void do
+    _ORGS = _ORGS + 1;
+        do finalize with
+            _ORGS = _ORGS - 1;
         end;
-/*
-*/
 
-    var SDL_Color clr = SDL_Color(0xFF,0xFF,0xFF,0xFF);
-        // color varies periodically
+    var SDL_Color clr = val SDL_Color(0xFF,0xFF,0xFF,0xFF);
 
     par/or do
         every 100ms do
-            this.rct.h = rct.h + _rand()%5 - 2;     // random height
-            if rct.h <= 0 then
-                rct.h = 1;
-            end
-            if rct.h >= 50 then
-                rct.h = 50;
-            end
-
-            this.rct.w = rct.w + _rand()%5 - 2;     // random width
-            if rct.w <= 0 then
-                rct.w = 1;
-            end
-            if rct.w >= 50 then
-                rct.w = 50;
+            do
+                var int r = _rand()%5 - 2;
+                rect.x = rect.x + r/2;
+                rect.w = rect.w + r;
+                if rect.w <= 0 then
+                    rect.w = 1;
+                end
+                if rect.w >= 50 then
+                    rect.w = 50;
+                end
             end
 
-            clr.r = clr.r + _rand()%5 - 2;          // random r/g/b
-            clr.g = clr.g + _rand()%5 - 2;
-            clr.b = clr.b + _rand()%5 - 2;
+            do
+                var int r = _rand()%5 - 2;
+                rect.y = rect.y - r/2;
+                rect.h = rect.h + r;
+                if rect.h <= 0 then
+                    rect.h = 1;
+                end
+                if rect.h >= 50 then
+                    rect.h = 50;
+                end
+            end
+
+            do
+                clr.r = clr.r + _rand()%5 - 2;
+                clr.g = clr.g + _rand()%5 - 2;
+                clr.b = clr.b + _rand()%5 - 2;
+            end
         end
     with
-        var float fx = x;
+        var float fx = rect.x;
         loop do
             var int dt = await SDL_DT;
-            fx = fx + (float)(this.vel*dt)/1000;    // update my position
-            rct.x = fx;
+            fx = fx + ((speed*dt) as float)/1000;
+            rect.x = (fx as int);
 
-            /* When the rectangle reaches the end of screen, escape the "every".
-             * This will terminate the "par/or", which will terminate
-             *  organism.
-             * The "finalize" will also execute on termination.
-             */
-            if rct.x > 950 then
-                //rct.x = 0;
-                //fx = 0;
+            if rect.x > 700 then
                 break;
             end
         end
     with
-        /* redraw myself every frame */
         every SDL_REDRAW do
-            _SDL_SetRenderDrawColor(&&ren, clr.r,clr.g,clr.b,0xFF);
-            _SDL_RenderFillRect(&&ren, (_SDL_Rect&&)&&rct);
+            _SDL_SetRenderDrawColor(ren, clr.r,clr.g,clr.b,0xFF);
+            _SDL_RenderFillRect(ren, (&&rect as _SDL_Rect&&));
         end
     end
 end
 
-par/or do
-    await SDL_QUIT;                     // terminates everything
-with
-    every SDL_REDRAW do
-        _SDL_SetRenderDrawColor(&&sdl.ren, 0,0,0, 0xFF);
-        _SDL_RenderFillRect(&&sdl.ren, null);  // DRAW 1: clear screen
-    end
-with
-    loop do
-        par/or do
-            await 30s;                  // kill all rectangles and restart
-        with
-            pool Rect[10000] rs;
-            do
+var SDL_Color bg = val SDL_Color(0x00,0x00,0x00,0xFF);
+
+watching SDL_go("SDL 6", 800,480, bg) => (ren) do
+    par do
+        loop do
+            watching 30s do
+                pool[10000] Rect rs;
                 every 40ms do
-                    loop i in 30 do       // create 30 rectangles every 40ms
-                        spawn Rect in rs with
-                            this.vel = 50 + _rand()%20;
-                            this.rct = SDL_Rect(50, _rand()%750, 0,0);
-                            this.ren = &sdl.ren;
-                        end;
+                    loop i in [0->30[ do
+                        spawn Rect(&ren, SDL_Rect(50,40+_rand()%380,20,20),
+                                         50 + _rand()%20)
+                                        in rs;
                     end
                 end
-            end                         // DRAW 2: (all rectangles react here)
-        end
-    end
-with
-    every SDL_REDRAW do
-        _SDL_RenderPresent(&&sdl.ren);  // DRAW 3: update screen
-    end
-with
-    /* calculate FPS */
-    loop do
-        var int c = 0;
-        par/or do
-            every SDL_REDRAW do
-                c = c + 1;
             end
-        with
-            await 1s;
         end
-        _printf("[FPS=%d] [orgs=%d]\n", c, _ORGS);
+    with
+        every 1s do
+            _printf("<<< ORGS: %d\n", _ORGS);
+        end
     end
 end
-
-await 1s;
-_printf("term\n");
 
 escape 0;
