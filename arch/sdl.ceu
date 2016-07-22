@@ -355,26 +355,22 @@ do
 #endif
 end
 
-data SDL_Texture with
-    var& _SDL_Texture_ptr ptr;
-    var  SDL_Rect         rect;
-end
-
-code/delayed SDL_open_texture (var& _SDL_Renderer_ptr ren, var _char&& path,
-                               var int x, var int y)
-                                => (var& SDL_Texture tex)
-                                    => void
+code/delayed SDL_open_texture
+                (var& _SDL_Renderer_ptr ren, var _char&& path)
+                    => (var& _SDL_Texture_ptr tex, var& int w, var& int h)
+                        => void
 do
-    var& _SDL_Texture_ptr? ptr = &_IMG_LoadTexture(ren, path)
-        finalize (ptr) with
-_printf("texture\n");
-            _SDL_DestroyTexture(ptr!);
+    var& _SDL_Texture_ptr? tex_ = &_IMG_LoadTexture(ren, path)
+        finalize (tex_) with
+            _SDL_DestroyTexture(tex_!);
         end
 
-    var SDL_Texture tex_ = val SDL_Texture(&ptr!, SDL_Rect(x,y,_,_));
-    _SDL_QueryTexture(tex_.ptr, null, null, &&tex_.rect.w, &&tex_.rect.h);
+    var int w_=_, h_=_;
+    _SDL_QueryTexture(tex_!, null, null, &&w_, &&h_);
 
-    tex = &tex_;
+    tex = &tex_!;
+    w   = &w_;
+    h   = &h_;
 
     await FOREVER;
 end
@@ -394,13 +390,13 @@ do
     await FOREVER;
 end
 
-code/delayed SDL_new_text (var& _SDL_Renderer_ptr ren, var& _TTF_Font_ptr font,
-                           var _char&& text, var SDL_Color color,
-                           var int x, var int y)
-                            => (var& SDL_Texture tex)
-                                => void
+code/delayed SDL_new_text
+                (var& _SDL_Renderer_ptr ren, var& _TTF_Font_ptr font,
+                 var _char&& text, var SDL_Color color)
+                    => (var& _SDL_Texture_ptr tex, var& int w, var& int h)
+                        => void
 do
-    var& _SDL_Texture_ptr? ptr;
+    var& _SDL_Texture_ptr? tex_;
     do
         var _SDL_Color c = _;
                        c.r = color.r;
@@ -415,20 +411,21 @@ do
                 end
 
         do
-            ptr = &_SDL_CreateTextureFromSurface(ren, sfc!);
-        finalize (ptr) with
-            //_SDL_DestroyTexture(ptr!);
+            tex_ = &_SDL_CreateTextureFromSurface(ren, sfc!);
+        finalize (tex_) with
+            //_SDL_DestroyTexture(tex_!);
         end
     end
     do finalize with
-_printf("text\n");
-        _SDL_DestroyTexture(ptr!);
+        _SDL_DestroyTexture(tex_!);
     end
 
-    var SDL_Texture tex_ = val SDL_Texture(&ptr!, SDL_Rect(x,y,_,_));
-    _SDL_QueryTexture(tex_.ptr, null, null, &&tex_.rect.w, &&tex_.rect.h);
+    var int w_=_, h_=_;
+    _SDL_QueryTexture(tex_!, null, null, &&w_, &&h_);
 
-    tex = &tex_;
+    tex = &tex_!;
+    w   = &w_;
+    h   = &h_;
 
     await FOREVER;
 end
