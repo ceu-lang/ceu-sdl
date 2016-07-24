@@ -278,11 +278,11 @@ input int  SDL_DT;
 input _SDL_KeyboardEvent&&    SDL_KEYDOWN,         SDL_KEYUP;
 input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP;
 
-code/delayed SDL_go (var _char&& title,
-                     var int width, var int height,
-                     var SDL_Color? bg)
-                        => (var& _SDL_Renderer_ptr ren)
-                            => void
+code/await SDL_go (var _char&& title,
+                   var int width, var int height,
+                   var SDL_Color? bg)
+                    => (var& _SDL_Renderer_ptr ren)
+                        => void
 do
     var int err = _SDL_Init(_SDL_INIT_EVERYTHING);
     _ceu_callback_assert_msg(err == 0, "SDL_Init failed");
@@ -355,10 +355,10 @@ do
 #endif
 end
 
-code/delayed SDL_open_texture
-                (var& _SDL_Renderer_ptr ren, var _char&& path)
-                    => (var& _SDL_Texture_ptr tex, var& int w, var& int h)
-                        => void
+code/await SDL_open_texture
+            (var& _SDL_Renderer_ptr ren, var _char&& path)
+                => (var& _SDL_Texture_ptr tex, var& int w, var& int h)
+                    => void
 do
     var& _SDL_Texture_ptr? tex_ = &_IMG_LoadTexture(ren, path)
         finalize (tex_) with
@@ -375,9 +375,9 @@ do
     await FOREVER;
 end
 
-code/delayed SDL_open_font (var _char&& path, var int size)
-                                => (var& _TTF_Font_ptr font)
-                                    => void
+code/await SDL_open_font (var _char&& path, var int size)
+                            => (var& _TTF_Font_ptr font)
+                                => void
 do
     var& _TTF_Font_ptr? font_ =
         &_TTF_OpenFont(path, size)
@@ -390,11 +390,11 @@ do
     await FOREVER;
 end
 
-code/delayed SDL_new_text
-                (var& _SDL_Renderer_ptr ren, var& _TTF_Font_ptr font,
-                 var _char&& text, var SDL_Color color)
-                    => (var& _SDL_Texture_ptr tex, var& int w, var& int h)
-                        => void
+code/await SDL_new_text
+            (var& _SDL_Renderer_ptr ren, var& _TTF_Font_ptr font,
+             var _char&& text, var SDL_Color color)
+                => (var& _SDL_Texture_ptr tex, var& int w, var& int h)
+                    => void
 do
     var& _SDL_Texture_ptr? tex_;
     do
@@ -430,9 +430,9 @@ do
     await FOREVER;
 end
 
-code/delayed SDL_open_sound (var _char&& path)
-                                => (var& _Mix_Chunk_ptr sound)
-                                    => void
+code/await SDL_open_sound (var _char&& path)
+                            => (var& _Mix_Chunk_ptr sound)
+                                => void
 do
     var& _Mix_Chunk_ptr? sound_ = &_Mix_LoadWAV("samples/click1.wav")
         finalize (sound_) with
