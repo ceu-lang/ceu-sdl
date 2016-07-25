@@ -272,6 +272,12 @@ data SDL_Rect with
     var int h;
 end
 
+data SDL_Texture with
+    var& _SDL_Texture_ptr ptr;
+    var int width;
+    var int height;
+end
+
 input void SDL_QUIT;
 input _SDL_Renderer&&&& SDL_REDRAW;
 input int  SDL_DT;
@@ -357,20 +363,17 @@ end
 
 code/await SDL_open_texture
             (var& _SDL_Renderer_ptr ren, var _char&& path)
-                => (var& _SDL_Texture_ptr tex, var& int w, var& int h)
+                => (var& SDL_Texture tex)
                     => void
 do
-    var& _SDL_Texture_ptr? tex_ = &_IMG_LoadTexture(ren, path)
-        finalize (tex_) with
-            _SDL_DestroyTexture(tex_!);
+    var& _SDL_Texture_ptr? tex__ = &_IMG_LoadTexture(ren, path)
+        finalize (tex__) with
+            _SDL_DestroyTexture(tex__!);
         end
 
-    var int w_=_, h_=_;
-    _SDL_QueryTexture(tex_!, null, null, &&w_, &&h_);
-
-    tex = &tex_!;
-    w   = &w_;
-    h   = &h_;
+    var SDL_Texture tex_ = val SDL_Texture(&tex__!, _, _);
+    _SDL_QueryTexture(tex_.ptr, null, null, &&tex_.width, &&tex_.height);
+    tex = &tex_;
 
     await FOREVER;
 end
@@ -393,10 +396,10 @@ end
 code/await SDL_new_text
             (var& _SDL_Renderer_ptr ren, var& _TTF_Font_ptr font,
              var _char&& text, var SDL_Color color)
-                => (var& _SDL_Texture_ptr tex, var& int w, var& int h)
+                => (var& SDL_Texture tex)
                     => void
 do
-    var& _SDL_Texture_ptr? tex_;
+    var& _SDL_Texture_ptr? tex__;
     do
         var _SDL_Color c = _;
                        c.r = color.r;
@@ -411,21 +414,18 @@ do
                 end
 
         do
-            tex_ = &_SDL_CreateTextureFromSurface(ren, sfc!);
-        finalize (tex_) with
-            //_SDL_DestroyTexture(tex_!);
+            tex__ = &_SDL_CreateTextureFromSurface(ren, sfc!);
+        finalize (tex__) with
+            //_SDL_DestroyTexture(tex__!);
         end
     end
     do finalize with
-        _SDL_DestroyTexture(tex_!);
+        _SDL_DestroyTexture(tex__!);
     end
 
-    var int w_=_, h_=_;
-    _SDL_QueryTexture(tex_!, null, null, &&w_, &&h_);
-
-    tex = &tex_!;
-    w   = &w_;
-    h   = &h_;
+    var SDL_Texture tex_ = val SDL_Texture(&tex__!, _, _);
+    _SDL_QueryTexture(tex_.ptr, null, null, &&tex_.width, &&tex_.height);
+    tex = &tex_;
 
     await FOREVER;
 end

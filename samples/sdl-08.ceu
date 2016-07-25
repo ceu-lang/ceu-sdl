@@ -12,19 +12,19 @@ watching SDL_go("SDL 8", 800,480, bg) => (ren) do
             end
         end
     with
-        watching SDL_open_texture(&ren, "samples/img.png") => (img_tex, w, h)
+        watching SDL_open_texture(&ren, "samples/img.png") => (img_tex)
         do
-            var SDL_Rect img_rct = val SDL_Rect(100, 100, w, h);
+            var SDL_Rect img_rct = val SDL_Rect(100, 100, img_tex.width, img_tex.height);
             watching SDL_open_font("samples/Deutsch.ttf", 40) => (font)
             do
                 watching SDL_new_text(&ren, &font, "Hello World!",
                                       SDL_Color(0xFF,0xFF,0xFF,0xFF))
-                    => (txt_tex, w, h)
+                    => (txt_tex)
                 do
-                    var SDL_Rect txt_rct = val SDL_Rect(300, 200, w, h);
+                    var SDL_Rect txt_rct = val SDL_Rect(300, 200, txt_tex.width, txt_tex.height);
                     every SDL_REDRAW do
-                        _SDL_RenderCopy(ren, img_tex, null, &&img_rct as _SDL_Rect&&);
-                        _SDL_RenderCopy(ren, txt_tex, null, &&txt_rct as _SDL_Rect&&);
+                        _SDL_RenderCopy(ren, img_tex.ptr, null, &&img_rct as _SDL_Rect&&);
+                        _SDL_RenderCopy(ren, txt_tex.ptr, null, &&txt_rct as _SDL_Rect&&);
                     end
                 end
             end
