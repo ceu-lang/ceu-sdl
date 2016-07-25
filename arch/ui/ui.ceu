@@ -64,7 +64,7 @@ data Ui with
     var   SDL_Color? bg_clr;
 end
 
-code/await Ui_go (var& _SDL_Renderer_ptr ren, var& Ui ui) => void do
+code/await/dynamic Ui_go (var& _SDL_Renderer_ptr ren, var& Ui ui) => void do
     par do
         loop do
             var _SDL_MouseButtonEvent&& but1 =

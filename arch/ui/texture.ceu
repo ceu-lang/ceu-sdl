@@ -7,7 +7,7 @@ data Ui.Texture with
     var _SDL_Texture_ptr tex;
 end
 
-code/await Ui_go (var& _SDL_Renderer_ptr ren, var& Ui.Texture ui) => void do
+code/await/dynamic Ui_go (var& _SDL_Renderer_ptr ren, var& Ui.Texture ui) => void do
     watching Ui_go(&ren, &ui as Ui) do
         every SDL_REDRAW do
             _SDL_RenderCopy(ren, ui.tex, null, &&ui.rect as _SDL_Rect&&);
