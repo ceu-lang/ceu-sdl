@@ -35,6 +35,16 @@ native/const  _SDL_TRUE, _SDL_FALSE,
 native/const  _SDLK_ESCAPE,
               _SDLK_BACKSPACE,
               _SDLK_RETURN,
+              _SDLK_SEMICOLON,
+              _SDLK_UP,
+              _SDLK_DOWN,
+              _SDLK_LEFT,
+              _SDLK_RIGHT,
+              _SDLK_a,
+              _SDLK_d,
+              _SDLK_s,
+              _SDLK_w,
+              _SDLK_z,
               _SDLK_p;
 
 native/nohold _SDL_GL_BindTexture,
@@ -121,6 +131,7 @@ native/nohold _SDL_Circle_vs_Mouse,
 
 native _SDL_Window_ptr, _SDL_Renderer_ptr, _Mix_Chunk_ptr, _SDL_Texture_ptr,
        _TTF_Font_ptr, _SDL_Surface_ptr;
+
 native/pre do
     ##include <SDL2/SDL.h>
     ##include <SDL2/SDL_image.h>
@@ -330,6 +341,7 @@ do
             if bg? then
                 bg_ = bg!;
             end
+            var _SDL_Renderer_ptr&& ptr_ptr;
             every ptr_ptr in SDL_REDRAW do
                 *ptr_ptr = ren_;
                 if bg? then
@@ -339,7 +351,7 @@ do
             end
         with
 #   if 1
-            native _printf, _SDL_GetTicks;
+            native/nohold _printf, _SDL_GetTicks;
             loop do
                 var int n = 0;
                 var u32 old = _SDL_GetTicks();
@@ -434,7 +446,7 @@ code/await SDL_open_sound (var _char&& path)
                             => (var& _Mix_Chunk_ptr sound)
                                 => void
 do
-    var& _Mix_Chunk_ptr? sound_ = &_Mix_LoadWAV("samples/click1.wav")
+    var& _Mix_Chunk_ptr? sound_ = &_Mix_LoadWAV(path)
         finalize (sound_) with
             _Mix_FreeChunk(sound_!);
         end
