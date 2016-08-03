@@ -1,7 +1,6 @@
-#include "sdl.ceu"
+#include "sdl/sdl.ceu"
 
-//input void SDL_REDRAW;
-
+var& _SDL_Renderer_ptr ren;
 watching SDL_go("SDL 1", 800,480, SDL_Color(0xFF,0xFF,0x00,0xFF)) => (ren) do
     var SDL_Rect fg = val SDL_Rect(100,100 , 100,100);
     par do

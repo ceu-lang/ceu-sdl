@@ -1,3 +1,7 @@
+#if 0
+ceu --pre --pre-args="-I/data/ceu/ceu/include -I/data/ceu/ceu-sdl/include" --pre-input="samples/sdl-00.ceu" --ceu --env --env-header=/data/ceu/ceu/env/header.h --env-main=/data/ceu/ceu/env/main.c --env-output=/tmp/x.c --cc --cc-args="-lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lSDL2_gfx -lm -g" --cc-output=/tmp/x.exe
+#endif
+
 input void SDL_REDRAW;
 input void SDL_QUIT;
 

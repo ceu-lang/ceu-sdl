@@ -1,14 +1,12 @@
-#include "sdl.ceu"
+#include "c.ceu"
+#include "sdl/sdl.ceu"
 
-native _ORGS, _rand;
+native _ORGS;
 native/pre do
     int ORGS = 0;
 end
 
-//input void SDL_REDRAW;
-//input int  SDL_DT;
-
-code/delayed Rect (var& _SDL_Renderer_ptr ren, var SDL_Rect rect, var int speed) => void do
+code/await Rect (var& _SDL_Renderer_ptr ren, var SDL_Rect rect, var int speed) => void do
     _ORGS = _ORGS + 1;
         do finalize with
             _ORGS = _ORGS - 1;
@@ -69,6 +67,7 @@ end
 
 var SDL_Color bg = val SDL_Color(0x00,0x00,0x00,0xFF);
 
+var& _SDL_Renderer_ptr ren;
 watching SDL_go("SDL 6", 800,480, bg) => (ren) do
     par do
         loop do

@@ -129,6 +129,10 @@ native/nohold _SDL_Circle_vs_Mouse,
               _SDL_Point2Rect,
               _SDL_Touch2Point;
 
+native
+    _SDL_GetTicks,
+;
+
 native _SDL_Window_ptr, _SDL_Renderer_ptr, _Mix_Chunk_ptr, _SDL_Texture_ptr,
        _TTF_Font_ptr, _SDL_Surface_ptr;
 
@@ -290,8 +294,8 @@ data SDL_Texture with
 end
 
 input void SDL_QUIT;
-input _SDL_Renderer&&&& SDL_REDRAW;
 input int  SDL_DT;
+input _SDL_Renderer&&&& SDL_REDRAW;
 input _SDL_KeyboardEvent&&    SDL_KEYDOWN,         SDL_KEYUP;
 input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP;
 
@@ -351,7 +355,6 @@ do
             end
         with
 #   if 1
-            native/nohold _printf, _SDL_GetTicks;
             loop do
                 var int n = 0;
                 var u32 old = _SDL_GetTicks();

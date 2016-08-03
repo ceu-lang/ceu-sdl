@@ -1,8 +1,8 @@
-#include "sdl.ceu"
+#include "sdl/sdl.ceu"
 
-//input void SDL_REDRAW;
-
-code/delayed Rect (var& _SDL_Renderer_ptr ren, var SDL_Rect rect, var int speed) => void do
+code/await Rect (var& _SDL_Renderer_ptr ren, var SDL_Rect rect, var int speed)
+                    => void
+do
     par/or do
         loop do
             await (1000/speed) ms;
@@ -19,10 +19,11 @@ code/delayed Rect (var& _SDL_Renderer_ptr ren, var SDL_Rect rect, var int speed)
     end
 end
 
+var& _SDL_Renderer_ptr ren;
 watching SDL_go("SDL 2", 800,480, _) => (ren) do
     par do
         var SDL_Color bg = val SDL_Color(0x00,0x00,0x00,0xFF);
-        every ptr_ptr in SDL_REDRAW do
+        every SDL_REDRAW do
             _SDL_SetRenderDrawColor(ren, bg.r,bg.g,bg.b,bg.a);
             _SDL_RenderClear(ren);
         end

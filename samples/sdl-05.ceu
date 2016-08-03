@@ -1,9 +1,9 @@
-#include "sdl.ceu"
-
-//input void SDL_REDRAW;
+#include "c.ceu"
+#include "sdl/sdl.ceu"
 
 var SDL_Color bg = val SDL_Color(0x00,0x00,0x00,0xFF);
 
+var& _SDL_Renderer_ptr ren;
 watching SDL_go("SDL 5", 800,480, bg) => (ren) do
     par do
         var& _Mix_Chunk_ptr? snd = &_Mix_LoadWAV("samples/click1.wav")

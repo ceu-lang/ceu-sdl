@@ -1,10 +1,7 @@
-#include "sdl.ceu"
+#include "c.ceu"
+#include "sdl/sdl.ceu"
 
-//input void SDL_REDRAW;
-//input _SDL_KeyboardEvent&&    SDL_KEYDOWN;
-//input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONDOWN;
-
-code/delayed Rect (var& _SDL_Renderer_ptr ren, var SDL_Rect rect, var int speed) => void do
+code/await Rect (var& _SDL_Renderer_ptr ren, var SDL_Rect rect, var int speed) => void do
     event bool go_pause;
 
     par/or do
@@ -24,7 +21,7 @@ code/delayed Rect (var& _SDL_Renderer_ptr ren, var SDL_Rect rect, var int speed)
             if but:button == _SDL_BUTTON_LEFT then
                 if _SDL_Rect_vs_Mouse((&&rect as _SDL_Rect&&), but) == 1 then
                     is_paused = not is_paused;
-                    emit go_pause => is_paused;
+                    emit go_pause(is_paused);
                 end
             end
         end
@@ -42,6 +39,7 @@ event bool go_pause_all;
 
 var SDL_Color bg = val SDL_Color(0x00,0x00,0x00,0xFF);
 
+var& _SDL_Renderer_ptr ren;
 watching SDL_go("SDL 4", 800,480, bg) => (ren) do
     loop do
         par/or do
@@ -49,7 +47,6 @@ watching SDL_go("SDL 4", 800,480, bg) => (ren) do
                 do
                     pool[5] Rect rs;
                     every 1s do
-                        native _rand;
                         spawn Rect(&ren, SDL_Rect(100,50+_rand()%380,20,20),
                                          10 + _rand()%20)
                                 in rs;
@@ -64,7 +61,7 @@ watching SDL_go("SDL 4", 800,480, bg) => (ren) do
                     break;
                 else/if key:keysym.sym == _SDLK_p then
                     is_paused = not is_paused;
-                    emit go_pause_all => is_paused;
+                    emit go_pause_all(is_paused);
                 end
             end
         end
