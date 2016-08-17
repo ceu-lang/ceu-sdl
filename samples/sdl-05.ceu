@@ -47,9 +47,18 @@ watching SDL_go("SDL 5", 800,480, bg) => (ren) do
             _SDL_DestroyTexture(str_tex!);
         end
 
-        every SDL_REDRAW do
-            _SDL_RenderCopy(ren, img_tex!, null, &&img_r as _SDL_Rect&&);
-            _SDL_RenderCopy(ren, str_tex!, null, &&str_r as _SDL_Rect&&);
+        par do
+            var _SDL_KeyboardEvent&& key;
+            every key in SDL_KEYDOWN do
+                if key:keysym.sym == _SDLK_RIGHT then
+                    img_r.x = img_r.x + 10;
+                end
+            end
+        with
+            every SDL_REDRAW do
+                _SDL_RenderCopy(ren, img_tex!, null, &&img_r as _SDL_Rect&&);
+                _SDL_RenderCopy(ren, str_tex!, null, &&str_r as _SDL_Rect&&);
+            end
         end
     end
 end
