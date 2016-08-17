@@ -1,0 +1,631 @@
+#include "c.ceu"
+#include "sdl/sdl.ceu"
+
+#define WIN_W 640
+#define WIN_H 480
+
+data Vector2D with
+	var int x,y;
+end;
+
+data Axis with
+    var float pos;
+    var int   len;
+    var float vel;
+    var float acc;
+    var float drag;
+end
+
+data IPhysics with
+	var Axis x;
+	var Axis y;
+end
+
+var& _SDL_Renderer_ptr ren;
+watching SDL_go("Storm", WIN_W, WIN_H, SDL_Color(0x21,0x2c,0x34,0x00))
+            => (ren)
+do
+code/await Physics (var SDL_Rect rct, var SDL_Color clr)
+                    => (var& IPhysics physics)
+                        => void
+do
+    var IPhysics phys_ = val IPhysics(
+                                Axis(rct.x, rct.w, 0, 0, 0.95),
+                                Axis(rct.y, rct.h, 0, 0, 0.95),
+                             );
+    physics = &phys_;
+
+	par do
+        var int dt_ = _;
+	    every dt_ in SDL_DT do
+            var float dt = (dt_ as float)/1000;
+	    	phys_.x.vel = (phys_.x.vel + phys_.x.acc*dt) * phys_.x.drag;
+	    	phys_.y.vel = (phys_.y.vel + phys_.y.acc*dt) * phys_.y.drag;
+	        phys_.x.pos = phys_.x.pos + phys_.x.vel*dt;
+	        phys_.y.pos = phys_.y.pos + phys_.y.vel*dt;
+	    end
+	with
+	    every SDL_REDRAW do
+	        _SDL_SetRenderDrawColor(outer.ren, clr.r, clr.g, clr.b, clr.a);
+            var SDL_Rect r = val SDL_Rect(phys_.x.pos as int, phys_.y.pos as int,
+                                          phys_.x.len as int, phys_.y.len as int);
+	        _SDL_RenderFillRect(outer.ren, (&&r as _SDL_Rect&&));
+	    end
+	end
+end
+
+code/await Wheel (var& IPhysics car, var Vector2D offset) => void
+do
+	var int radius = 15;
+	var float esp = (2 * 3.1415 / 12);
+	var float pos = 0;
+	
+	par do
+        var int dt = _;
+	    every dt in SDL_DT do	    	
+	    	var int s = do
+                if car.x.vel >= 0 then 
+                    escape  1; 
+                else
+                    escape -1; 
+                end
+            end;
+
+	    	var float mod = _sqrt(_pow(car.x.vel,2) + _pow(car.y.vel,2));
+			pos = pos + (s * mod * dt / 1000 / radius);
+        end
+    with
+        every SDL_REDRAW do
+            _SDL_SetRenderDrawColor(outer.ren, 0xFF, 0x9D, 0x46, 0x00);
+			loop i in [0 -> 12[ do
+                var SDL_Rect r =
+                    val SDL_Rect(
+                        (car.x.pos + offset.x + (radius * _cos(i*esp + pos))) as int,
+                        (car.y.pos + offset.y + (radius * _sin(i*esp + pos))) as int,
+                        5, 5
+                    );
+				_SDL_RenderFillRect(outer.ren, (&&r as _SDL_Rect&&)); 
+			end	 
+        end 
+	end	
+end
+
+code/await Car (void) => void
+do
+    var& IPhysics car;
+    watching Physics(SDL_Rect(320,430, 60,30), SDL_Color(0x3B,0xBC,0x48,0))
+                => (car)
+    do
+        spawn Wheel(&car, Vector2D(        0, car.y.len));
+        spawn Wheel(&car, Vector2D(car.x.len, car.y.len));
+
+        par do
+            loop do
+                var _SDL_KeyboardEvent&& key;
+                key = await SDL_KEYDOWN until key:keysym.sym==_SDLK_LEFT;
+                car.x.acc = -400;
+                key = await SDL_KEYUP   until key:keysym.sym==_SDLK_LEFT;
+                car.x.acc = 0;
+            end
+        with
+            loop do
+                var _SDL_KeyboardEvent&& key;
+                key = await SDL_KEYDOWN until key:keysym.sym==_SDLK_RIGHT;
+                car.x.acc = 400;
+                key = await SDL_KEYUP   until key:keysym.sym==_SDLK_RIGHT;
+                car.x.acc = 0;
+            end
+        end
+    end
+end
+
+    await Car();
+end
+
+escape 0;
+
+#if 0
+#include "sdl.ceu"
+
+#define MAX_GOTAS_PORSEGUNDO 100
+#define MIN_GOTAS_PORSEGUNDO 10
+#define	GOTAS_DECAY_TIME_MS 2000
+#define PI 3.14159265
+
+native @nohold _printf;
+
+// Estruturas de dados
+data RGBA with
+	var int r,g,b,a;
+end;
+
+input void SDL_REDRAW;
+input void SDL_QUIT;
+input int  SDL_DT;
+input _SDL_KeyboardEvent&& SDL_KEYDOWN;
+input _SDL_KeyboardEvent&& SDL_KEYUP;
+input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONDOWN;
+
+// Roda anexavel a um PhysOrganism
+class Gira with 
+	var _SDL_Renderer& ren;
+	var PhysOrganism& po;
+	var Vetor2D desloc = Vetor2D( 0 , 0 );
+	var int raio = 15;
+	var RGBA cor = RGBA( 0xFF , 0x9D, 0x46 , 0x00 );	
+do		
+	var _SDL_Rect[12] rects = [];
+		loop i in 12 do
+			rects[i] = _SDL_Rect( 0 , 0 , 5 , 5 );
+		end	
+	var float rad_esp = ( 2 * 3.1415 ) / 12;
+	var float rad_pos = 0;
+	
+	par do
+	    every dt in SDL_DT do	    	
+	    	var int s = 1; 
+			if( this.po.phys_.x.vel < 0 ) then 
+				s = -1; 
+			end
+			rad_pos = rad_pos + ( s * this.po.vel_mod / 1000.0 * dt / this.raio );
+        end
+    with
+        every SDL_REDRAW do
+            _SDL_SetRenderDrawColor(&&this.ren, cor.r , cor.g , cor.b , cor.a );
+			loop i in 12 do
+				rects[i].x = (this.po.phys_.x.pos/1000) + this.desloc.x + ( this.raio * _cos( ( i * rad_esp ) + rad_pos ) );
+				rects[i].y = (this.po.phys_.y.pos/1000) + this.desloc.y + ( this.raio * _sin( ( i * rad_esp ) + rad_pos ) );
+				_SDL_RenderFillRect(&&this.ren, &&rects[i]); 
+			end	 
+        end 
+	end	
+end
+
+
+// Região de explosão
+class Explosao with
+	var _SDL_Rect r = _SDL_Rect( 0 , 0 , 30 , 30 );
+	var int magnitude = 200;	
+	var int raio = 30;
+	var Vetor2D pos;
+
+	function (Vetor2D obj_centro)=>Vetor2D getVel;	// Retorna a intensidade da explosao baseado na distancia para o centro dela 
+do
+	// Recalcula o retangulo centrado
+	r = _SDL_Rect( phys_.x.pos-raio , phys_.y.pos-raio , raio*2 , raio*2 );
+	
+	// Retorna a intensidade da explosao baseado na distancia para o centro dela
+	function (Vetor2D obj_centro)=>Vetor2D getVel do
+		var Vetor2D exp_centro = Vetor2D( (r.x+r.x+r.w)/2 , (r.y+r.y+r.h)/2 );
+		var float dist = _sqrt( _pow( (obj_centro.x - exp_centro.x) , 2 ) + _pow( (obj_centro.y - exp_centro.y) , 2) );
+		var float perc_dist = dist/raio;
+
+		// Fora do raio
+		if( perc_dist > 1 ) then
+			var Vetor2D vel = Vetor2D(0,0);
+			return vel;
+		// Valor minimo
+		else/if perc_dist < 0.1 then
+			perc_dist = 0.1;
+		end
+		// Ajusta perc_dist para a formula cossenoidal ( atenuacao nao linear )
+		perc_dist = 1.0 - (_cos(perc_dist * PI));	
+		// Valores finais
+		var Vetor2D vel = Vetor2D( _cos(perc_dist)*magnitude , _sin(perc_dist)*magnitude*-1 );
+		// Ajuste de direção
+		if obj_centro.x < exp_centro.x then phys_.x.vel = -phys_.x.vel; end
+		if obj_centro.y < exp_centro.y then phys_.y.vel = -phys_.y.vel; end
+
+		return vel;
+	end
+	
+	await 100ms;
+end
+
+
+// Gota de chuva
+class Gota with
+    var _SDL_Renderer& ren;	
+    var Vetor2D pos = Vetor2D( 0 , 0 );
+    var Vetor2D vel = Vetor2D( 0 , 0 );
+	var int tam = 2;
+	var int colisoes = 0;
+   	
+	event void terminate;	// Termina instantaneamente
+	event void decay;		// Termina depois de GOTAS_DECAY_TIME_MS milisegundos
+	
+	function (void)=>PhysOrganism& getPhysOrg;
+do
+	var PhysOrganism po = PhysOrganism.build(&ren,phys_.x.pos, phys_.y.pos,2,5);
+	po.drag = Vetor2D( 98 , 98 );
+	po.vel = Vetor2D( this.phys_.x.vel , this.phys_.y.vel );
+	po.phys_.y.acc = 500;	
+	this.po.cor = RGBA( 0x98 , 0xC1 , 0xE4 , 0 );
+		
+	function (void)=>PhysOrganism& getPhysOrg do
+		return &(this.po);
+	end  
+	
+	par/or do
+	    every dt in SDL_DT do	  
+			// Checa se a gota chegou ao final da tela
+	    	if ( po.phys_.y.pos > WIN_H-2000 ) then 
+	    		po.phys_.y.pos  = WIN_H-2000;
+	    		po.phys_.y.vel = -(po.phys_.y.vel*2/3);
+				colisoes = colisoes + 1;
+				emit this.decay;
+	    	end
+	    	if ( (po.phys_.x.pos > WIN_W) | (po.phys_.y.pos < 0) | ( po.phys_.x.pos < 0 ) ) then emit this.terminate; end
+	    	// Tamanho da gota de acordo com a velocidade
+	    	var int abs_vx = _abs( po.phys_.x.vel );
+	    	var int abs_vy = _abs( po.phys_.y.vel );
+			// Ajuste de tamanho
+	    	if abs_vx > abs_vy then
+	    		po.phys_.x.len = tam * ( 1 + ( ( abs_vx - abs_vy ) / 100 ) );
+	    		po.phys_.y.len = tam;
+	    	else
+	    		po.phys_.x.len = tam;	  
+	    		po.phys_.y.len = tam * ( 1 + ( ( abs_vy - abs_vx ) / 100 ) );  		
+	    	end
+			// Tamanho maximo
+			var int tmax = tam * 4;
+			if po.phys_.x.len > tmax then po.phys_.x.len = tmax; end
+			if po.phys_.y.len > tmax then po.phys_.y.len = tmax; end
+        end
+    with
+    	await this.terminate;
+	with
+		await this.decay;
+		await (GOTAS_DECAY_TIME_MS)ms;
+    end
+end 
+
+
+// Gerenciador de colisões globais
+class Colisor with
+	pool Gota[]& gotas;
+	pool Explosao[]& explosoes;
+	var PhysOrganism& po;
+
+do
+	every dt in SDL_DT do			
+		// Colisao gota a gota	
+		loop go1 in gotas do
+			var PhysOrganism& goPo = &(go1:getPhysOrg());
+			// Calcula colisao com o player			
+			if _SDL_HasIntersection( &&(po.r) , &&(goPo.r) ) then
+				if goPo.r.y < po.r.y then
+					// Colisao acima do player
+					goPo.phys_.y.pos = po.phys_.y.pos - (goPo.phys_.y.len*1000);		
+					goPo.phys_.y.vel = -( goPo.phys_.y.vel / 3 );			
+					goPo.phys_.x.vel = po.phys_.x.vel / 2;
+					go1:colisoes = go1:colisoes + 1;
+				else
+					// Colisao nas laterais do player
+					goPo.phys_.x.vel = po.phys_.x.vel * 2;
+					goPo.phys_.y.vel = -(_abs(po.phys_.x.vel));
+				end
+			end
+
+			// Calcula colisao com a explosao
+			loop ex in explosoes do
+				if _SDL_HasIntersection( &&(goPo.r) , &&(ex:r) ) then					
+					var Vetor2D vel = Vetor2D( goPo.r.x , goPo.r.y );
+					vel = ex:getVel( vel );
+					goPo.phys_.x.vel = goPo.phys_.x.vel + (phys_.x.vel*dt);
+					goPo.phys_.y.vel = goPo.phys_.y.vel + (phys_.y.vel*dt);
+				end
+			end
+
+			// Calcula colisao com outras gotas e faz as gotas escorrerem para o lado durante uma colisão
+			loop go2 in gotas do
+				if go1 > go2 and _SDL_HasIntersection( &&(go1:getPhysOrg().r) , &&(go2:getPhysOrg().r) ) then
+					if go1:colisoes > 0 then	
+						go1:getPhysOrg().phys_.x.vel = +50;
+					end
+					if go2:colisoes > 0 then	
+						go2:getPhysOrg().phys_.x.vel = -50;
+					end
+				end
+			end
+		end //Loop Go1	
+
+		// Colisao das explosoes com o carro
+		loop ex in explosoes do
+			if _SDL_HasIntersection( &&(po.r) , &&(ex:r) ) then					
+				var Vetor2D vel = Vetor2D( po.r.x , po.r.y );
+				vel = ex:getVel( vel );
+				po.phys_.x.vel = po.phys_.x.vel + (phys_.x.vel*dt/20);
+			end
+		end		
+	end
+end
+
+
+// Nuvem
+class Cloud with
+    var _SDL_Renderer& ren;
+    var _SDL_Rect      r;
+    var int            vx;
+	var int gotasPorSegundo = 1;
+    pool Gota[]& gotas;
+
+	event void pisca;    
+do				
+    var Vetor2D pos_nuvem = Vetor2D( -this.r.w * 1000 , 0);
+    var int frequencia = 1000 / gotasPorSegundo; 
+	var int frequencia_atual = frequencia;   
+    var int maxy = 2 * 1000 / MIN_GOTAS_PORSEGUNDO;
+	var int ty = (maxy-(frequencia_atual*2));
+
+	if ty < 1 then ty = 1; end
+	this.r.y = ty;
+
+	var RGBA cor = RGBA( 200-(200*ty/maxy) , (200-(200*ty/maxy))*0.95 , 200-(200*ty/maxy) , 0 );
+    
+    par do // Criador de chuva -----------------------------	
+    	every (frequencia_atual)ms do
+			spawn Gota in gotas with
+				this.ren = &ren;
+				this.pos = Vetor2D( (_rand() % r.w + r.x) * 1000 , (r.y+r.h) * 1000 );
+				this.phys_.x.vel = vx;
+			end;	
+    	end
+	with // Mudança gradual de frequencia -----------------------------			
+		loop do 
+			frequencia = 1000/gotasPorSegundo;			
+			if frequencia != frequencia_atual then	
+				if _abs(frequencia - frequencia_atual) < 1 then frequencia_atual = frequencia;
+				else/if (frequencia - frequencia_atual) > 0 then frequencia_atual = frequencia_atual + 1;
+				else frequencia_atual = frequencia_atual - 1; end
+								
+				ty = (maxy-(frequencia_atual*2));
+				if ty < 1 then ty = 1; end
+				this.r.y = ty;
+				cor.r =  200-(200*ty/maxy); cor.g = cor.r*0.95; cor.b = cor.r;
+			end			
+			await 50ms;	
+		end
+    with // Movimento em X -----------------------------	
+        every dt in SDL_DT do
+            pos_nuvem.x = pos_nuvem.x + this.vx*dt;
+            if pos_nuvem.x > 640000 then	pos_nuvem.x = -this.r.w * 1000;	end   
+        end
+	with // Pisca com o relampago -------------------
+		loop do
+			await this.pisca;
+			var RGBA cor_s = RGBA( cor.r , cor.g , cor.b , cor.a );
+			cor = RGBA( 0xff , 0xff , 0xff , 0 );
+			await 100ms;
+			cor = RGBA( cor_s.r , cor_s.g , cor_s.b , cor_s.a );
+		end
+    with // Redraw -----------------------------	
+        every SDL_REDRAW do
+            _SDL_SetRenderDrawColor(&&this.ren, cor.r , cor.g , cor.b , cor.a );
+            this.r.x = pos_nuvem.x / 1000;
+            _SDL_RenderFillRect(&&this.ren, &&this.r);
+        end
+    end
+end
+
+
+// Relampago
+class Relampago with
+	var _SDL_Renderer& ren;	
+	pool Relampago[]& relampagos;
+	pool Explosao[]& explosoes;	
+
+	var Vetor2D pos_inicial;
+	var int direcao = 270; // Direcao em graus
+	var int caos = 30; // Maximo de aleatoriedade na direcao ( graus )
+	var int magnitude = 50; // Distancia percorrida na direcao
+
+	var int fork = 0; // Checa se é um galho
+do	
+	//Define posicao final do relampago
+	var Vetor2D pos_final = Vetor2D( 0 , 0 );
+	var float direcaoRad = PI * ( direcao - caos + (_rand()%(caos*2)) ) / 180.0;
+	pos_final.x = pos_inicial.x + ( _cos(direcaoRad) * magnitude );
+	pos_final.y = pos_inicial.y - ( _sin(direcaoRad) * magnitude );
+
+	//Loop existencial
+	par/or do	
+		every SDL_REDRAW do
+		    _SDL_SetRenderDrawColor(&&this.ren, 0xEA , 0xD7 , 0xFF , 0 );
+		    _SDL_RenderDrawLine( &&this.ren ,  pos_inicial.x , pos_inicial.y , pos_final.x , pos_final.y );
+		end
+	with
+		if( pos_final.y >= WIN_H/1000 ) then
+			if fork == 0 then
+				spawn Explosao in explosoes with
+					this.magnitude = 20;	
+					this.raio = 80;
+					this.pos = Vetor2D( (pos_inicial.x + pos_final.x)/2 , (WIN_H/1000) + (this.raio * 0.20) );					
+				end;
+			end	
+		// Cria outro relampago -> continuação do tronco
+		else/if( magnitude > 5 ) then
+			await 20ms;
+			spawn Relampago in relampagos with
+				this.ren = &ren;	
+				this.relampagos = &relampagos;
+				this.explosoes = &explosoes;
+				this.pos_inicial = Vetor2D(  pos_final.x ,  pos_final.y );
+				if fork == 0 then this.magnitude = magnitude;
+				else this.magnitude = magnitude * 0.9; end
+				this.direcao = direcao;
+				this.fork = fork;
+			end;
+			// Cria possivel bifurcação ( outro relampago, so que com magnitude menor )
+			if( _rand()%WIN_H > (pos_inicial.y*1000) ) then
+				spawn Relampago in relampagos with
+					this.ren = &ren;	
+					this.relampagos = &relampagos;
+					this.explosoes = &explosoes;
+					this.pos_inicial = Vetor2D(  pos_inicial.x ,  pos_inicial.y );
+					this.magnitude = magnitude * 0.5;
+					this.direcao = _rand()%180 + 180;
+					this.fork = 1;
+				end;
+			end
+		end		
+		await FOREVER;
+	with
+		// Morre depois de um tempo
+		await 150ms;
+	end
+end
+
+
+// Criador de gotas de chuva e verificador de colisao
+class Temporal with
+	var _SDL_Renderer& ren;	
+
+	pool Gota[]& gotas;
+	pool Explosao[]& explosoes;
+		
+	var int nuvem_qtd = 3;
+do	
+	pool Cloud[] nuvens;
+	pool Relampago[] relampago_pool;
+
+	var int gotas_pseg_atual = 0;
+		
+	// Inicia Temporal 
+	loop i in nuvem_qtd do
+		var int gps = ( _rand()%(MAX_GOTAS_PORSEGUNDO-gotas_pseg_atual) )+MIN_GOTAS_PORSEGUNDO;
+		if gps < 0 then gps = 1; end
+		gotas_pseg_atual = gotas_pseg_atual + gps;
+		spawn Cloud in nuvens with
+			var int w = 100 + _rand()%100;
+			var int h = 20 + _rand()%50;
+			var int y = 5 + _rand()%150;
+			this.ren = &ren;
+			this.r   = _SDL_Rect(0,y,w,h);
+			this.vx  = 10 + _rand()%50;	
+			this.gotas = &gotas;
+			this.gotasPorSegundo = gps;
+		end;
+	end 
+	
+	par do
+		// Varia tempo
+		loop do
+			await ( (_rand()%10) + 1 )s;
+			loop n in nuvens do
+				if (_rand()%nuvem_qtd) > 0 then
+					gotas_pseg_atual = gotas_pseg_atual - n:gotasPorSegundo;
+					if gotas_pseg_atual > MAX_GOTAS_PORSEGUNDO then
+						gotas_pseg_atual = MAX_GOTAS_PORSEGUNDO;
+					else/if gotas_pseg_atual < MIN_GOTAS_PORSEGUNDO then
+						gotas_pseg_atual = MIN_GOTAS_PORSEGUNDO;
+					end;
+					var int gps = ( _rand()%(MAX_GOTAS_PORSEGUNDO-gotas_pseg_atual) )+MIN_GOTAS_PORSEGUNDO;
+					if gps < 0 then gps = 1; end
+					gotas_pseg_atual = gotas_pseg_atual + gps;
+					n:gotasPorSegundo = gps;
+				end
+			end	
+			_printf("\nGotas por Segundo atual: %d/%d\n",gotas_pseg_atual,MAX_GOTAS_PORSEGUNDO);
+		end
+	with
+		loop do
+			await SDL_DT;
+			// Colisão - Detecta se nuvens colidiram para criar relampagos
+			var Vetor2D?[] relampagos; 
+			var Cloud&&?[] nuv1;
+			var Cloud&&?[] nuv2;
+			loop nu1 in nuvens do
+				loop nu2 in nuvens do
+					if nu1 > nu2 and _SDL_HasIntersection( &&(nu1:r) , &&(nu2:r) ) then
+						var Vetor2D p = Vetor2D( (nu1:r.x + nu2:r.x + nu2:r.w )/2 , (nu1:r.y + nu1:r.h + nu2:r.y + nu2:r.h )/2 );							
+						relampagos = []..relampagos..[p]; // Adiciona a relampago ao vetor
+						nuv1 = []..nuv1..[nu1];
+						nuv2 = []..nuv2..[nu2];	
+						break;					
+					end
+				end
+			end
+			// Cria relampago
+			loop i in $relampagos do 
+				if relampagos[i]? then 
+					spawn Relampago in relampago_pool with
+						this.ren = &ren;	
+						this.pos_inicial = relampagos[i]!;
+						this.relampagos = &relampago_pool;
+						this.explosoes = &explosoes;
+					end;
+				end 
+			end	
+			// Pisca nuvens
+			loop i in $nuv1 do 
+				if nuv1[i]? then
+					emit nuv1[i]!:pisca;
+				end
+			end
+			loop i in $nuv2 do 
+				if nuv2[i]? then
+					emit nuv2[i]!:pisca;
+				end
+			end
+			// Aguarda delay para o proximo relampago
+			await (_rand()%3)s;
+		end
+	with
+		// Debug
+		loop do
+            var _SDL_KeyboardEvent&& key;
+            key = await SDL_KEYDOWN until key:keysym.sym==_SDLK_DOWN;
+			spawn Relampago in relampago_pool with
+				this.ren = &ren;	
+				this.pos_inicial = Vetor2D ( 300 , 0 );
+				this.relampagos = &relampago_pool;
+				this.explosoes = &explosoes;
+			end;			
+		end
+	end
+end
+
+// INICIO DO LOOP DE JOGO
+
+_srand(_time(null));
+
+par/or do
+with
+	pool Gota[] gotas;
+	pool Explosao[] explosoes;
+
+
+	// Tratador de colisoes
+	var Colisor colisor with
+		this.po = &(p.getPhysOrg());
+		this.gotas = &gotas;
+		this.explosoes = &explosoes;
+	end;    
+    
+	// Inicia controlador de chuva
+	var Temporal nuvens with
+		this.ren = &renderer!;
+		this.gotas = &gotas;
+		this.explosoes = &explosoes;
+	end;
+    
+    // Inicializa Anexavel
+	var Gira _ with
+	    this.ren = &renderer!;
+		this.po = &(p.getPhysOrg());
+		this.desloc = Vetor2D( 0 , this.po.phys_.y.len);
+	end;
+	var Gira _ with
+	    this.ren = &renderer!;
+		this.po = &(p.getPhysOrg());
+		this.desloc = Vetor2D( this.po.phys_.x.len , this.po.phys_.y.len);
+	end; 
+
+    await FOREVER;
+end
+
+escape 0;
+
+// e63b95a6905d278fb2ea187f8cad63ede552b4d6
+#endif
