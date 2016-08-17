@@ -354,7 +354,7 @@ do
                 end
             end
         with
-#   if 1
+#   if 0
             loop do
                 var int n = 0;
                 var u32 old = _SDL_GetTicks();

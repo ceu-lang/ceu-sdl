@@ -1,5 +1,5 @@
 #if 0
-ceu --pre --pre-args="-I/data/ceu/ceu/include -I/data/ceu/ceu-sdl/include" --pre-input="samples/sdl-00.ceu" --ceu --env --env-header=/data/ceu/ceu/env/header.h --env-main=/data/ceu/ceu/env/main.c --env-output=/tmp/x.c --cc --cc-args="-lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lSDL2_gfx -lm -g" --cc-output=/tmp/x.exe
+ceu --pre --pre-args="-I/data/ceu/ceu/include -I/data/ceu/ceu-sdl/include" --pre-input="samples/sdl-00.ceu" --ceu --env --env-header=/data/ceu/ceu/env/header.h --env-main=/data/ceu/ceu/env/main.c --env-output=/tmp/x.c --cc --cc-args="-lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lSDL2_gfx -lm -llua5.3 -g" --cc-output=/tmp/x.exe
 #endif
 
 input void SDL_REDRAW;
@@ -7,10 +7,9 @@ input void SDL_QUIT;
 
 native _SDL_Init, _SDL_INIT_EVERYTHING, _SDL_Quit, _SDL_Window_ptr, 
        _SDL_CreateWindow, _SDL_WINDOWPOS_CENTERED, _SDL_WINDOW_SHOWN,
-       _SDL_DestroyWindow, _SDL_Renderer_ptr, _SDL_CreateRenderer,
-       _SDL_DestroyRenderer, _SDL_Rect, _SDL_SetRenderDrawColor,
-       _SDL_RenderPresent, _SDL_Delay;
-native/nohold _SDL_RenderFillRect;
+       _SDL_Renderer_ptr, _SDL_Rect, _SDL_Delay;
+native/nohold _SDL_DestroyWindow, _SDL_CreateRenderer, _SDL_DestroyRenderer,
+              _SDL_RenderPresent, _SDL_RenderFillRect, _SDL_SetRenderDrawColor;
 
 native/pre do
     ##include <SDL2/SDL.h>
