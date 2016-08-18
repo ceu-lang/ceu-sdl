@@ -125,10 +125,8 @@ do
     end
 end
 
-code/await Cloud (var int dps) => (var& int dps_out) => void
+code/await Cloud (pool&[] Drop drops, var int dps) => (var& int dps_out) => void
 do
-    pool[] Drop drops;
-
     dps_out = &dps;
 
     var int maxy = 2 * 1000 / DROPS_PERSEC_MIN;
@@ -195,6 +193,7 @@ end
 
 code/await Storm (void) => void
 do
+    pool[] Drop  drops;
     pool[] Cloud clouds;
 
     var int dps_cur = 0;
@@ -206,10 +205,10 @@ do
         end
         dps_cur = dps_cur + dps;
 
-        spawn Cloud(dps) in clouds;
+        spawn Cloud(&drops, dps) in clouds;
     end
 
-        every 1s do
+        every (_rand()%10 + 1)s do
             var& int dps_cloud;
             loop (dps_cloud) in clouds do
                 if _rand()%3 > 0 then
