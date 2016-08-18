@@ -193,7 +193,8 @@ end
 native/pos do
     ##define ceu_callback_env(cmd,evt,params) ceu_sdl_callback(cmd,evt,params)
 
-    static u32 old;
+    u32 old;
+    s32 wclock_min = CEU_WCLOCK_INACTIVE;
 
     void ceu_sdl_init (void) {
         old = SDL_GetTicks();
@@ -201,7 +202,8 @@ native/pos do
 
     void ceu_sdl_step (void) {
         SDL_Event evt;
-        int has = SDL_PollEvent(&evt);
+        //int has = SDL_PollEvent(&evt);
+        int has = SDL_WaitEventTimeout(&evt, 30);
 
         // WCLOCK / SDL_DT
         {
@@ -210,7 +212,13 @@ native/pos do
             s32 dt_us = dt_ms*1000;
             ceu_dbg_assert(dt_ms >= 0);
             old = now;
+
             ceu_go_ext(CEU_INPUT__WCLOCK, &dt_us);
+            while (wclock_min <= 0) {
+                dt_us = 0;
+                ceu_go_ext(CEU_INPUT__WCLOCK, &dt_us);
+            }
+
             ceu_go_ext(CEU_INPUT_SDL_DT, &dt_ms);
         }
 
@@ -259,6 +267,10 @@ native/pos do
             case CEU_CALLBACK_STEP:
                 ret.is_handled = 1;
                 ceu_sdl_step();
+                break;
+            case CEU_CALLBACK_WCLOCK_MIN:
+                ret.is_handled = 1;
+                wclock_min = p1.num;
                 break;
             default:
                 ret.is_handled = 0;
