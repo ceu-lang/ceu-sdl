@@ -1,6 +1,10 @@
 #include "c.ceu"
 #include "sdl/sdl.ceu"
 
+native/pos do
+    ##include <time.h>
+end
+
 #define WIN_W 640
 #define WIN_H 480
 
@@ -298,6 +302,8 @@ do
         end
     end
 end
+
+    _srand(_time(null));
 
     spawn Car();
     spawn Storm();
