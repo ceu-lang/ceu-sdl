@@ -107,7 +107,7 @@ do
                     drop.y.len = DROP_LEN;
                 else
                     drop.x.len = DROP_LEN;
-                    drop.y.len = DROP_LEN * (1 + (abs_vy-abs_vx)/100);  
+                    drop.y.len = DROP_LEN * (1 + (abs_vy-abs_vx)/100);
                 end
 
                 var int tmax = DROP_LEN * 4;
@@ -166,7 +166,8 @@ do
         with
             loop do
                 await 50ms;
-                if freq_ini == freq_cur then    
+                freq_ini = 1000 / dps;
+                if freq_ini == freq_cur then
                     continue;
                 end
 
@@ -177,13 +178,16 @@ do
                 else
                     freq_cur = freq_cur - 1;
                 end
-                                
+
                 ty = maxy - freq_cur*2;
                 if ty < 1 then
                     ty = 1;
                 end
                 cloud.y.pos = ty;
-                //cor.r =  200-(200*ty/maxy); cor.g = cor.r*0.95; cor.b = cor.r;
+                cloud.clr = val SDL_Color(200-(200*ty/maxy),
+                                          ((cloud.clr.r as int)*0.95) as u8,
+                                          cloud.clr.r,
+                                          cloud.clr.a);
             end
         end
     end
@@ -223,7 +227,7 @@ do
                     dps_cur = dps_cur + dps;
                     dps_cloud = dps;
                 end
-            end    
+            end
             _printf("\nGotas por Segundo atual: %d/%d\n",dps_cur,DROPS_PERSEC_MAX);
         end
 end
@@ -236,7 +240,7 @@ do
 
     par do
         var int dt = _;
-        every dt in SDL_DT do        
+        every dt in SDL_DT do
             var int s = do
                 if car.x.vel >= 0 then
                     escape  1;
