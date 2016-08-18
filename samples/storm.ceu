@@ -25,6 +25,7 @@ end
 data IPhysics with
     var Axis x;
     var Axis y;
+    var SDL_Color clr;
 end
 
 var& _SDL_Renderer_ptr ren;
@@ -38,6 +39,7 @@ do
     var IPhysics phys_ = val IPhysics(
                                 Axis(rct.x, rct.w, 0, 0, 0),
                                 Axis(rct.y, rct.h, 0, 0, 0),
+                                clr,
                              );
     physics = &phys_;
 
@@ -54,9 +56,15 @@ do
         end
     with
         every SDL_REDRAW do
-            _SDL_SetRenderDrawColor(outer.ren, clr.r, clr.g, clr.b, clr.a);
-            var SDL_Rect r = val SDL_Rect(phys_.x.pos as int, phys_.y.pos as int,
-                                          phys_.x.len as int, phys_.y.len as int);
+            _SDL_SetRenderDrawColor(outer.ren,
+                                    phys_.clr.r,
+                                    phys_.clr.g,
+                                    phys_.clr.b,
+                                    phys_.clr.a);
+            var SDL_Rect r = val SDL_Rect(phys_.x.pos as int,
+                                          phys_.y.pos as int,
+                                          phys_.x.len as int,
+                                          phys_.y.len as int);
             _SDL_RenderFillRect(outer.ren, (&&r as _SDL_Rect&&));
         end
     end
