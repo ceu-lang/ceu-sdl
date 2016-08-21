@@ -8,9 +8,13 @@ native/plain  _SDL_Rect, _SDL_Point, _SDL_Color,
               _SDL_MouseButtonEvent,
               _SDL_KeyboardEvent,
               _SDL_Renderer,
+              _SDL_Surface,
               _SDL_TouchFingerEvent,
               _SDL_Texture,
-              _SDL_Window;
+              _SDL_Window,
+              _Mix_Chunk,
+              _TTF_Font,
+;
 
 native/const  _SDL_TRUE, _SDL_FALSE,
               _SDL_BLENDMODE_NONE, _SDL_BLENDMODE_BLEND,
@@ -133,22 +137,12 @@ native
     _SDL_GetTicks,
 ;
 
-native _SDL_Window_ptr, _SDL_Renderer_ptr, _Mix_Chunk_ptr, _SDL_Texture_ptr,
-       _TTF_Font_ptr, _SDL_Surface_ptr;
-
 native/pre do
     ##include <SDL2/SDL.h>
     ##include <SDL2/SDL_image.h>
     ##include <SDL2/SDL_mixer.h>
     ##include <SDL2/SDL_ttf.h>
     ##include <SDL2/SDL2_gfxPrimitives.h>
-
-    typedef SDL_Window*   SDL_Window_ptr;
-    typedef SDL_Renderer* SDL_Renderer_ptr;
-    typedef Mix_Chunk*    Mix_Chunk_ptr;
-    typedef SDL_Texture*  SDL_Texture_ptr;
-    typedef TTF_Font*     TTF_Font_ptr;
-    typedef SDL_Surface*  SDL_Surface_ptr;
 
     int SDL_Rect_vs_Mouse (SDL_Rect* r, SDL_MouseButtonEvent* but) {
         return (but->x >= r->x) && (but->x <= r->x+r->w)
@@ -300,7 +294,7 @@ data SDL_Rect with
 end
 
 data SDL_Texture with
-    var& _SDL_Texture_ptr ptr;
+    var& _SDL_Texture tex;
     var int width;
     var int height;
 end
@@ -314,7 +308,7 @@ input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP;
 code/await SDL_go (var _char&& title,
                    var int width, var int height,
                    var SDL_Color? bg)
-                    => (var& _SDL_Renderer_ptr ren)
+                    => (var& _SDL_Renderer ren)
                         => void
 do
     var int err = _SDL_Init(_SDL_INIT_EVERYTHING);
@@ -323,21 +317,21 @@ do
             _SDL_Quit();
         end
 
-    var& _SDL_Window_ptr? win_ =
+    var&? _SDL_Window win_ =
         &_SDL_CreateWindow(title,
                            _SDL_WINDOWPOS_CENTERED, _SDL_WINDOWPOS_CENTERED,
                            width, height,
                            _SDL_WINDOW_SHOWN)
             finalize (win_) with
-                _SDL_DestroyWindow(win_!);
+                _SDL_DestroyWindow(&&win_!);
             end
 
-    var& _SDL_Renderer_ptr? ren__ =
-        &_SDL_CreateRenderer(win_!, -1, 0)
+    var&? _SDL_Renderer ren__ =
+        &_SDL_CreateRenderer(&&win_!, -1, 0)
             finalize (ren__) with
-                _SDL_DestroyRenderer(ren__!);
+                _SDL_DestroyRenderer(&&ren__!);
             end
-    var& _SDL_Renderer_ptr ren_ = &ren__!;
+    var& _SDL_Renderer ren_ = &ren__!;
     ren = &ren_;
 
     _TTF_Init();
@@ -357,12 +351,12 @@ do
             if bg? then
                 bg_ = bg!;
             end
-            var _SDL_Renderer_ptr&& ptr_ptr;
+            var _SDL_Renderer&&&& ptr_ptr;
             every ptr_ptr in SDL_REDRAW do
-                *ptr_ptr = ren_;
+                *ptr_ptr = &&ren_;
                 if bg? then
-                    _SDL_SetRenderDrawColor(ren_, bg_.r,bg_.g,bg_.b,bg_.a);
-                    _SDL_RenderClear(ren_);
+                    _SDL_SetRenderDrawColor(&&ren_, bg_.r,bg_.g,bg_.b,bg_.a);
+                    _SDL_RenderClear(&&ren_);
                 end
             end
         with
@@ -389,31 +383,31 @@ do
 end
 
 code/await SDL_open_texture
-            (var& _SDL_Renderer_ptr ren, var _char&& path)
+            (var& _SDL_Renderer ren, var _char&& path)
                 => (var& SDL_Texture tex)
                     => void
 do
-    var& _SDL_Texture_ptr? tex__ = &_IMG_LoadTexture(ren, path)
+    var&? _SDL_Texture tex__ = &_IMG_LoadTexture(&&ren, path)
         finalize (tex__) with
-            _SDL_DestroyTexture(tex__!);
+            _SDL_DestroyTexture(&&tex__!);
         end
 
     var SDL_Texture tex_ = val SDL_Texture(&tex__!, _, _);
-    _SDL_QueryTexture(tex_.ptr, null, null, &&tex_.width, &&tex_.height);
+    _SDL_QueryTexture(&&tex_.tex, null, null, &&tex_.width, &&tex_.height);
     tex = &tex_;
 
     await FOREVER;
 end
 
 code/await SDL_open_font (var _char&& path, var int size)
-                            => (var& _TTF_Font_ptr font)
+                            => (var& _TTF_Font font)
                                 => void
 do
-    var& _TTF_Font_ptr? font_ =
+    var&? _TTF_Font font_ =
         &_TTF_OpenFont(path, size)
             finalize (font_) with
                 if _TTF_WasInit() as bool then
-                    _TTF_CloseFont(font_!);
+                    _TTF_CloseFont(&&font_!);
                 end
             end;
     font = &font_!;
@@ -421,12 +415,12 @@ do
 end
 
 code/await SDL_new_text
-            (var& _SDL_Renderer_ptr ren, var& _TTF_Font_ptr font,
+            (var& _SDL_Renderer ren, var& _TTF_Font font,
              var _char&& text, var SDL_Color color)
                 => (var& SDL_Texture tex)
                     => void
 do
-    var& _SDL_Texture_ptr? tex__;
+    var&? _SDL_Texture tex__;
     do
         var _SDL_Color c = _;
                        c.r = color.r;
@@ -434,36 +428,36 @@ do
                        c.b = color.b;
                        c.a = color.a;
 
-        var& _SDL_Surface_ptr? sfc =
-            &_TTF_RenderText_Blended(font, text, c)
+        var&? _SDL_Surface sfc =
+            &_TTF_RenderText_Blended(&&font, text, c)
                 finalize (sfc) with
-                    _SDL_FreeSurface(sfc!);
+                    _SDL_FreeSurface(&&sfc!);
                 end
 
         do
-            tex__ = &_SDL_CreateTextureFromSurface(ren, sfc!);
+            tex__ = &_SDL_CreateTextureFromSurface(&&ren, &&sfc!);
         finalize (tex__) with
             //_SDL_DestroyTexture(tex__!);
         end
     end
     do finalize with
-        _SDL_DestroyTexture(tex__!);
+        _SDL_DestroyTexture(&&tex__!);
     end
 
     var SDL_Texture tex_ = val SDL_Texture(&tex__!, _, _);
-    _SDL_QueryTexture(tex_.ptr, null, null, &&tex_.width, &&tex_.height);
+    _SDL_QueryTexture(&&tex_.tex, null, null, &&tex_.width, &&tex_.height);
     tex = &tex_;
 
     await FOREVER;
 end
 
 code/await SDL_open_sound (var _char&& path)
-                            => (var& _Mix_Chunk_ptr sound)
+                            => (var& _Mix_Chunk sound)
                                 => void
 do
-    var& _Mix_Chunk_ptr? sound_ = &_Mix_LoadWAV(path)
+    var&? _Mix_Chunk sound_ = &_Mix_LoadWAV(path)
         finalize (sound_) with
-            _Mix_FreeChunk(sound_!);
+            _Mix_FreeChunk(&&sound_!);
         end
     sound = &sound_!;
     await FOREVER;

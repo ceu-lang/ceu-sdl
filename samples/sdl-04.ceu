@@ -1,7 +1,7 @@
 #include "c.ceu"
 #include "sdl/sdl.ceu"
 
-code/await Rect (var& _SDL_Renderer_ptr ren, var SDL_Rect rect, var int speed) => void do
+code/await Rect (var& _SDL_Renderer ren, var SDL_Rect rect, var int speed) => void do
     event bool go_pause;
 
     par/or do
@@ -27,8 +27,8 @@ code/await Rect (var& _SDL_Renderer_ptr ren, var SDL_Rect rect, var int speed) =
         end
     with
         every SDL_REDRAW do
-            _SDL_SetRenderDrawColor(ren, 0xFF,0xFF,0xFF,0xFF);
-            _SDL_RenderFillRect(ren, &&rect as _SDL_Rect&&);
+            _SDL_SetRenderDrawColor(&&ren, 0xFF,0xFF,0xFF,0xFF);
+            _SDL_RenderFillRect(&&ren, &&rect as _SDL_Rect&&);
         end
     end
 
@@ -39,7 +39,7 @@ event bool go_pause_all;
 
 var SDL_Color bg = val SDL_Color(0x00,0x00,0x00,0xFF);
 
-var& _SDL_Renderer_ptr ren;
+var& _SDL_Renderer ren;
 watching SDL_go("SDL 4", 800,480, bg) => (ren) do
     loop do
         par/or do

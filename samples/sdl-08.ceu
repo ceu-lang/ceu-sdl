@@ -1,30 +1,33 @@
-#include "sdl.ceu"
-
-//input void SDL_REDRAW;
+#include "sdl/sdl.ceu"
 
 var SDL_Color bg = val SDL_Color(0x00,0x00,0x00,0xFF);
 
+var& _SDL_Renderer ren;
 watching SDL_go("SDL 8", 800,480, bg) => (ren) do
     par do
+        var& _Mix_Chunk sound;
         watching SDL_open_sound("samples/click1.wav") => (sound) do
             every 5s do
-                _Mix_PlayChannel(-1, sound, 0);
+                _Mix_PlayChannel(-1, &&sound, 0);
             end
         end
     with
+        var& SDL_Texture img_tex;
         watching SDL_open_texture(&ren, "samples/img.png") => (img_tex)
         do
             var SDL_Rect img_rct = val SDL_Rect(100, 100, img_tex.width, img_tex.height);
+            var& _TTF_Font font;
             watching SDL_open_font("samples/Deutsch.ttf", 40) => (font)
             do
+                var& SDL_Texture txt_tex;
                 watching SDL_new_text(&ren, &font, "Hello World!",
                                       SDL_Color(0xFF,0xFF,0xFF,0xFF))
                     => (txt_tex)
                 do
                     var SDL_Rect txt_rct = val SDL_Rect(300, 200, txt_tex.width, txt_tex.height);
                     every SDL_REDRAW do
-                        _SDL_RenderCopy(ren, img_tex.ptr, null, &&img_rct as _SDL_Rect&&);
-                        _SDL_RenderCopy(ren, txt_tex.ptr, null, &&txt_rct as _SDL_Rect&&);
+                        _SDL_RenderCopy(&&ren, &&img_tex.tex, null, &&img_rct as _SDL_Rect&&);
+                        _SDL_RenderCopy(&&ren, &&txt_tex.tex, null, &&txt_rct as _SDL_Rect&&);
                     end
                 end
             end
