@@ -1,8 +1,2 @@
 .*.swp
-.*.swo
-build/
-ceu-app-*/
-ult-tic-tac-toe/
-rocks/
-global-wars/
-rts/
+ceu-sdl-*/

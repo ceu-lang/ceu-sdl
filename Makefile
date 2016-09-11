@@ -1,28 +1,28 @@
-###############################################################################
-# EDIT
-###############################################################################
+CEU_DIR = $(error set absolute path to "<ceu>" repository)
 
-CEU_DIR ?= $(error set absolute path to "<ceu>" repository)
+samples:
+	for i in samples/sdl-*.ceu; do                                          \
+		echo;                                                               \
+		echo "#####################################";                       \
+		echo File: "$$i";                                                   \
+		echo "#####################################";                       \
+		echo -n "Press <enter> to start...";                                \
+		read _;                                                             \
+	    ceu --pre --pre-args="-I$(CEU_DIR)/include -I./include"             \
+	              --pre-input=$$i                                           \
+	        --ceu                                                           \
+	        --env --env-header=$(CEU_DIR)/env/header.h                      \
+	              --env-main=$(CEU_DIR)/env/main.c                          \
+	        --cc --cc-args="-lm -llua5.3 -lpthread -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lSDL2_gfx" \
+	             --cc-output=/tmp/ceu.exe;                                  \
+		/tmp/ceu.exe;                                                       \
+		echo ">>> OK";                                                      \
+		echo;                                                               \
+		echo;                                                               \
+		echo;                                                               \
+		echo;                                                               \
+		echo;                                                               \
+		echo;                                                               \
+	done
 
-###############################################################################
-# DO NOT EDIT
-###############################################################################
-
-SDL_DIR ?= .
-ARCH_DIR ?= $(SDL_DIR)/arch
-include $(CEU_DIR)/Makefile
-
-ifneq ($(MAKECMDGOALS),link)
-ifeq ("$(wildcard $(SDL_DIR)/arch/up)","")
-$(error run "make link")
-endif
-endif
-
-link:
-	rm -f arch/up
-	ln -s `readlink -f $(CEU_DIR)/arch` $(SDL_DIR)/arch/up
-
-ui-test:
-	make all C_FLAGS="-D__UI_TEXTURE_CEU" SRC=$(SDL_DIR)/arch/ui/texture.ceu
-	make all C_FLAGS="-D__UI_GRID_CEU"    SRC=$(SDL_DIR)/arch/ui/grid.ceu
-	make all C_FLAGS="-D__UI_SCROLL_CEU"  SRC=$(SDL_DIR)/arch/ui/scroll.ceu
+.PHONY: samples
