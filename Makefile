@@ -1,4 +1,4 @@
-CEU_DIR = /data/ceu/ceu
+CEU_DIR = $(error set absolute path to "<ceu>" repository)
 
 samples:
 	for i in samples/sdl-*.ceu; do                                          \
