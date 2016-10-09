@@ -57,7 +57,7 @@ with
         _SDL_RenderPresent(&&ren!);
     end
 with
-    async do
+    await async do
         loop i in [0 -> 50[ do
             _SDL_Delay(100);
             emit 100ms;
