@@ -261,7 +261,7 @@ native/pos do
         tceu_callback_ret ret;
 
         switch (cmd) {
-            case CEU_CALLBACK_INIT:
+            case CEU_CALLBACK_START:
                 ret.is_handled = 1;
                 ceu_sdl_init();
                 break;
