@@ -1,8 +1,0 @@
-# INSTALATION
-
-> git clone https://github.com/fsantanna/ceu-sdl
-> cd ceu-sdl
-> make CEUFILE=samples/<example>
-> ./samples/<example>
-
-# Requires SDL 2.0 (http://www.libsdl.org/hg.php)
