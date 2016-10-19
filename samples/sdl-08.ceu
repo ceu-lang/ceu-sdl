@@ -3,21 +3,21 @@
 var SDL_Color bg = val SDL_Color(0x00,0x00,0x00,0xFF);
 
 var& _SDL_Renderer ren;
-watching SDL_go("SDL 8", 800,480, bg) => (ren)
+watching SDL_go("SDL 8", 800,480, bg) -> (ren)
 do
     var& _Mix_Chunk sound;
-    spawn SDL_open_sound("samples/click1.wav") => (sound);
+    spawn SDL_open_sound("samples/click1.wav") -> (sound);
 
     var& SDL_Texture img_tex;
-    spawn SDL_open_texture(&ren, "samples/img.png") => (img_tex);
+    spawn SDL_open_texture(&ren, "samples/img.png") -> (img_tex);
     var SDL_Rect img_rct = val SDL_Rect(100, 100, img_tex.width, img_tex.height);
 
     var& _TTF_Font font;
-    spawn SDL_open_font("samples/Deutsch.ttf", 40) => (font);
+    spawn SDL_open_font("samples/Deutsch.ttf", 40) -> (font);
 
     var& SDL_Texture txt_tex;
     spawn SDL_new_text(&ren, &font, "Hello World!", SDL_Color(0xFF,0xFF,0xFF,0xFF))
-            => (txt_tex);
+            -> (txt_tex);
     var SDL_Rect txt_rct = val SDL_Rect(300, 200, txt_tex.width, txt_tex.height);
 
     par do

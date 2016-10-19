@@ -6,7 +6,7 @@ native/pre do
     int ORGS = 0;
 end
 
-code/await Rect (var& _SDL_Renderer ren, var SDL_Rect rect, var int speed) => void do
+code/await Rect (var& _SDL_Renderer ren, var SDL_Rect rect, var int speed) -> void do
     _ORGS = _ORGS + 1;
         do finalize with
             _ORGS = _ORGS - 1;
@@ -68,7 +68,7 @@ end
 var SDL_Color bg = val SDL_Color(0x00,0x00,0x00,0xFF);
 
 var& _SDL_Renderer ren;
-watching SDL_go("SDL 6", 800,480, bg) => (ren) do
+watching SDL_go("SDL 6", 800,480, bg) -> (ren) do
     par do
         loop do
             watching 30s do

@@ -3,7 +3,7 @@
 //input void SDL_REDRAW;
 //input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONDOWN;
 
-watching SDL_go("Blink 3", 640,480) => (ren) do
+watching SDL_go("Blink 3", 640,480) -> (ren) do
     var bool is_on = false;
     par do
         loop do

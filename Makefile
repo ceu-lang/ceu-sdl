@@ -12,9 +12,8 @@ samples:
 	              --pre-input=$$i                                           \
 	        --ceu --ceu-err-unused=pass --ceu-err-uninitialized=pass        \
 	        --env --env-types=$(CEU_DIR)/env/types.h                        \
-	              --env-threads=$(CEU_DIR)/env/threads.h                    \
 	              --env-main=$(CEU_DIR)/env/main.c                          \
-	        --cc --cc-args="-lm -llua5.3 -lpthread -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lSDL2_gfx" \
+	        --cc --cc-args="-lm -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lSDL2_gfx" \
 	             --cc-output=/tmp/$$(basename $$i .ceu);                     \
 		/tmp/$$(basename $$i .ceu);	                                        \
 		echo ">>> OK";                                                      \

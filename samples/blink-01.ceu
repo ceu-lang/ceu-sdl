@@ -2,7 +2,7 @@
 
 //input void SDL_REDRAW;
 
-watching SDL_go("Blink 1", 640,480) => (ren) do
+watching SDL_go("Blink 1", 640,480) -> (ren) do
     var bool is_on = false;
     par do
         every 500ms do

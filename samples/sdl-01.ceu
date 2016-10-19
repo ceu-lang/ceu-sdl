@@ -1,11 +1,7 @@
-#if 0
-ceu --pre --pre-args="-I/data/ceu/ceu/include -I/data/ceu/ceu-sdl/include" --pre-input="samples/sdl-01.ceu" --ceu --env --env-header=/data/ceu/ceu/env/header.h --env-main=/data/ceu/ceu/env/main.c --env-output=/tmp/x.c --cc --cc-args="-lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lSDL2_gfx -lm -llua5.3 -g" --cc-output=/tmp/x.exe
-#endif
-
 #include "sdl/sdl.ceu"
 
 var& _SDL_Renderer ren;
-watching SDL_go("SDL 1", 800,480, SDL_Color(0xFF,0xFF,0x00,0xFF)) => (ren) do
+watching SDL_go("SDL 1", 800,480, SDL_Color(0xFF,0xFF,0x00,0xFF)) -> (ren) do
     var SDL_Rect fg = val SDL_Rect(100,100 , 100,100);
     par do
         every 1s do
