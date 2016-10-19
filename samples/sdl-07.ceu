@@ -21,6 +21,7 @@ watching SDL_go("SDL 7", 800,480, bg) -> (ren) do
             _SDL_SetRenderDrawColor(&&ren, 0xFF,0x00,0x00,0xFF);
             _SDL_RenderFillRect(&&ren, (&&fg as _SDL_Rect&&));
 
+            var int i;
             loop i in [0->1000[ do
                 _pixelRGBA(&&ren, 200+_rand()%100, 50+_rand()%100, 100,100,100, 0xFF);
             end

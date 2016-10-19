@@ -58,7 +58,7 @@ with
     end
 with
     await async do
-        loop i in [0 -> 50[ do
+        loop _ in [0 -> 50[ do
             _SDL_Delay(100);
             emit 100ms;
             emit SDL_REDRAW;

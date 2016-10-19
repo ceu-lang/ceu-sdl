@@ -74,6 +74,7 @@ watching SDL_go("SDL 6", 800,480, bg) -> (ren) do
             watching 30s do
                 pool[10000] Rect rs;
                 every 40ms do
+                    var int i;
                     loop i in [0->30[ do
                         spawn Rect(&ren, SDL_Rect(50,40+_rand()%380,20,20),
                                          50 + _rand()%20)
