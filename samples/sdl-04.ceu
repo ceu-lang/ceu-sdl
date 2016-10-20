@@ -40,7 +40,7 @@ event bool go_pause_all;
 var SDL_Color bg = val SDL_Color(0x00,0x00,0x00,0xFF);
 
 var& _SDL_Renderer ren;
-watching SDL_go("SDL 4", 800,480, bg) -> (ren) do
+watching SDL_go("SDL 4", 800,480, bg) -> (&ren) do
     loop do
         par/or do
             pause/if go_pause_all do
