@@ -131,10 +131,8 @@ native/nohold _SDL_Circle_vs_Mouse,
               _SDL_Rect_vs_Point,
               _SDL_Rect2Point,
               _SDL_Point2Rect,
-              _SDL_Touch2Point;
-
-native
-    _SDL_GetTicks,
+              _SDL_Touch2Point,
+              _SDL_GetTicks,
 ;
 
 native/pre do
@@ -184,16 +182,13 @@ native/pre do
 ##endif
 end
 
+native _CEU_SDL_old, _CEU_SDL_dt_ms, _CEU_SDL_wclock_min;
 native/pos do
     ##define ceu_callback_env(cmd,evt,params) ceu_sdl_callback(cmd,evt,params)
 
-    u32 old;
-    s32 dt_ms = 0;
-    s32 wclock_min = CEU_WCLOCK_INACTIVE;
-
-    void ceu_sdl_init (void) {
-        old = SDL_GetTicks();
-    }
+    u32 CEU_SDL_old;
+    s32 CEU_SDL_dt_ms = 0;
+    s32 CEU_SDL_wclock_min = CEU_WCLOCK_INACTIVE;
 
     void ceu_sdl_step (void) {
         SDL_Event evt;
@@ -202,25 +197,25 @@ native/pos do
         int has = SDL_PollEvent(&evt);
 #else
         /* FPS = 1000/30 */
-        int timeout = (dt_ms<30 ? (30-dt_ms) : 0);
+        int timeout = (CEU_SDL_dt_ms<30 ? (30-CEU_SDL_dt_ms) : 0);
         int has = SDL_WaitEventTimeout(&evt, timeout);
 #endif
 
         // WCLOCK / SDL_DT
         {
             u32 now = SDL_GetTicks();
-            dt_ms = (now - old);
-            s32 dt_us = dt_ms*1000;
-            ceu_dbg_assert(dt_ms >= 0);
-            old = now;
+            CEU_SDL_dt_ms = (now - CEU_SDL_old);
+            s32 dt_us = CEU_SDL_dt_ms*1000;
+            ceu_dbg_assert(CEU_SDL_dt_ms >= 0);
+            CEU_SDL_old = now;
 
             ceu_input(CEU_INPUT__WCLOCK, &dt_us);
-            while (wclock_min <= 0) {
+            while (CEU_SDL_wclock_min <= 0) {
                 dt_us = 0;
                 ceu_input(CEU_INPUT__WCLOCK, &dt_us);
             }
 
-            ceu_input(CEU_INPUT_SDL_DT, &dt_ms);
+            ceu_input(CEU_INPUT_SDL_DT, &CEU_SDL_dt_ms);
         }
 
         // OTHER EVENTS
@@ -261,17 +256,13 @@ native/pos do
         tceu_callback_ret ret;
 
         switch (cmd) {
-            case CEU_CALLBACK_START:
-                ret.is_handled = 1;
-                ceu_sdl_init();
-                break;
             case CEU_CALLBACK_STEP:
                 ret.is_handled = 1;
                 ceu_sdl_step();
                 break;
             case CEU_CALLBACK_WCLOCK_MIN:
                 ret.is_handled = 1;
-                wclock_min = p1.num;
+                CEU_SDL_wclock_min = p1.num;
                 break;
             default:
                 ret.is_handled = 0;
@@ -323,6 +314,7 @@ do
         do finalize with
             _SDL_Quit();
         end
+    _CEU_SDL_old = _SDL_GetTicks();
 
     var&? _SDL_Window win_ =
         &_SDL_CreateWindow(title,
