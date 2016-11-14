@@ -36,20 +36,23 @@ native/const  _SDL_TRUE, _SDL_FALSE,
               _SDL_WINDOWPOS_CENTERED,
               _AUDIO_S16SYS;
 
-native/const  _SDLK_ESCAPE,
-              _SDLK_BACKSPACE,
-              _SDLK_RETURN,
-              _SDLK_SEMICOLON,
-              _SDLK_UP,
-              _SDLK_DOWN,
-              _SDLK_LEFT,
-              _SDLK_RIGHT,
-              _SDLK_a,
-              _SDLK_d,
-              _SDLK_s,
-              _SDLK_w,
-              _SDLK_z,
-              _SDLK_p;
+native/const
+    _SDLK_ESCAPE,
+    _SDLK_BACKSPACE,
+    _SDLK_RETURN,
+    _SDLK_SEMICOLON,
+    _SDLK_UP,
+    _SDLK_DOWN,
+    _SDLK_LEFT,
+    _SDLK_RIGHT,
+    _SDLK_a, _SDLK_b, _SDLK_c, _SDLK_d,
+    _SDLK_n,
+    _SDLK_p,
+    _SDLK_r,
+    _SDLK_s,
+    _SDLK_w,
+    _SDLK_z,
+;
 
 native/nohold _SDL_GL_BindTexture,
               _SDL_CreateRenderer,
@@ -195,9 +198,12 @@ native/pos do
 #if 0
         /* CPU = 100% */
         int has = SDL_PollEvent(&evt);
-#else
+#elif 0
         /* FPS = 1000/30 */
         int timeout = (CEU_SDL_dt_ms<30 ? (30-CEU_SDL_dt_ms) : 0);
+        int has = SDL_WaitEventTimeout(&evt, timeout);
+#else
+        int timeout = (CEU_SDL_wclock_min<=0 ? 0 : CEU_SDL_wclock_min/1000);
         int has = SDL_WaitEventTimeout(&evt, timeout);
 #endif
 
@@ -210,10 +216,12 @@ native/pos do
             CEU_SDL_old = now;
 
             ceu_input(CEU_INPUT__WCLOCK, &dt_us);
+#if 0
             while (CEU_SDL_wclock_min <= 0) {
                 dt_us = 0;
                 ceu_input(CEU_INPUT__WCLOCK, &dt_us);
             }
+#endif
 
             ceu_input(CEU_INPUT_SDL_DT, &CEU_SDL_dt_ms);
         }
