@@ -272,6 +272,13 @@ native/pos do
                 ret.is_handled = 1;
                 CEU_SDL_wclock_min = p1.num;
                 break;
+            case CEU_CALLBACK_THREAD_TERMINATING: {
+                SDL_Event evt;
+                evt.type = SDL_USEREVENT;
+                ret.is_handled = 1;
+                SDL_PushEvent(&evt);
+                break;
+            }
             default:
                 ret.is_handled = 0;
         }
