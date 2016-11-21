@@ -1,0 +1,35 @@
+#include "c.ceu"
+#include "sdl/sdl.ceu"
+
+watching SDL_go("FPS-ASYNC 1", 800,480, SDL_Color(0xFF,0xFF,0x00,0xFF)) do
+    var int ret = 0;
+    par/or do
+        var int i;
+        loop i in [0->101[ do
+            var int dt = await SDL_DT;
+            ret = ret + dt;
+        end
+    with
+        await 3366ms;
+        _ceu_dbg_assert(0);
+    with
+        await 3333ms;
+        ret = ret + 1;
+    with
+        var int i;
+        loop i in [0 -> 10[ do
+            await async (ret) do
+                var int j;
+                loop j in [0 -> 10[ do
+                    ret = ret + 1;
+                end
+            end
+        end
+        await FOREVER;
+    end
+
+    _printf(">>> %d\n", ret);
+    _ceu_dbg_assert(ret == 3300+1+100);
+end
+
+escape 0;

@@ -1,7 +1,7 @@
 CEU_DIR = $(error set absolute path to "<ceu>" repository)
 
 samples:
-	for i in samples/sdl-*.ceu; do                                          \
+	for i in samples/*.ceu; do                                              \
 		echo;                                                               \
 		echo "###############################################";             \
 		echo File: "$$i -> /tmp/$$(basename $$i .ceu)";	                    \

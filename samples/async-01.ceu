@@ -1,0 +1,25 @@
+#include "c.ceu"
+#include "sdl/sdl.ceu"
+
+var int ret = 0;
+
+par/or do
+    var int i;
+    loop i in [0 -> 10[ do
+        await async (ret) do
+            var int j;
+            loop j in [0 -> 10[ do
+                ret = ret + 1;
+            end
+        end
+    end
+with
+    await 2s;
+end
+
+_ceu_dbg_assert(ret == 100);
+_printf("ok\n");
+
+escape 0;
+       
+

@@ -1,9 +1,7 @@
-#include "sdl.ceu"
+#include "sdl/sdl.ceu"
 
-//input void SDL_REDRAW;
-//input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONDOWN;
-
-watching SDL_go("Blink 3", 640,480) -> (&ren) do
+var& _SDL_Renderer ren;
+watching SDL_go("Blink 3", 800,480, SDL_Color(0xFF,0xFF,0x00,0xFF)) -> (&ren) do
     var bool is_on = false;
     par do
         loop do
@@ -16,14 +14,14 @@ watching SDL_go("Blink 3", 640,480) -> (&ren) do
         end
     with
         every SDL_REDRAW do
-            _boxRGBA(ren, 0,0,640,480, 0xCC,0xCC,0xCC,0xFF);
-            _filledCircleRGBA(ren, 200,200,50, 0xFF,0xFF,0xFF,0xFF);
+            _boxRGBA(&&ren, 0,0,800,480, 0xCC,0xCC,0xCC,0xFF);
+            _filledCircleRGBA(&&ren, 200,200,50, 0xFF,0xFF,0xFF,0xFF);
             if is_on then
-                _filledCircleRGBA(ren, 200,200,47, 0x00,0x88,0x00,0xFF);
+                _filledCircleRGBA(&&ren, 200,200,47, 0x00,0x88,0x00,0xFF);
             else
-                _filledCircleRGBA(ren, 200,200,47, 0x00,0x00,0x00,0xFF);
+                _filledCircleRGBA(&&ren, 200,200,47, 0x00,0x00,0x00,0xFF);
             end
-            _SDL_RenderPresent(ren);
+            _SDL_RenderPresent(&&ren);
         end
     end
 end
