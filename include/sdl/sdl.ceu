@@ -225,8 +225,7 @@ native/pos do
 ##ifdef CEU_SDL_DT
         if (CEU_SDL_inited) {
             u32 now = SDL_GetTicks();
-            s32 dt = (now - CEU_SDL_DT_old);
-            ceu_dbg_assert(dt >= 0);
+            u32 dt = (now - CEU_SDL_DT_old);
             CEU_SDL_DT_old = now;
 
             CEU_SDL_DT_nxt -= dt;
@@ -289,7 +288,7 @@ native/pos do
                 if (now == 0) {
                     ret.value.num = CEU_WCLOCK_INACTIVE;
                 } else {
-                    s32 dt = (now - CEU_SDL_WCLOCK_old);
+                    u32 dt = (now - CEU_SDL_WCLOCK_old);
                     ceu_dbg_assert(dt >= 0);
                     CEU_SDL_WCLOCK_old = now;
                     ret.value.num = dt*1000;
