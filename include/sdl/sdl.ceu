@@ -207,15 +207,16 @@ native/pos do
         /* CPU = 100% */
         int has = SDL_PollEvent(&evt);
 #else
-        int timeout;
+        s32 timeout;
         if (CEU_SDL_ASYNC_pending) {
             timeout = 0;
         } else {
-            timeout = (CEU_SDL_WCLOCK_min<=0 ? 0 : CEU_SDL_WCLOCK_min/1000);
+            s32 min = (CEU_SDL_WCLOCK_min<=0 ? 0 : CEU_SDL_WCLOCK_min/1000);
 ##ifdef CEU_SDL_DT
-            if (CEU_SDL_inited && timeout>CEU_SDL_DT_nxt) {
-                timeout = CEU_SDL_DT_nxt;
-            }
+            timeout = (CEU_SDL_inited && min>CEU_SDL_DT_nxt) ?
+                        CEU_SDL_DT_nxt : min;
+##else
+            timeout = min;
 ##endif
         }
         int has = SDL_WaitEventTimeout(&evt, timeout);
@@ -231,6 +232,7 @@ native/pos do
             CEU_SDL_DT_nxt -= dt;
             if (CEU_SDL_DT_nxt <= 0) {
                 CEU_SDL_DT_nxt += CEU_SDL_DT;
+                ceu_dbg_assert(CEU_SDL_DT_nxt > 0);
                 s32 mspf = CEU_SDL_DT;
                 ceu_input(CEU_INPUT_SDL_DT, &mspf);
             }
