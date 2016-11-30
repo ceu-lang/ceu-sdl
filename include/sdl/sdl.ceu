@@ -169,13 +169,13 @@ native/pre do
     }
 
 ##ifdef SDL_MATH
+    int SDL_Circle_vs_Point (SDL_Point* pst, int rad, SDL_Point* pt) {
+        return (pow(pst->x-pt->x,2) + pow(pst->y-pt->y,2)) <= pow(rad+rad,2);
+    }
+
     int SDL_Circle_vs_Mouse (SDL_Point* pst, int rad, SDL_MouseButtonEvent* but) {
         SDL_Point pt = { but->x, but->y };
         return SDL_Circle_vs_Point(pst, rad, &pt);
-    }
-
-    int SDL_Circle_vs_Point (SDL_Point* pst, int rad, SDL_Point* pt) {
-        return (pow(pst->x-pt->x,2) + pow(pst->y-pt->y,2)) <= pow(rad+rad,2);
     }
 
     int SDL_Circle_vs_Circle (SDL_Point* pst1, int rad1, SDL_Point* pst2, int rad2) {
