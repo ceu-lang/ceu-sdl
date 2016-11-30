@@ -37,14 +37,16 @@ native/const  _SDL_TRUE, _SDL_FALSE,
               _AUDIO_S16SYS;
 
 native/const
-    _SDLK_ESCAPE,
     _SDLK_BACKSPACE,
+    _SDLK_COMMA,
+    _SDLK_DOWN,
+    _SDLK_ESCAPE,
+    _SDLK_LEFT,
+    _SDLK_PERIOD,
     _SDLK_RETURN,
+    _SDLK_RIGHT,
     _SDLK_SEMICOLON,
     _SDLK_UP,
-    _SDLK_DOWN,
-    _SDLK_LEFT,
-    _SDLK_RIGHT,
     _SDLK_a, _SDLK_b, _SDLK_c, _SDLK_d,
     _SDLK_n,
     _SDLK_p,
@@ -379,14 +381,6 @@ do
             _SDL_Quit();
         end
 
-    _CEU_SDL_inited = 1;
-    _CEU_SDL_WCLOCK_min = _CEU_WCLOCK_INACTIVE;
-    _CEU_SDL_WCLOCK_old = _SDL_GetTicks();
-##ifdef CEU_SDL_DT
-    _CEU_SDL_DT_old     = _CEU_SDL_WCLOCK_old;
-    _CEU_SDL_DT_nxt     = _CEU_SDL_DT;
-##endif
-
     var&? _SDL_Window win_ =
         &_SDL_CreateWindow(title,
                            _SDL_WINDOWPOS_CENTERED, _SDL_WINDOWPOS_CENTERED,
@@ -413,6 +407,14 @@ do
         do finalize with
             _Mix_CloseAudio();
         end
+
+    _CEU_SDL_inited = 1;
+    _CEU_SDL_WCLOCK_min = _CEU_WCLOCK_INACTIVE;
+    _CEU_SDL_WCLOCK_old = _SDL_GetTicks();
+##ifdef CEU_SDL_DT
+    _CEU_SDL_DT_old     = _CEU_SDL_WCLOCK_old;
+    _CEU_SDL_DT_nxt     = _CEU_SDL_DT;
+##endif
 
 #if 1
     watching SDL_QUIT do
