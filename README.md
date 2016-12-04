@@ -1,27 +1,34 @@
-SDL binding for Céu:
+Céu-SDL supports the development of SDL applications in the programming
+language Céu:
 
-https://github.com/fsantanna/ceu-sdl/
+- Source Code:   https://github.com/fsantanna/ceu-sdl/
+- Documentation: http://fsantanna.github.io/ceu-sdl/
+- Chat:          https://gitter.im/fsantanna/ceu
 
+<!--
 [SDL](http://www.libsdl.org/) provides basic input & output functionality
 (e.g., timers, keyboard, mouse, display) and works in typical platforms (e.g.,
 Windows, Mac, Linux, Android).
+-->
 
-Céu is a reactive language that aims to offer a higher-level and safer 
-alternative to C.
+Céu is a reactive language that aims to offer a higher-level and safer
+alternative to C:
 
-Try it online:
+- Home Page:   http://www.ceu-lang.org/
+- Source code: https://github.com/fsantanna/ceu/
 
-http://www.ceu-lang.org/
+Céu-SDL empowers the development of SDL applications with the following
+extensions:
 
-Source code:
+- Awaiting events (e.g., timers, TODO, TODO, etc).
+- Parallel lines of execution with
+    - safe abortion;
+    - deterministic behavior (in contrast with threads).
+- Asynchronous loops for heavy computations.
+- Seamless integration with standard SDL (e.g., `TODO`, `TODO`, etc).
 
-https://github.com/fsantanna/ceu/
-
-Join our chat:
-
-https://gitter.im/fsantanna/ceu
-
-# INSTALLATION
+Install
+=======
 
 ## Install required software:
 
@@ -35,7 +42,14 @@ $ sudo apt-get install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-t
 
 https://github.com/fsantanna/ceu/
 
-## Run the examples
+## Clone Céu-SDL:
+
+```
+$ git clone https://github.com/fsantanna/ceu-sdl
+$ cd ceu-sdl/
+```
+
+## Compile and Run
 
 Edit the `Makefile` to point to your `ceu` directory and then run `make`:
 
@@ -44,16 +58,31 @@ $ gedit Makefile
 $ make
 ```
 
+If necessary, configure the variables in the `Makefile`.
 The default example moves a rectangle on screen.
 
-To run all examples, run `make samples`:
+To compile and run another application, run `make` and set `CEU_SRC`:
+
+```
+$ make CEU_SRC=<path-to-ceu-application>
+```
+
+Examples
+========
+
+The `samples/` directory contains a number of examples.
+
+To run all examples one after another, run `make samples`:
 
 ```
 $ make samples
 ```
 
-To run a specific application, run `make` and set `CEU_SRC`:
+Applications
+============
 
-```
-$ make CEU_SRC=samples/sdl-01.ceu
-```
+The Birds Tutorial
+------------------
+
+* https://github.com/fsantanna/ceu-sdl-birds
+* https://github.com/fsantanna/ceu-sdl-storm
