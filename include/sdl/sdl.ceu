@@ -30,10 +30,13 @@ native/const  _SDL_TRUE, _SDL_FALSE,
               _SDL_TEXTINPUT,
               _SDL_TEXTUREACCESS_STATIC,
               _SDL_TEXTUREACCESS_TARGET,
+              _SDL_WINDOW_FULLSCREEN,
               _SDL_WINDOW_SHOWN,
+              _SDL_WINDOW_MAXIMIZED,
               _SDL_WINDOW_RESIZABLE,
               _SDL_WINDOWEVENT_RESIZED,
               _SDL_WINDOWPOS_CENTERED,
+              _SDL_WINDOWPOS_UNDEFINED,
               _AUDIO_S16SYS;
 
 native/const
@@ -187,6 +190,8 @@ native/pre do
 ##endif
 end
 
+#define CEU_SDL_DT (1000/30)
+
 native/pos do
     ##define ceu_callback_env(cmd,evt,params) ceu_sdl_callback(cmd,evt,params)
 
@@ -195,13 +200,22 @@ native/pos do
     u32 CEU_SDL_WCLOCK_old;
     s32 CEU_SDL_WCLOCK_min;
 
-    ##define CEU_SDL_DT (1000/30)
-##ifdef CEU_SDL_DT
+#ifdef CEU_SDL_DT
     u32 CEU_SDL_DT_old;
     s32 CEU_SDL_DT_nxt;
-##endif
+#endif
 
-    bool CEU_SDL_ASYNC_pending;
+    s32 ceu_sdl_dt (void) {
+        u32 now = SDL_GetTicks();
+        if (now == 0) {
+            return CEU_WCLOCK_INACTIVE;
+        } else {
+            u32 dt = (now - CEU_SDL_WCLOCK_old);
+            ceu_dbg_assert(dt >= 0);
+            CEU_SDL_WCLOCK_old = now;
+            return dt*1000;
+        }
+    }
 
     void ceu_sdl_step (void) {
         SDL_Event evt;
@@ -210,22 +224,22 @@ native/pos do
         int has = SDL_PollEvent(&evt);
 #else
         s32 timeout;
-        if (CEU_SDL_ASYNC_pending) {
+        if (CEU_APP.async_pending) {
             timeout = 0;
         } else {
             s32 min = (CEU_SDL_WCLOCK_min<=0 ? 0 : CEU_SDL_WCLOCK_min/1000);
-##ifdef CEU_SDL_DT
+#ifdef CEU_SDL_DT
             timeout = (CEU_SDL_inited && min>CEU_SDL_DT_nxt) ?
                         CEU_SDL_DT_nxt : min;
-##else
+#else
             timeout = min;
-##endif
+#endif
         }
         int has = SDL_WaitEventTimeout(&evt, timeout);
 #endif
 
         // SDL_DT
-##ifdef CEU_SDL_DT
+#ifdef CEU_SDL_DT
         if (CEU_SDL_inited) {
             u32 now = SDL_GetTicks();
             u32 dt = (now - CEU_SDL_DT_old);
@@ -236,29 +250,29 @@ native/pos do
                 CEU_SDL_DT_nxt += CEU_SDL_DT;
                 ceu_dbg_assert(CEU_SDL_DT_nxt > 0);
                 s32 mspf = CEU_SDL_DT;
-                ceu_input(CEU_INPUT_SDL_DT, &mspf);
+                ceu_input(CEU_INPUT_SDL_DT, &mspf, ceu_sdl_dt());
             }
         }
-##endif
+#endif
 
         // OTHER EVENTS
         if (has) {
             SDL_Event* evtp = &evt;
             switch (evt.type) {
                 case SDL_QUIT:
-                    ceu_input(CEU_INPUT_SDL_QUIT, &evtp);
+                    ceu_input(CEU_INPUT_SDL_QUIT, &evtp, ceu_sdl_dt());
                     break;
                 case SDL_KEYDOWN:
-                    ceu_input(CEU_INPUT_SDL_KEYDOWN, &evtp);
+                    ceu_input(CEU_INPUT_SDL_KEYDOWN, &evtp, ceu_sdl_dt());
                     break;
                 case SDL_KEYUP:
-                    ceu_input(CEU_INPUT_SDL_KEYUP, &evtp);
+                    ceu_input(CEU_INPUT_SDL_KEYUP, &evtp, ceu_sdl_dt());
                     break;
                 case SDL_MOUSEBUTTONDOWN:
-                    ceu_input(CEU_INPUT_SDL_MOUSEBUTTONDOWN, &evtp);
+                    ceu_input(CEU_INPUT_SDL_MOUSEBUTTONDOWN, &evtp, ceu_sdl_dt());
                     break;
                 case SDL_MOUSEBUTTONUP:
-                    ceu_input(CEU_INPUT_SDL_MOUSEBUTTONUP, &evtp);
+                    ceu_input(CEU_INPUT_SDL_MOUSEBUTTONUP, &evtp, ceu_sdl_dt());
                     break;
             }
         }
@@ -267,16 +281,13 @@ native/pos do
         {
             SDL_Renderer*  ren = NULL;
             SDL_Renderer** ren_ = &ren;
-            ceu_input(CEU_INPUT_SDL_REDRAW, &ren_);
+            ceu_input(CEU_INPUT_SDL_REDRAW, &ren_, ceu_sdl_dt());
             if (ren != NULL) {
                 SDL_RenderPresent(ren);
             }
         }
 
-        if (CEU_SDL_ASYNC_pending) {
-            CEU_SDL_ASYNC_pending = 0;
-            ceu_input(CEU_INPUT__ASYNC, NULL);
-        }
+        ceu_input(CEU_INPUT__NONE, NULL, ceu_sdl_dt());
     }
 
     tceu_callback_ret ceu_sdl_callback (int cmd, tceu_callback_arg p1, tceu_callback_arg p2)
@@ -287,19 +298,6 @@ native/pos do
             case CEU_CALLBACK_START:
                 CEU_SDL_inited = 0;
                 break;
-            case CEU_CALLBACK_WCLOCK_DT: {
-                u32 now = SDL_GetTicks();
-                if (now == 0) {
-                    ret.value.num = CEU_WCLOCK_INACTIVE;
-                } else {
-                    u32 dt = (now - CEU_SDL_WCLOCK_old);
-                    ceu_dbg_assert(dt >= 0);
-                    CEU_SDL_WCLOCK_old = now;
-                    ret.value.num = dt*1000;
-                }
-                ret.is_handled = 1;
-                break;
-            }
             case CEU_CALLBACK_WCLOCK_MIN:
                 ret.is_handled = 1;
                 CEU_SDL_WCLOCK_min = p1.num;
@@ -315,10 +313,6 @@ native/pos do
                 SDL_PushEvent(&evt);
                 break;
             }
-            case CEU_CALLBACK_ASYNC_PENDING:
-                CEU_SDL_ASYNC_pending = 1;
-                ret.is_handled = 1;
-                break;
             default:
                 ret.is_handled = 0;
         }
@@ -361,7 +355,6 @@ input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP;
 native
     _CEU_WCLOCK_INACTIVE,
     _CEU_SDL_inited,
-    _CEU_SDL_DT,
     _CEU_SDL_DT_old,
     _CEU_SDL_DT_nxt,
     _CEU_SDL_WCLOCK_min,
@@ -411,10 +404,10 @@ do
     _CEU_SDL_inited = 1;
     _CEU_SDL_WCLOCK_min = _CEU_WCLOCK_INACTIVE;
     _CEU_SDL_WCLOCK_old = _SDL_GetTicks();
-##ifdef CEU_SDL_DT
+#ifdef CEU_SDL_DT
     _CEU_SDL_DT_old     = _CEU_SDL_WCLOCK_old;
-    _CEU_SDL_DT_nxt     = _CEU_SDL_DT;
-##endif
+    _CEU_SDL_DT_nxt     = CEU_SDL_DT;
+#endif
 
 #if 1
     watching SDL_QUIT do

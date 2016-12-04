@@ -43,3 +43,17 @@ Edit the `Makefile` to point to your `ceu` directory and then run `make`:
 $ gedit Makefile
 $ make
 ```
+
+The default example moves a rectangle on screen.
+
+To run all examples, run `make samples`:
+
+```
+$ make samples
+```
+
+To run a specific application, run `make` and set `CEU_SRC`:
+
+```
+$ make CEU_SRC=samples/sdl-01.ceu
+```
