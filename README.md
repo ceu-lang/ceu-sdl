@@ -30,7 +30,7 @@ extensions:
 Install
 =======
 
-## Install required software:
+## Install SDL:
 
 ```
 $ sudo apt-get install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libsdl2-net-dev libsdl2-gfx-dev
@@ -81,8 +81,10 @@ $ make samples
 Applications
 ============
 
+<!--
 The Birds Tutorial
 ------------------
+-->
 
-* https://github.com/fsantanna/ceu-sdl-birds
-* https://github.com/fsantanna/ceu-sdl-storm
+- https://github.com/fsantanna/ceu-sdl-birds
+- https://github.com/fsantanna/ceu-sdl-storm
