@@ -74,10 +74,23 @@
         
             <ul>
             
-                <li class="toctree-l3"><a href="#modes">Modes</a></li>
+                <li class="toctree-l3"><a href="#modes-of-operation">Modes of Operation</a></li>
+                
+                    <li><a class="toctree-l4" href="#polling-mode">Polling Mode</a></li>
+                
+                    <li><a class="toctree-l4" href="#waiting-mode">Waiting Mode</a></li>
+                
+                    <li><a class="toctree-l4" href="#frame-based-mode">Frame-Based Mode</a></li>
                 
             
             </ul>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../030-inputs/">Input Events</a>
         
     </li>
 <li>
@@ -121,105 +134,84 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="modes">Modes</h1>
+                <h1 id="modes-of-operation">Modes of Operation</h1>
 <p><code>TODO</code></p>
-<!--
-Céu-Arduino supports the *polling* and *interrupt* modes of operation.
+<p>Céu-SDL supports <em>polling</em>, <em>waiting</em>, and <em>frame-based</em> modes of operation.</p>
+<p>Each mode of operation requires a compilation flag:</p>
+<pre><code>$ make CEU_ARGS=&quot;-DCEU_SDL_MODE_POLLING&quot;  CEU_SRC=&lt;path-to-ceu-application&gt;
+$ make CEU_ARGS=&quot;-DCEU_SDL_MODE_WAITING&quot;  CEU_SRC=&lt;path-to-ceu-application&gt;
+$ make CEU_ARGS=&quot;-DCEU_SDL_MODE_FRAME=33&quot; CEU_SRC=&lt;path-to-ceu-application&gt;
+</code></pre>
 
-Polling Mode
-------------
+<p>The frame-based mode requires the desired period of the frame in milliseconds.
+It is the default mode and is set to 33 milliseconds.</p>
+<h2 id="polling-mode">Polling Mode</h2>
+<p>The <em>polling mode</em> of Céu-SDL continually checks for SDL input events in an
+infinite loop:</p>
+<pre><code class="c">int main (void) {
+    ceu_start();
+    while (&lt;program-is-running&gt;) {
+        if (SDL_PollEvent(&lt;...&gt;)) {
+            ceu_input(CEU_INPUT__*, &lt;...&gt;);     /* input SDL_QUIT, SDL_KEY*, SDL_MOUSE*, etc */
+        }
+        ceu_input(CEU_INPUT__NONE, &lt;time&gt;);     /* input async and timer */
+        ceu_input(CEU_INPUT_SDL_REDRAW, &lt;...&gt;); /* input SDL_REDRAW after every input */
+    }
+    ceu_stop();
+    return &lt;program-escape-value&gt;;
+}
+</code></pre>
 
-The *polling mode* of Céu-Arduino continually checks for changes in the
-environment in an infinite loop:
+<p>The inputs are polled on each loop iteration and changes are notified to the
+Céu application through <code>ceu_input</code> calls.</p>
+<p>The polling mode uses <em>100%</em> of the CPU time.</p>
+<h2 id="waiting-mode">Waiting Mode</h2>
+<p>The <em>waiting mode</em> of Céu-SDL continually waits for SDL input events in an
+infinite loop:</p>
+<pre><code class="c">int main (void) {
+    ceu_start();
+    while (&lt;program-is-running&gt;) {
+        int timeout = (&lt;program-has-pending-async&gt;) ? 0 : &lt;next-timer-in-ms&gt;;
+        if (SDL_WaitEventTimeout(&lt;...&gt;, timeout);
+            ceu_input(CEU_INPUT__*, &lt;...&gt;);     /* input SDL_QUIT, SDL_KEY*, SDL_MOUSE*, etc */
+        }
+        ceu_input(CEU_INPUT__NONE, &lt;time&gt;);     /* input async and timer */
+        ceu_input(CEU_INPUT_SDL_REDRAW, &lt;...&gt;); /* input SDL_REDRAW after every input */
+    }
+    ceu_stop();
+    return &lt;program-escape-value&gt;;
+}
+</code></pre>
 
+<p>The inputs are polled on each loop iteration and changes are notified to the
+Céu application through <code>ceu_input</code> calls.</p>
+<h2 id="frame-based-mode">Frame-Based Mode</h2>
+<p>The <em>frame-based mode</em> of Céu-SDL continually waits for SDL input events in an
+infinite loop.
+The waiting period is limited to the next frame period:</p>
+<pre><code class="c">int main (void) {
+    ceu_start();
+    while (&lt;program-is-running&gt;) {
+        int timeout = (&lt;program-has-pending-async&gt;) ?
+                        0 : MIN(&lt;next-timer-in-ms&gt;,&lt;next-frame-in-ms&gt;);
+        if (&lt;next-frame-expired&gt;) {
+            ceu_input(CEU_INPUT_SDL_DT, CEU_SDL_MODE_FRAME);
+        }
+        if (SDL_WaitEventTimeout(&lt;...&gt;, timeout);
+            ceu_input(CEU_INPUT__*, &lt;...&gt;);     /* input SDL_QUIT, SDL_KEY*, SDL_MOUSE*, etc */
+        }
+        ceu_input(CEU_INPUT__NONE, &lt;time&gt;);     /* input async and timer */
+        ceu_input(CEU_INPUT_SDL_REDRAW, &lt;...&gt;); /* input SDL_REDRAW after every input */
+    }
+    ceu_stop();
+    return &lt;program-escape-value&gt;;
+}
+</code></pre>
 
-wzxhzdk:0
-
-
-The inputs are polled on each loop iteration and changes are notified to the
-Céu application through `ceu_input` calls.
-
-The polling mode uses *100%* of the CPU time.
-
-The polling mode is the default mode of operation of Céu-Arduino.
-
-### Input Events
-
-Currently, the polling mode supports the following input events:
-
-* [timer](TODO)
-* [async](TODO)
-* [digital pins](#TODO)
-
-### Compilation
-
-Since polling is the default mode of operation, compilation only needs to
-provide the Céu application:
-
-
-wzxhzdk:1
-
-
-Interrupt Mode
---------------
-
-In the *interrupt mode* of Céu-Arduino, all input is done in Céu itself through
-[`async/isr` blocks](TODO).
-Emitting an input event from an `async/isr` only sets a flag which is then
-checked in the Arduino loop:
-
-
-wzxhzdk:2
-
-
-To comply with the synchronous semantics of Céu, all `ceu_input` calls are
-serialized in the loop.
-
-If the macro `CEU_FEATURES_ISR_SLEEP` is defined, the Arduino enters in the
-`SLEEP_MODE_IDLE`
-[sleep mode](http://playground.arduino.cc/Learning/ArduinoSleepCode)
-after each reaction.
-
-Interrupts are disabled only while checking for occurring inputs.
-Hence, `async/isr` blocks and synchronous code may be concurrent and require
-[`atomic` blocks](TODO).
-
-An `async/isr` in Céu-Arduino requires two arguments:
-
-- the interrupt number (i.e., the index in the interrupt vector)
-- the interrupt mode (i.e., when the interrupt should be triggered)
-
-The interrupt mode is only used for digital pin interrupts:
-
-<https://www.arduino.cc/en/Reference/AttachInterrupt>
-
-The example that follows executes the code marked as `<...>` whenever the value
-of *pin 2* changes:
-
-
-wzxhzdk:3
-
-
-### Input Events
-
-Drivers:
-
-- [`pin-02`](https://github.com/fsantanna/ceu-arduino/blob/master/include/arduino/isr/pin-02.ceu):
-    `TODO`
-- [`timer`](https://github.com/fsantanna/ceu-arduino/blob/master/include/arduino/isr/timer.ceu):
-    `TODO`
-- [`usart`](https://github.com/fsantanna/ceu-arduino/blob/master/include/arduino/isr/usart.ceu):
-    `TODO`
-
-### Compilation
-
-Applications that use interrupts have to be compiled with `CEU_ISR=true`:
-
-
-wzxhzdk:4
-
-
--->
+<p>The inputs are polled on each loop iteration and changes are notified to the
+Céu application through <code>ceu_input</code> calls.</p>
+<p>The frame-based mode also provides the <code>CEU_SDL_DT</code> input, which is notified
+after each frame period expires.</p>
               
             </div>
           </div>
@@ -227,7 +219,7 @@ Applications that use interrupts have to be compiled with `CEU_ISR=true`:
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../license/" class="btn btn-neutral float-right" title="License">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../030-inputs/" class="btn btn-neutral float-right" title="Input Events">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
         <a href="../010-introduction/" class="btn btn-neutral" title="Introduction"><span class="icon icon-circle-arrow-left"></span> Previous</a>
@@ -259,7 +251,7 @@ Applications that use interrupts have to be compiled with `CEU_ISR=true`:
         <span><a href="../010-introduction/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../license/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../030-inputs/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

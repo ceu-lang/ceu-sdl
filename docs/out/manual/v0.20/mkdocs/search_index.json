@@ -2,12 +2,12 @@
     "docs": [
         {
             "location": "/", 
-            "text": "C\u00e9u-SDL v0.20 - Reference Manual\n\n\nC\u00e9u-SDL supports the development of SDL applications in the programming\nlanguage C\u00e9u:\n\n\nhttps://github.com/fsantanna/ceu-sdl\n\n\n\n\nIntroduction\n\n\nModes of Operation\n\n\nLicense", 
+            "text": "C\u00e9u-SDL v0.20 - Reference Manual\n\n\nC\u00e9u-SDL supports the development of SDL applications in the programming\nlanguage C\u00e9u:\n\n\nhttps://github.com/fsantanna/ceu-sdl\n\n\n\n\nIntroduction\n\n\nModes of Operation\n\n\nInput Events\n\n\nLicense", 
             "title": "Home"
         }, 
         {
             "location": "/#ceu-sdl-v020-reference-manual", 
-            "text": "C\u00e9u-SDL supports the development of SDL applications in the programming\nlanguage C\u00e9u:  https://github.com/fsantanna/ceu-sdl   Introduction  Modes of Operation  License", 
+            "text": "C\u00e9u-SDL supports the development of SDL applications in the programming\nlanguage C\u00e9u:  https://github.com/fsantanna/ceu-sdl   Introduction  Modes of Operation  Input Events  License", 
             "title": "C\u00e9u-SDL v0.20 - Reference Manual"
         }, 
         {
@@ -22,13 +22,38 @@
         }, 
         {
             "location": "/020-modes/", 
-            "text": "Modes\n\n\nTODO", 
+            "text": "Modes of Operation\n\n\nTODO\n\n\nC\u00e9u-SDL supports \npolling\n, \nwaiting\n, and \nframe-based\n modes of operation.\n\n\nEach mode of operation requires a compilation flag:\n\n\n$ make CEU_ARGS=\n-DCEU_SDL_MODE_POLLING\n  CEU_SRC=\npath-to-ceu-application\n\n$ make CEU_ARGS=\n-DCEU_SDL_MODE_WAITING\n  CEU_SRC=\npath-to-ceu-application\n\n$ make CEU_ARGS=\n-DCEU_SDL_MODE_FRAME=33\n CEU_SRC=\npath-to-ceu-application\n\n\n\n\n\nThe frame-based mode requires the desired period of the frame in milliseconds.\nIt is the default mode and is set to 33 milliseconds.\n\n\nPolling Mode\n\n\nThe \npolling mode\n of C\u00e9u-SDL continually checks for SDL input events in an\ninfinite loop:\n\n\nint main (void) {\n    ceu_start();\n    while (\nprogram-is-running\n) {\n        if (SDL_PollEvent(\n...\n)) {\n            ceu_input(CEU_INPUT__*, \n...\n);     /* input SDL_QUIT, SDL_KEY*, SDL_MOUSE*, etc */\n        }\n        ceu_input(CEU_INPUT__NONE, \ntime\n);     /* input async and timer */\n        ceu_input(CEU_INPUT_SDL_REDRAW, \n...\n); /* input SDL_REDRAW after every input */\n    }\n    ceu_stop();\n    return \nprogram-escape-value\n;\n}\n\n\n\n\nThe inputs are polled on each loop iteration and changes are notified to the\nC\u00e9u application through \nceu_input\n calls.\n\n\nThe polling mode uses \n100%\n of the CPU time.\n\n\nWaiting Mode\n\n\nThe \nwaiting mode\n of C\u00e9u-SDL continually waits for SDL input events in an\ninfinite loop:\n\n\nint main (void) {\n    ceu_start();\n    while (\nprogram-is-running\n) {\n        int timeout = (\nprogram-has-pending-async\n) ? 0 : \nnext-timer-in-ms\n;\n        if (SDL_WaitEventTimeout(\n...\n, timeout);\n            ceu_input(CEU_INPUT__*, \n...\n);     /* input SDL_QUIT, SDL_KEY*, SDL_MOUSE*, etc */\n        }\n        ceu_input(CEU_INPUT__NONE, \ntime\n);     /* input async and timer */\n        ceu_input(CEU_INPUT_SDL_REDRAW, \n...\n); /* input SDL_REDRAW after every input */\n    }\n    ceu_stop();\n    return \nprogram-escape-value\n;\n}\n\n\n\n\nThe inputs are polled on each loop iteration and changes are notified to the\nC\u00e9u application through \nceu_input\n calls.\n\n\nFrame-Based Mode\n\n\nThe \nframe-based mode\n of C\u00e9u-SDL continually waits for SDL input events in an\ninfinite loop.\nThe waiting period is limited to the next frame period:\n\n\nint main (void) {\n    ceu_start();\n    while (\nprogram-is-running\n) {\n        int timeout = (\nprogram-has-pending-async\n) ?\n                        0 : MIN(\nnext-timer-in-ms\n,\nnext-frame-in-ms\n);\n        if (\nnext-frame-expired\n) {\n            ceu_input(CEU_INPUT_SDL_DT, CEU_SDL_MODE_FRAME);\n        }\n        if (SDL_WaitEventTimeout(\n...\n, timeout);\n            ceu_input(CEU_INPUT__*, \n...\n);     /* input SDL_QUIT, SDL_KEY*, SDL_MOUSE*, etc */\n        }\n        ceu_input(CEU_INPUT__NONE, \ntime\n);     /* input async and timer */\n        ceu_input(CEU_INPUT_SDL_REDRAW, \n...\n); /* input SDL_REDRAW after every input */\n    }\n    ceu_stop();\n    return \nprogram-escape-value\n;\n}\n\n\n\n\nThe inputs are polled on each loop iteration and changes are notified to the\nC\u00e9u application through \nceu_input\n calls.\n\n\nThe frame-based mode also provides the \nCEU_SDL_DT\n input, which is notified\nafter each frame period expires.", 
             "title": "Modes of Operation"
         }, 
         {
-            "location": "/020-modes/#modes", 
-            "text": "TODO", 
-            "title": "Modes"
+            "location": "/020-modes/#modes-of-operation", 
+            "text": "TODO  C\u00e9u-SDL supports  polling ,  waiting , and  frame-based  modes of operation.  Each mode of operation requires a compilation flag:  $ make CEU_ARGS= -DCEU_SDL_MODE_POLLING   CEU_SRC= path-to-ceu-application \n$ make CEU_ARGS= -DCEU_SDL_MODE_WAITING   CEU_SRC= path-to-ceu-application \n$ make CEU_ARGS= -DCEU_SDL_MODE_FRAME=33  CEU_SRC= path-to-ceu-application   The frame-based mode requires the desired period of the frame in milliseconds.\nIt is the default mode and is set to 33 milliseconds.", 
+            "title": "Modes of Operation"
+        }, 
+        {
+            "location": "/020-modes/#polling-mode", 
+            "text": "The  polling mode  of C\u00e9u-SDL continually checks for SDL input events in an\ninfinite loop:  int main (void) {\n    ceu_start();\n    while ( program-is-running ) {\n        if (SDL_PollEvent( ... )) {\n            ceu_input(CEU_INPUT__*,  ... );     /* input SDL_QUIT, SDL_KEY*, SDL_MOUSE*, etc */\n        }\n        ceu_input(CEU_INPUT__NONE,  time );     /* input async and timer */\n        ceu_input(CEU_INPUT_SDL_REDRAW,  ... ); /* input SDL_REDRAW after every input */\n    }\n    ceu_stop();\n    return  program-escape-value ;\n}  The inputs are polled on each loop iteration and changes are notified to the\nC\u00e9u application through  ceu_input  calls.  The polling mode uses  100%  of the CPU time.", 
+            "title": "Polling Mode"
+        }, 
+        {
+            "location": "/020-modes/#waiting-mode", 
+            "text": "The  waiting mode  of C\u00e9u-SDL continually waits for SDL input events in an\ninfinite loop:  int main (void) {\n    ceu_start();\n    while ( program-is-running ) {\n        int timeout = ( program-has-pending-async ) ? 0 :  next-timer-in-ms ;\n        if (SDL_WaitEventTimeout( ... , timeout);\n            ceu_input(CEU_INPUT__*,  ... );     /* input SDL_QUIT, SDL_KEY*, SDL_MOUSE*, etc */\n        }\n        ceu_input(CEU_INPUT__NONE,  time );     /* input async and timer */\n        ceu_input(CEU_INPUT_SDL_REDRAW,  ... ); /* input SDL_REDRAW after every input */\n    }\n    ceu_stop();\n    return  program-escape-value ;\n}  The inputs are polled on each loop iteration and changes are notified to the\nC\u00e9u application through  ceu_input  calls.", 
+            "title": "Waiting Mode"
+        }, 
+        {
+            "location": "/020-modes/#frame-based-mode", 
+            "text": "The  frame-based mode  of C\u00e9u-SDL continually waits for SDL input events in an\ninfinite loop.\nThe waiting period is limited to the next frame period:  int main (void) {\n    ceu_start();\n    while ( program-is-running ) {\n        int timeout = ( program-has-pending-async ) ?\n                        0 : MIN( next-timer-in-ms , next-frame-in-ms );\n        if ( next-frame-expired ) {\n            ceu_input(CEU_INPUT_SDL_DT, CEU_SDL_MODE_FRAME);\n        }\n        if (SDL_WaitEventTimeout( ... , timeout);\n            ceu_input(CEU_INPUT__*,  ... );     /* input SDL_QUIT, SDL_KEY*, SDL_MOUSE*, etc */\n        }\n        ceu_input(CEU_INPUT__NONE,  time );     /* input async and timer */\n        ceu_input(CEU_INPUT_SDL_REDRAW,  ... ); /* input SDL_REDRAW after every input */\n    }\n    ceu_stop();\n    return  program-escape-value ;\n}  The inputs are polled on each loop iteration and changes are notified to the\nC\u00e9u application through  ceu_input  calls.  The frame-based mode also provides the  CEU_SDL_DT  input, which is notified\nafter each frame period expires.", 
+            "title": "Frame-Based Mode"
+        }, 
+        {
+            "location": "/030-inputs/", 
+            "text": "Input Events\n\n\nTODO: not all inputs have been mapped", 
+            "title": "Input Events"
+        }, 
+        {
+            "location": "/030-inputs/#input-events", 
+            "text": "TODO: not all inputs have been mapped", 
+            "title": "Input Events"
         }, 
         {
             "location": "/license/", 
