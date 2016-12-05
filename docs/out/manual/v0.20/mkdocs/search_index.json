@@ -47,52 +47,52 @@
         }, 
         {
             "location": "/030-inputs/", 
-            "text": "Input Events\n\n\nC\u00e9u-SDL provides mappings to all SDL events:\n\n\nhttps://wiki.libsdl.org/SDL_Event\n\n\nTODO: not all inputs have been mapped\n\n\nIn addition, .\n\n\nSDL_REDRAW\n\n\nDeclaration:\n\n\ninput _SDL_Renderer\n SDL_REDRAW;\n\n\n\n\nOccurs in the end of every loop iteration in all \nmodes of operation\n.\n\n\nTODO: payload\n\n\nSDL_DT\n\n\nDeclaration:\n\n\ninput int SDL_DT;\n\n\n\n\nOccurs in the beginning of every loop iteration in the \nframe-based\n\n\nmode of operation\n.\n\n\nThe input value of type \nint\n is always equal to \nCEU_SDL_MODE_FRAME\n.\n\n\nSDL_QUIT\n\n\nDeclaration:\n\n\ninput void SDL_QUIT;\n\n\n\n\nSDL Reference:\n\n\nhttps://wiki.libsdl.org/SDL_QuitEvent\n\n\nSDL_KEYDOWN\n\n\nSignature:\n\n\ninput _SDL_KeyboardEvent\n SDL_KEYDOWN;\n\n\n\n\nSDL Reference:\n\n\nhttps://wiki.libsdl.org/SDL_KeyboardEvent\n\n\nSDL_KEYUP\n\n\nSignature:\n\n\ninput _SDL_KeyboardEvent\n SDL_KEYUP;\n\n\n\n\nSDL Reference:\n\n\nhttps://wiki.libsdl.org/SDL_KeyboardEvent\n\n\nSDL_MOUSEBUTTONDOWN\n\n\nSignature:\n\n\ninput _SDL_MouseButtonEvent\n SDL_MOUSEBUTTONDOWN;\n\n\n\n\nSDL Reference:\n\n\nhttps://wiki.libsdl.org/SDL_MouseButtonEvent\n\n\nSDL_MOUSEBUTTONUP\n\n\nSignature:\n\n\ninput _SDL_MouseButtonEvent\n SDL_MOUSEBUTTONUP;\n\n\n\n\nSDL Reference:\n\n\nhttps://wiki.libsdl.org/SDL_MouseButtonEvent\n\n\nSDL_MOUSEMOTION\n\n\nSignature:\n\n\ninput _SDL_MouseMotionEvent\n SDL_MOUSEMOTION;\n\n\n\n\nSDL Reference:\n\n\nhttps://wiki.libsdl.org/SDL_MouseMotionEvent", 
+            "text": "Input Events\n\n\nC\u00e9u-SDL provides mappings to all SDL events:\n\n\nhttps://wiki.libsdl.org/SDL_Event\n\n\nTODO: not all inputs have been mapped\n\n\nIn addition, it provides the \nSDL_REDRAW\n and \nSDL_DT\n input events.\n\n\nSDL_REDRAW\n\n\ninput _SDL_Renderer\n SDL_REDRAW;\n\n\n\n\nOccurs in the end of every loop iteration in all \nmodes of operation\n.\n\n\nTODO: payload\n\n\nSDL_DT\n\n\ninput int SDL_DT;\n\n\n\n\nOccurs in the beginning of every loop iteration in the \nframe-based\n\n\nmode of operation\n.\n\n\nThe input value of type \nint\n is always equal to \nCEU_SDL_MODE_FRAME\n.\n\n\nSDL_QUIT\n\n\ninput void SDL_QUIT;\n\n\n\n\nSDL Reference: \nhttps://wiki.libsdl.org/SDL_QuitEvent\n\n\nSDL_KEYDOWN\n\n\ninput _SDL_KeyboardEvent\n SDL_KEYDOWN;\n\n\n\n\nSDL Reference: \nhttps://wiki.libsdl.org/SDL_KeyboardEvent\n\n\nSDL_KEYUP\n\n\ninput _SDL_KeyboardEvent\n SDL_KEYUP;\n\n\n\n\nSDL Reference: \nhttps://wiki.libsdl.org/SDL_KeyboardEvent\n\n\nSDL_MOUSEBUTTONDOWN\n\n\ninput _SDL_MouseButtonEvent\n SDL_MOUSEBUTTONDOWN;\n\n\n\n\nSDL Reference: \nhttps://wiki.libsdl.org/SDL_MouseButtonEvent\n\n\nSDL_MOUSEBUTTONUP\n\n\ninput _SDL_MouseButtonEvent\n SDL_MOUSEBUTTONUP;\n\n\n\n\nSDL Reference: \nhttps://wiki.libsdl.org/SDL_MouseButtonEvent\n\n\nSDL_MOUSEMOTION\n\n\ninput _SDL_MouseMotionEvent\n SDL_MOUSEMOTION;\n\n\n\n\nSDL Reference: \nhttps://wiki.libsdl.org/SDL_MouseMotionEvent", 
             "title": "Input Events"
         }, 
         {
             "location": "/030-inputs/#input-events", 
-            "text": "C\u00e9u-SDL provides mappings to all SDL events:  https://wiki.libsdl.org/SDL_Event  TODO: not all inputs have been mapped  In addition, .", 
+            "text": "C\u00e9u-SDL provides mappings to all SDL events:  https://wiki.libsdl.org/SDL_Event  TODO: not all inputs have been mapped  In addition, it provides the  SDL_REDRAW  and  SDL_DT  input events.", 
             "title": "Input Events"
         }, 
         {
             "location": "/030-inputs/#sdl_redraw", 
-            "text": "Declaration:  input _SDL_Renderer  SDL_REDRAW;  Occurs in the end of every loop iteration in all  modes of operation .  TODO: payload", 
+            "text": "input _SDL_Renderer  SDL_REDRAW;  Occurs in the end of every loop iteration in all  modes of operation .  TODO: payload", 
             "title": "SDL_REDRAW"
         }, 
         {
             "location": "/030-inputs/#sdl_dt", 
-            "text": "Declaration:  input int SDL_DT;  Occurs in the beginning of every loop iteration in the  frame-based  mode of operation .  The input value of type  int  is always equal to  CEU_SDL_MODE_FRAME .", 
+            "text": "input int SDL_DT;  Occurs in the beginning of every loop iteration in the  frame-based  mode of operation .  The input value of type  int  is always equal to  CEU_SDL_MODE_FRAME .", 
             "title": "SDL_DT"
         }, 
         {
             "location": "/030-inputs/#sdl_quit", 
-            "text": "Declaration:  input void SDL_QUIT;  SDL Reference:  https://wiki.libsdl.org/SDL_QuitEvent", 
+            "text": "input void SDL_QUIT;  SDL Reference:  https://wiki.libsdl.org/SDL_QuitEvent", 
             "title": "SDL_QUIT"
         }, 
         {
             "location": "/030-inputs/#sdl_keydown", 
-            "text": "Signature:  input _SDL_KeyboardEvent  SDL_KEYDOWN;  SDL Reference:  https://wiki.libsdl.org/SDL_KeyboardEvent", 
+            "text": "input _SDL_KeyboardEvent  SDL_KEYDOWN;  SDL Reference:  https://wiki.libsdl.org/SDL_KeyboardEvent", 
             "title": "SDL_KEYDOWN"
         }, 
         {
             "location": "/030-inputs/#sdl_keyup", 
-            "text": "Signature:  input _SDL_KeyboardEvent  SDL_KEYUP;  SDL Reference:  https://wiki.libsdl.org/SDL_KeyboardEvent", 
+            "text": "input _SDL_KeyboardEvent  SDL_KEYUP;  SDL Reference:  https://wiki.libsdl.org/SDL_KeyboardEvent", 
             "title": "SDL_KEYUP"
         }, 
         {
             "location": "/030-inputs/#sdl_mousebuttondown", 
-            "text": "Signature:  input _SDL_MouseButtonEvent  SDL_MOUSEBUTTONDOWN;  SDL Reference:  https://wiki.libsdl.org/SDL_MouseButtonEvent", 
+            "text": "input _SDL_MouseButtonEvent  SDL_MOUSEBUTTONDOWN;  SDL Reference:  https://wiki.libsdl.org/SDL_MouseButtonEvent", 
             "title": "SDL_MOUSEBUTTONDOWN"
         }, 
         {
             "location": "/030-inputs/#sdl_mousebuttonup", 
-            "text": "Signature:  input _SDL_MouseButtonEvent  SDL_MOUSEBUTTONUP;  SDL Reference:  https://wiki.libsdl.org/SDL_MouseButtonEvent", 
+            "text": "input _SDL_MouseButtonEvent  SDL_MOUSEBUTTONUP;  SDL Reference:  https://wiki.libsdl.org/SDL_MouseButtonEvent", 
             "title": "SDL_MOUSEBUTTONUP"
         }, 
         {
             "location": "/030-inputs/#sdl_mousemotion", 
-            "text": "Signature:  input _SDL_MouseMotionEvent  SDL_MOUSEMOTION;  SDL Reference:  https://wiki.libsdl.org/SDL_MouseMotionEvent", 
+            "text": "input _SDL_MouseMotionEvent  SDL_MOUSEMOTION;  SDL Reference:  https://wiki.libsdl.org/SDL_MouseMotionEvent", 
             "title": "SDL_MOUSEMOTION"
         }, 
         {
