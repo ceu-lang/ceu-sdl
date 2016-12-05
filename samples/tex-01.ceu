@@ -1,7 +1,7 @@
 #include "sdl/sdl.ceu"
 
 var& _SDL_Renderer ren; ;
-watching SDL_Init("SDL 12", 68,68, SDL_Color(0xFF,0xFF,0x00,0xFF)) -> (&ren) do
+watching SDL_Init("Tex 1", 68,68, SDL_Color(0xFF,0xFF,0x00,0xFF)) -> (&ren) do
     var& SDL_Texture img;
     spawn SDL_Open_Image(&ren, "samples/img.png") -> (&img);
     var SDL_Rect rect = val SDL_Rect(10,10 , img.width,img.height);

@@ -1,0 +1,15 @@
+#include "sdl/sdl.ceu"
+
+var SDL_Color bg = val SDL_Color(0x00,0x00,0x00,0xFF);
+
+var& _SDL_Renderer ren;
+watching SDL_Init("Sound 1", 10,10, bg) -> (&ren)
+do
+    var& _Mix_Chunk sound;
+    spawn SDL_Open_Sound("samples/click1.wav") -> (&sound);
+    every 1s do
+        _Mix_PlayChannel(-1, &&sound, 0);
+    end
+end
+
+escape 0;

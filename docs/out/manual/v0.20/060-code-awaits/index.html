@@ -154,8 +154,9 @@
               
                 <h1 id="codeawait-abstractions">Code/Await Abstractions</h1>
 <h2 id="sdl_init">SDL_Init</h2>
-<p>Creates a SDL window and provides a renderer to the application.</p>
-<p><code>SDL_Init</code> terminates when <a href="#TODO"><code>SDL_QUIT</code></a> occurs.</p>
+<p>Initializes Céu-SDL, creates a SDL window, and provides a renderer to the
+application.</p>
+<p><code>SDL_Init</code> terminates once <a href="#TODO"><code>SDL_QUIT</code></a> occurs.</p>
 <pre><code class="ceu">code/await SDL_Init (var _char&amp;&amp; title, var int width, var int height, var SDL_Color? bg)
                         -&gt; (var&amp; _SDL_Renderer ren)
                             -&gt; void
@@ -163,10 +164,10 @@
 
 <ul>
 <li>Parameters<ul>
-<li><code>title</code>:  the title  of the window</li>
-<li><code>width</code>:  the width  of the window in pixels</li>
-<li><code>height</code>: the height of the window in pixels</li>
-<li><code>bg</code>:     the background color of the window (optional)</li>
+<li><code>title</code>:  title  of the window</li>
+<li><code>width</code>:  width  of the window in pixels</li>
+<li><code>height</code>: height of the window in pixels</li>
+<li><code>bg</code>:     background color of the window (optional)</li>
 </ul>
 </li>
 <li>Initialization<ul>
@@ -218,20 +219,20 @@ escape 0;
     <a href="#TODO"><code>SDL_SetRenderDrawColor</code></a>,
     <a href="#TODO"><code>SDL_RenderClear</code></a>.</p>
 <h2 id="sdl_open_image">SDL_Open_Image</h2>
-<p>Opens an image into a texture and manages it.</p>
+<p>Opens an image file into a new texture.</p>
 <pre><code class="ceu">code/await SDL_Open_Image (var&amp; _SDL_Renderer ren, var _char&amp;&amp; path)
-                                -&gt; (var&amp; SDL_Texture tex)
-                                    -&gt; FOREVER
+                            -&gt; (var&amp; SDL_Texture tex)
+                                -&gt; FOREVER
 </code></pre>
 
 <ul>
 <li>Parameters<ul>
-<li><code>ren</code>:  the rendering context</li>
-<li><code>path</code>: the path to the image</li>
+<li><code>ren</code>:  rendering context</li>
+<li><code>path</code>: path to the image</li>
 </ul>
 </li>
 <li>Initialization<ul>
-<li><code>tex</code>:  alias to the managed <a href="#TODO">texture</a></li>
+<li><code>tex</code>:  alias to created <a href="#TODO">texture</a></li>
 </ul>
 </li>
 <li>Return<ul>
@@ -262,23 +263,151 @@ escape 0;
     <a href="#TODO"><code>SDL_DestroyTexture</code></a>,
     <a href="#TODO"><code>SDL_QueryTexture</code></a>.</p>
 <h2 id="sdl_open_font">SDL_Open_Font</h2>
+<p>Opens a <code>TTF</code> font file.</p>
 <pre><code class="ceu">code/await SDL_Open_Font (var _char&amp;&amp; path, var int size)
                             -&gt; (var&amp; _TTF_Font font)
                                 -&gt; FOREVER
 </code></pre>
 
+<ul>
+<li>Parameters<ul>
+<li><code>path</code>: path to the font</li>
+<li><code>size</code>: size of the font</li>
+</ul>
+</li>
+<li>Initialization<ul>
+<li><code>font</code>: alias to created font</li>
+</ul>
+</li>
+<li>Return<ul>
+<li>never terminates naturally</li>
+</ul>
+</li>
+</ul>
+<p>All allocated resources are released on termination.</p>
+<p>Example:</p>
+<pre><code class="ceu">#include &quot;sdl/sdl.ceu&quot;
+
+var&amp; _SDL_Renderer ren; ;
+watching SDL_Init(&quot;Font 1&quot;, 220,60, SDL_Color(0xFF,0xFF,0x00,0xFF)) -&gt; (&amp;ren) do
+    var&amp; _TTF_Font font;
+    spawn SDL_Open_Font(&quot;samples/Deutsch.ttf&quot;, 40) -&gt; (&amp;font);
+
+    var&amp; SDL_Texture txt;
+    spawn SDL_New_Text(&amp;ren, &amp;font, &quot;Hello World!&quot;, SDL_Color(0x00,0x00,0x00,0xFF))
+            -&gt; (&amp;txt);
+    var SDL_Rect rect = val SDL_Rect(10, 10, txt.width, txt.height);
+
+    every SDL_REDRAW do
+        _SDL_RenderCopy(&amp;&amp;ren, &amp;&amp;txt.tex, null, &amp;&amp;rect as _SDL_Rect&amp;&amp;);
+    end
+end
+
+escape 0;
+</code></pre>
+
+<p>Draws a black <code>Hello World!</code> text in yellow window.</p>
+<p>SDL References:
+    <a href="#TODO"><code>_TTF_OpenFont</code></a>,
+    <a href="#TODO"><code>_TTF_WasInit</code></a>,
+    <a href="#TODO"><code>_TTF_CloseFont</code></a>.</p>
 <h2 id="sdl_new_text">SDL_New_Text</h2>
-<pre><code class="ceu">code/await SDL_New_Rext (var&amp; _SDL_Renderer ren, var&amp; _TTF_Font font,
-                         var _char&amp;&amp; text, var SDL_Color color)
+<p>Writes a text into a new texture.</p>
+<pre><code class="ceu">code/await SDL_New_Text (var&amp; _SDL_Renderer ren, var&amp; _TTF_Font font, var _char&amp;&amp; text, var SDL_Color color)
                             -&gt; (var&amp; SDL_Texture tex)
                                 -&gt; FOREVER
 </code></pre>
 
+<ul>
+<li>Parameters<ul>
+<li><code>ren</code>:   rendering context</li>
+<li><code>font</code>:  text font</li>
+<li><code>text</code>:  text to write</li>
+<li><code>color</code>: text color</li>
+</ul>
+</li>
+<li>Initialization<ul>
+<li><code>tex</code>:  alias to created <a href="#TODO">texture</a></li>
+</ul>
+</li>
+<li>Return<ul>
+<li>never terminates naturally</li>
+</ul>
+</li>
+</ul>
+<p>All allocated resources are released on termination.</p>
+<p>Example:</p>
+<pre><code class="ceu">#include &quot;sdl/sdl.ceu&quot;
+
+var&amp; _SDL_Renderer ren; ;
+watching SDL_Init(&quot;Font 1&quot;, 220,60, SDL_Color(0xFF,0xFF,0x00,0xFF)) -&gt; (&amp;ren) do
+    var&amp; _TTF_Font font;
+    spawn SDL_Open_Font(&quot;font.ttf&quot;, 40) -&gt; (&amp;font);
+
+    var&amp; SDL_Texture txt;
+    spawn SDL_New_Text(&amp;ren, &amp;font, &quot;Hello World!&quot;, SDL_Color(0x00,0x00,0x00,0xFF))
+            -&gt; (&amp;txt);
+    var SDL_Rect rect = val SDL_Rect(10, 10, txt.width, txt.height);
+
+    every SDL_REDRAW do
+        _SDL_RenderCopy(&amp;&amp;ren, &amp;&amp;txt.tex, null, &amp;&amp;rect as _SDL_Rect&amp;&amp;);
+    end
+end
+
+escape 0;
+</code></pre>
+
+<p>Draws a black <code>Hello World!</code> text in yellow window.</p>
+<p>SDL References:
+    [<code>_TTF_RenderText_Blended</code>],
+    [<code>_SDL_FreeSurface</code>],
+    [<code>_SDL_CreateTextureFromSurface</code>],
+    [<code>_SDL_DestroyTexture</code>],
+    [<code>_SDL_QueryTexture</code>].</p>
 <h2 id="sdl_open_sound">SDL_Open_Sound</h2>
+<p>Opens a sound file.</p>
 <pre><code class="ceu">code/await SDL_Open_Sound (var _char&amp;&amp; path)
                             -&gt; (var&amp; _Mix_Chunk sound)
                                 -&gt; FOREVER
 </code></pre>
+
+<ul>
+<li>Parameters<ul>
+<li><code>path</code>: path to the sound</li>
+</ul>
+</li>
+<li>Initialization<ul>
+<li><code>sound</code>: alias to created sound</li>
+</ul>
+</li>
+<li>Return<ul>
+<li>never terminates naturally</li>
+</ul>
+</li>
+</ul>
+<p>All allocated resources are released on termination.</p>
+<p>Example:</p>
+<pre><code class="ceu">#include &quot;sdl/sdl.ceu&quot;
+
+var SDL_Color bg = val SDL_Color(0x00,0x00,0x00,0xFF);
+
+var&amp; _SDL_Renderer ren;
+watching SDL_Init(&quot;Sound 1&quot;, 10,10, bg) -&gt; (&amp;ren)
+do
+    var&amp; _Mix_Chunk sound;
+    spawn SDL_Open_Sound(&quot;sound.wav&quot;) -&gt; (&amp;sound);
+    every 1s do
+        _Mix_PlayChannel(-1, &amp;&amp;sound, 0);
+    end
+end
+
+escape 0;
+</code></pre>
+
+<p>Plays <code>sound.wav</code> every second.</p>
+<p>SDL References:
+    <a href="#TODO"><code>_Mix_LoadWAV</code></a>,
+    <a href="#TODO"><code>_Mix_FreeChunk</code></a>.</p>
               
             </div>
           </div>
