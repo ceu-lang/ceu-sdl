@@ -257,7 +257,7 @@ native/pos do
                 CEU_SDL_FRAME_nxt += CEU_SDL_MODE_FRAME;
                 ceu_dbg_assert(CEU_SDL_FRAME_nxt > 0);
                 s32 mspf = CEU_SDL_MODE_FRAME;
-                ceu_input(CEU_INPUT_SDL_DT, &mspf, ceu_sdl_dt());
+                ceu_input(CEU_INPUT_SDL_DT, &mspf);
             }
         }
 #endif
@@ -267,33 +267,32 @@ native/pos do
             SDL_Event* evtp = &evt;
             switch (evt.type) {
                 case SDL_QUIT:
-                    ceu_input(CEU_INPUT_SDL_QUIT, &evtp, ceu_sdl_dt());
+                    ceu_input(CEU_INPUT_SDL_QUIT, &evtp);
                     break;
                 case SDL_KEYDOWN:
-                    ceu_input(CEU_INPUT_SDL_KEYDOWN, &evtp, ceu_sdl_dt());
+                    ceu_input(CEU_INPUT_SDL_KEYDOWN, &evtp);
                     break;
                 case SDL_KEYUP:
-                    ceu_input(CEU_INPUT_SDL_KEYUP, &evtp, ceu_sdl_dt());
+                    ceu_input(CEU_INPUT_SDL_KEYUP, &evtp);
                     break;
                 case SDL_MOUSEBUTTONDOWN:
-                    ceu_input(CEU_INPUT_SDL_MOUSEBUTTONDOWN, &evtp, ceu_sdl_dt());
+                    ceu_input(CEU_INPUT_SDL_MOUSEBUTTONDOWN, &evtp);
                     break;
                 case SDL_MOUSEBUTTONUP:
-                    ceu_input(CEU_INPUT_SDL_MOUSEBUTTONUP, &evtp, ceu_sdl_dt());
+                    ceu_input(CEU_INPUT_SDL_MOUSEBUTTONUP, &evtp);
                     break;
                 case SDL_MOUSEMOTION:
-                    ceu_input(CEU_INPUT_SDL_MOUSEMOTION, &evtp, ceu_sdl_dt());
+                    ceu_input(CEU_INPUT_SDL_MOUSEMOTION, &evtp);
                     break;
             }
         }
 
-        ceu_input(CEU_INPUT__NONE, NULL, ceu_sdl_dt());
-
         // SDL_REDRAW
+        // TODO: on CEU_CALLBACK_STEP_END
         {
             SDL_Renderer*  ren = NULL;
             SDL_Renderer** ren_ = &ren;
-            ceu_input(CEU_INPUT_SDL_REDRAW, &ren_, ceu_sdl_dt());
+            ceu_input(CEU_INPUT_SDL_REDRAW, &ren_);
             if (ren != NULL) {
                 SDL_RenderPresent(ren);
             }
@@ -307,6 +306,10 @@ native/pos do
         switch (cmd) {
             case CEU_CALLBACK_START:
                 CEU_SDL_inited = 0;
+                break;
+            case CEU_CALLBACK_WCLOCK_DT:
+                ret.is_handled = 1;
+                ret.value.num = ceu_sdl_dt();
                 break;
             case CEU_CALLBACK_WCLOCK_MIN:
                 ret.is_handled = 1;
