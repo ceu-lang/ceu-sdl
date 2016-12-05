@@ -1,11 +1,20 @@
 #ifndef _SDL_CEU
 #define _SDL_CEU
 
+#ifndef CEU_SDL_MODE_POLLING
+#ifndef CEU_SDL_MODE_WAITING
+#ifndef CEU_SDL_MODE_FRAME
+#define CEU_SDL_MODE_FRAME (1000/30)
+#endif
+#endif
+#endif
+
 native/const _GL_SCISSOR_TEST, _GL_TEXTURE_2D;
 native _glEnable, _glDisable, _glScissor;
 
 native/plain  _SDL_Rect, _SDL_Point, _SDL_Color,
               _SDL_MouseButtonEvent,
+              _SDL_MouseMotionEvent,
               _SDL_KeyboardEvent,
               _SDL_Renderer,
               _SDL_Surface,
@@ -190,8 +199,6 @@ native/pre do
 ##endif
 end
 
-#define CEU_SDL_DT (1000/30)
-
 native/pos do
     ##define ceu_callback_env(cmd,evt,params) ceu_sdl_callback(cmd,evt,params)
 
@@ -200,9 +207,9 @@ native/pos do
     u32 CEU_SDL_WCLOCK_old;
     s32 CEU_SDL_WCLOCK_min;
 
-#ifdef CEU_SDL_DT
-    u32 CEU_SDL_DT_old;
-    s32 CEU_SDL_DT_nxt;
+#ifdef CEU_SDL_MODE_FRAME
+    u32 CEU_SDL_FRAME_old;
+    s32 CEU_SDL_FRAME_nxt;
 #endif
 
     s32 ceu_sdl_dt (void) {
@@ -219,7 +226,7 @@ native/pos do
 
     void ceu_sdl_step (void) {
         SDL_Event evt;
-#if 0
+#ifdef CEU_SDL_MODE_POLLING
         /* CPU = 100% */
         int has = SDL_PollEvent(&evt);
 #else
@@ -228,28 +235,28 @@ native/pos do
             timeout = 0;
         } else {
             s32 min = (CEU_SDL_WCLOCK_min<=0 ? 0 : CEU_SDL_WCLOCK_min/1000);
-#ifdef CEU_SDL_DT
-            timeout = (CEU_SDL_inited && min>CEU_SDL_DT_nxt) ?
-                        CEU_SDL_DT_nxt : min;
+#ifdef CEU_SDL_MODE_FRAME
+            timeout = (CEU_SDL_inited && min>CEU_SDL_FRAME_nxt) ?
+                        CEU_SDL_FRAME_nxt : min;
 #else
-            timeout = min;
+            timeout = min; // possibly CEU_WCLOCK_INACTIVE
 #endif
         }
         int has = SDL_WaitEventTimeout(&evt, timeout);
 #endif
 
         // SDL_DT
-#ifdef CEU_SDL_DT
+#ifdef CEU_SDL_MODE_FRAME
         if (CEU_SDL_inited) {
             u32 now = SDL_GetTicks();
-            u32 dt = (now - CEU_SDL_DT_old);
-            CEU_SDL_DT_old = now;
+            u32 dt = (now - CEU_SDL_FRAME_old);
+            CEU_SDL_FRAME_old = now;
 
-            CEU_SDL_DT_nxt -= dt;
-            if (CEU_SDL_DT_nxt <= 0) {
-                CEU_SDL_DT_nxt += CEU_SDL_DT;
-                ceu_dbg_assert(CEU_SDL_DT_nxt > 0);
-                s32 mspf = CEU_SDL_DT;
+            CEU_SDL_FRAME_nxt -= dt;
+            if (CEU_SDL_FRAME_nxt <= 0) {
+                CEU_SDL_FRAME_nxt += CEU_SDL_MODE_FRAME;
+                ceu_dbg_assert(CEU_SDL_FRAME_nxt > 0);
+                s32 mspf = CEU_SDL_MODE_FRAME;
                 ceu_input(CEU_INPUT_SDL_DT, &mspf, ceu_sdl_dt());
             }
         }
@@ -274,8 +281,13 @@ native/pos do
                 case SDL_MOUSEBUTTONUP:
                     ceu_input(CEU_INPUT_SDL_MOUSEBUTTONUP, &evtp, ceu_sdl_dt());
                     break;
+                case SDL_MOUSEMOTION:
+                    ceu_input(CEU_INPUT_SDL_MOUSEMOTION, &evtp, ceu_sdl_dt());
+                    break;
             }
         }
+
+        ceu_input(CEU_INPUT__NONE, NULL, ceu_sdl_dt());
 
         // SDL_REDRAW
         {
@@ -286,8 +298,6 @@ native/pos do
                 SDL_RenderPresent(ren);
             }
         }
-
-        ceu_input(CEU_INPUT__NONE, NULL, ceu_sdl_dt());
     }
 
     tceu_callback_ret ceu_sdl_callback (int cmd, tceu_callback_arg p1, tceu_callback_arg p2)
@@ -351,12 +361,13 @@ input int  SDL_DT;
 input _SDL_Renderer&&&& SDL_REDRAW;
 input _SDL_KeyboardEvent&&    SDL_KEYDOWN,         SDL_KEYUP;
 input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP;
+input _SDL_MouseMotionEvent&& SDL_MOUSEMOTION;
 
 native
     _CEU_WCLOCK_INACTIVE,
     _CEU_SDL_inited,
-    _CEU_SDL_DT_old,
-    _CEU_SDL_DT_nxt,
+    _CEU_SDL_FRAME_old,
+    _CEU_SDL_FRAME_nxt,
     _CEU_SDL_WCLOCK_min,
     _CEU_SDL_WCLOCK_old,
 ;
@@ -404,9 +415,9 @@ do
     _CEU_SDL_inited = 1;
     _CEU_SDL_WCLOCK_min = _CEU_WCLOCK_INACTIVE;
     _CEU_SDL_WCLOCK_old = _SDL_GetTicks();
-#ifdef CEU_SDL_DT
-    _CEU_SDL_DT_old     = _CEU_SDL_WCLOCK_old;
-    _CEU_SDL_DT_nxt     = CEU_SDL_DT;
+#ifdef CEU_SDL_MODE_FRAME
+    _CEU_SDL_FRAME_old     = _CEU_SDL_WCLOCK_old;
+    _CEU_SDL_FRAME_nxt     = CEU_SDL_MODE_FRAME;
 #endif
 
 #if 1

@@ -1,15 +1,16 @@
 CEU_DIR  = $(error set absolute path to "<ceu>" repository)
-CEU_SRC ?= samples/sdl-01.ceu
+CEU_SRC  ?= samples/sdl-01.ceu
+CEU_ARGS ?=
 
 all:
-	ceu --pre --pre-args="-I$(CEU_DIR)/include -I./include"         \
-	          --pre-input=$(CEU_SRC)                                \
-	    --ceu --ceu-err-unused=pass --ceu-err-uninitialized=pass    \
-	    --env --env-types=$(CEU_DIR)/env/types.h                    \
-	          --env-main=$(CEU_DIR)/env/main.c                      \
-	          --env-output=/tmp/$$(basename $(CEU_SRC) .ceu).c      \
+	ceu --pre --pre-args="-I$(CEU_DIR)/include -I./include $(CEU_ARGS)" \
+	          --pre-input=$(CEU_SRC)                                    \
+	    --ceu --ceu-err-unused=pass --ceu-err-uninitialized=pass        \
+	    --env --env-types=$(CEU_DIR)/env/types.h                        \
+	          --env-main=$(CEU_DIR)/env/main.c                          \
+	          --env-output=/tmp/$$(basename $(CEU_SRC) .ceu).c          \
 	    --cc --cc-args="-lm -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lSDL2_gfx" \
-	         --cc-output=/tmp/$$(basename $(CEU_SRC) .ceu);         \
+	         --cc-output=/tmp/$$(basename $(CEU_SRC) .ceu);             \
 	/tmp/$$(basename $(CEU_SRC) .ceu);
 
 c:

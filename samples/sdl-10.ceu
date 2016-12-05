@@ -1,0 +1,20 @@
+#include "sdl/sdl.ceu"
+
+var& _SDL_Renderer ren;
+watching SDL_go("SDL 10", 800,480, SDL_Color(0xFF,0xFF,0x00,0xFF)) -> (&ren) do
+    var SDL_Rect fg = val SDL_Rect(100,100 , 100,100);
+    par do
+        var _SDL_MouseMotionEvent&& mse;
+        every mse in SDL_MOUSEMOTION do
+            fg.x = mse:x;
+            fg.y = mse:y;
+        end
+    with
+        every SDL_REDRAW do
+            _SDL_SetRenderDrawColor(&&ren, 0xFF,0x00,0x00,0xFF);
+            _SDL_RenderFillRect(&&ren, (&&fg as _SDL_Rect&&));
+        end
+    end
+end
+
+escape 0;
