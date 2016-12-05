@@ -1,8 +1,6 @@
 Modes of Operation
 ==================
 
-`TODO`
-
 Céu-SDL supports *polling*, *waiting*, and *frame-based* modes of operation.
 
 Each mode of operation requires a compilation flag:
