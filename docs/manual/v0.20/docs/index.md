@@ -7,6 +7,6 @@ language Céu:
 
 * [Introduction](010-introduction.md)
 * [Modes of Operation](020-modes.md)
-* [Input Events](020-inputs.md)
+* [Input Events](030-inputs.md)
 * [License](license.md)
 
