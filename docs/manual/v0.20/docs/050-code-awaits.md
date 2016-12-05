@@ -8,7 +8,7 @@ Creates a SDL window and provides a renderer to the application.
 
 `SDL_go` terminates when [`SDL_QUIT`](#TODO) occurs.
 
-```
+```ceu
 code/await SDL_go (var _char&& title, var int width, var int height, var SDL_Color? bg)
                     -> (var& _SDL_Renderer ren)
                         -> void
@@ -35,7 +35,7 @@ All allocated resources are released on termination.
 
 Example:
 
-```
+```ceu
 #include "sdl/sdl.ceu"
 
 var& _SDL_Renderer ren; ;
@@ -55,7 +55,7 @@ Draws a *100x100* red rectangle centered in a *300x300* yellow window.
 SDL_open_texture
 ----------------
 
-```
+```ceu
 code/await SDL_open_texture (var& _SDL_Renderer ren, var _char&& path)
                                 -> (var& SDL_Texture tex)
                                     -> FOREVER
@@ -64,7 +64,7 @@ code/await SDL_open_texture (var& _SDL_Renderer ren, var _char&& path)
 SDL_open_font
 -------------
 
-```
+```ceu
 code/await SDL_open_font (var _char&& path, var int size)
                             -> (var& _TTF_Font font)
                                 -> FOREVER
@@ -73,7 +73,7 @@ code/await SDL_open_font (var _char&& path, var int size)
 SDL_new_text
 ------------
 
-```
+```ceu
 code/await SDL_new_text (var& _SDL_Renderer ren, var& _TTF_Font font,
                          var _char&& text, var SDL_Color color)
                             -> (var& SDL_Texture tex)
@@ -83,7 +83,7 @@ code/await SDL_new_text (var& _SDL_Renderer ren, var& _TTF_Font font,
 SDL_open_sound
 --------------
 
-```
+```ceu
 code/await SDL_open_sound (var _char&& path)
                             -> (var& _Mix_Chunk sound)
                                 -> FOREVER

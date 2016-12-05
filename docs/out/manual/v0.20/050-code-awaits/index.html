@@ -149,7 +149,7 @@
 <h2 id="sdl_go">SDL_go</h2>
 <p>Creates a SDL window and provides a renderer to the application.</p>
 <p><code>SDL_go</code> terminates when <a href="#TODO"><code>SDL_QUIT</code></a> occurs.</p>
-<pre><code>code/await SDL_go (var _char&amp;&amp; title, var int width, var int height, var SDL_Color? bg)
+<pre><code class="ceu">code/await SDL_go (var _char&amp;&amp; title, var int width, var int height, var SDL_Color? bg)
                     -&gt; (var&amp; _SDL_Renderer ren)
                         -&gt; void
 </code></pre>
@@ -179,7 +179,7 @@
 - initializes audio</p>
 <p>All allocated resources are released on termination.</p>
 <p>Example:</p>
-<pre><code>#include &quot;sdl/sdl.ceu&quot;
+<pre><code class="ceu">#include &quot;sdl/sdl.ceu&quot;
 
 var&amp; _SDL_Renderer ren; ;
 watching SDL_go(&quot;Title&quot;, 300,300, SDL_Color(0xFF,0xFF,0x00,0xFF)) -&gt; (&amp;ren) do
@@ -195,26 +195,26 @@ escape 0;
 
 <p>Draws a <em>100x100</em> red rectangle centered in a <em>300x300</em> yellow window.</p>
 <h2 id="sdl_open_texture">SDL_open_texture</h2>
-<pre><code>code/await SDL_open_texture (var&amp; _SDL_Renderer ren, var _char&amp;&amp; path)
+<pre><code class="ceu">code/await SDL_open_texture (var&amp; _SDL_Renderer ren, var _char&amp;&amp; path)
                                 -&gt; (var&amp; SDL_Texture tex)
                                     -&gt; FOREVER
 </code></pre>
 
 <h2 id="sdl_open_font">SDL_open_font</h2>
-<pre><code>code/await SDL_open_font (var _char&amp;&amp; path, var int size)
+<pre><code class="ceu">code/await SDL_open_font (var _char&amp;&amp; path, var int size)
                             -&gt; (var&amp; _TTF_Font font)
                                 -&gt; FOREVER
 </code></pre>
 
 <h2 id="sdl_new_text">SDL_new_text</h2>
-<pre><code>code/await SDL_new_text (var&amp; _SDL_Renderer ren, var&amp; _TTF_Font font,
+<pre><code class="ceu">code/await SDL_new_text (var&amp; _SDL_Renderer ren, var&amp; _TTF_Font font,
                          var _char&amp;&amp; text, var SDL_Color color)
                             -&gt; (var&amp; SDL_Texture tex)
                                 -&gt; FOREVER
 </code></pre>
 
 <h2 id="sdl_open_sound">SDL_open_sound</h2>
-<pre><code>code/await SDL_open_sound (var _char&amp;&amp; path)
+<pre><code class="ceu">code/await SDL_open_sound (var _char&amp;&amp; path)
                             -&gt; (var&amp; _Mix_Chunk sound)
                                 -&gt; FOREVER
 </code></pre>
