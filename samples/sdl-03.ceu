@@ -23,7 +23,7 @@ end
 var SDL_Color bg = val SDL_Color(0x00,0x00,0x00,0xFF);
 
 var& _SDL_Renderer ren;
-watching SDL_go("SDL 3", 800,480, bg) -> (&ren) do
+watching SDL_Init("SDL 3", 800,480, bg) -> (&ren) do
     loop do
         watching 10s do
             pool[5] Rect rs;

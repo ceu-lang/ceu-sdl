@@ -4,7 +4,7 @@
 var SDL_Color bg = val SDL_Color(0xAA,0xAA,0x00,0xFF);
 
 var& _SDL_Renderer ren;
-watching SDL_go("SDL 7", 800,480, bg) -> (&ren) do
+watching SDL_Init("SDL 7", 800,480, bg) -> (&ren) do
 
     var SDL_Rect fg = val SDL_Rect(100,100, 100,100);
 

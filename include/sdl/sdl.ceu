@@ -372,7 +372,7 @@ native
     _CEU_SDL_WCLOCK_old,
 ;
 
-code/await SDL_go (var _char&& title,
+code/await SDL_Init (var _char&& title,
                    var int width, var int height,
                    var SDL_Color? bg)
                     -> (var& _SDL_Renderer ren)
@@ -458,7 +458,7 @@ do
 #endif
 end
 
-code/await SDL_open_texture (var& _SDL_Renderer ren, var _char&& path)
+code/await SDL_Open_Texture (var& _SDL_Renderer ren, var _char&& path)
                                 -> (var& SDL_Texture tex)
                                     -> FOREVER
 do
@@ -474,7 +474,7 @@ do
     await FOREVER;
 end
 
-code/await SDL_open_font (var _char&& path, var int size)
+code/await SDL_Open_Font (var _char&& path, var int size)
                             -> (var& _TTF_Font font)
                                 -> FOREVER
 do
@@ -489,7 +489,7 @@ do
     await FOREVER;
 end
 
-code/await SDL_new_text (var& _SDL_Renderer ren, var& _TTF_Font font,
+code/await SDL_New_Text (var& _SDL_Renderer ren, var& _TTF_Font font,
                          var _char&& text, var SDL_Color color)
                             -> (var& SDL_Texture tex)
                                 -> FOREVER
@@ -525,7 +525,7 @@ do
     await FOREVER;
 end
 
-code/await SDL_open_sound (var _char&& path)
+code/await SDL_Open_Sound (var _char&& path)
                             -> (var& _Mix_Chunk sound)
                                 -> FOREVER
 do

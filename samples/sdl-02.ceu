@@ -20,7 +20,7 @@ do
 end
 
 var& _SDL_Renderer ren;
-watching SDL_go("SDL 2", 800,480, _) -> (&ren) do
+watching SDL_Init("SDL 2", 800,480, _) -> (&ren) do
     par do
         var SDL_Color bg = val SDL_Color(0x00,0x00,0x00,0xFF);
         every SDL_REDRAW do

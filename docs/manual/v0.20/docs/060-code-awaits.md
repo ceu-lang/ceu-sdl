@@ -69,13 +69,13 @@ SDL References:
     [`SDL_SetRenderDrawColor`](#TODO),
     [`SDL_RenderClear`](#TODO).
 
-SDL_open_texture
+SDL_Open_Texture
 ----------------
 
 Opens an image to a texture and manages it.
 
 ```ceu
-code/await SDL_open_texture (var& _SDL_Renderer ren, var _char&& path)
+code/await SDL_Open_Texture (var& _SDL_Renderer ren, var _char&& path)
                                 -> (var& SDL_Texture tex)
                                     -> FOREVER
 ```
@@ -98,7 +98,7 @@ Example:
 var& _SDL_Renderer ren; ;
 watching SDL_Init("Image", 68,68, SDL_Color(0xFF,0xFF,0x00,0xFF)) -> (&ren) do
     var& SDL_Texture img;
-    spawn SDL_open_texture(&ren, "img.png") -> (&img);
+    spawn SDL_Open_Texture(&ren, "img.png") -> (&img);
     var SDL_Rect rect = val SDL_Rect(10,10 , img.width,img.height);
     every SDL_REDRAW do
         _SDL_RenderCopy(&&ren, &&img.tex, null, &&rect as _SDL_Rect&&);
@@ -115,30 +115,30 @@ SDL References:
     [`SDL_DestroyTexture`](#TODO),
     [`SDL_QueryTexture`](#TODO).
 
-SDL_open_font
+SDL_Open_Font
 -------------
 
 ```ceu
-code/await SDL_open_font (var _char&& path, var int size)
+code/await SDL_Open_Font (var _char&& path, var int size)
                             -> (var& _TTF_Font font)
                                 -> FOREVER
 ```
 
-SDL_new_text
+SDL_New_Text
 ------------
 
 ```ceu
-code/await SDL_new_text (var& _SDL_Renderer ren, var& _TTF_Font font,
+code/await SDL_New_Rext (var& _SDL_Renderer ren, var& _TTF_Font font,
                          var _char&& text, var SDL_Color color)
                             -> (var& SDL_Texture tex)
                                 -> FOREVER
 ```
 
-SDL_open_sound
+SDL_Open_Sound
 --------------
 
 ```ceu
-code/await SDL_open_sound (var _char&& path)
+code/await SDL_Open_Sound (var _char&& path)
                             -> (var& _Mix_Chunk sound)
                                 -> FOREVER
 ```
