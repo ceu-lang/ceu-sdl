@@ -158,11 +158,11 @@ $ make CEU_ARGS=&quot;-DCEU_SDL_MODE_WAITING&quot;  CEU_SRC=&lt;path-to-ceu-appl
 $ make CEU_ARGS=&quot;-DCEU_SDL_MODE_FRAME=33&quot; CEU_SRC=&lt;path-to-ceu-application&gt;
 </code></pre>
 
-<p>The frame-based mode also requires the desired period of the frame in
-milliseconds.</p>
+<p>The frame-based mode also requires the desired period of the frame (in
+milliseconds).</p>
 <p>The frame-based mode is the default mode of operation and is preset to 33
 milliseconds.</p>
-<p>The modes of operation are implemented in <code>C</code> and are part of Céu-SDL.
+<p>The modes of operation are implemented in C and are part of Céu-SDL.
 Each mode is described in pseudo-code as follows.</p>
 <h2 id="polling-mode">Polling Mode</h2>
 <p>The <em>polling mode</em> of Céu-SDL continually checks for SDL input events in an
