@@ -149,9 +149,7 @@
 <h2 id="sdl_go">SDL_go</h2>
 <p>Creates a SDL window and provides a renderer to the application.</p>
 <p><code>SDL_go</code> terminates when <a href="#TODO"><code>SDL_QUIT</code></a> occurs.</p>
-<pre><code>code/await SDL_go (var _char&amp;&amp; title,
-                   var int width, var int height,
-                   var SDL_Color? bg)
+<pre><code>code/await SDL_go (var _char&amp;&amp; title, var int width, var int height, var SDL_Color? bg)
                     -&gt; (var&amp; _SDL_Renderer ren)
                         -&gt; void
 </code></pre>
@@ -169,16 +167,16 @@
 </ul>
 </li>
 <li>Return<ul>
-<li><code>void</code>:   terminates on <code>SDL_QUIT</code> and returns no value</li>
+<li>terminates on <code>SDL_QUIT</code> and returns no value</li>
 </ul>
 </li>
 </ul>
-<p><code>SDL_go</code> performs a number of initializations to put SDL-Céu in an usable state:
-    - inititalizes SDL
-    - creates a window
-    - creates a renderer
-    - initializes TTF
-    - initializes audio</p>
+<p><code>SDL_go</code> performs a number of initializations to put Céu-SDL in an usable state:
+- inititalizes SDL
+- creates a window
+- creates a renderer
+- initializes TTF
+- initializes audio</p>
 <p>All allocated resources are released on termination.</p>
 <p>Example:</p>
 <pre><code>#include &quot;sdl/sdl.ceu&quot;

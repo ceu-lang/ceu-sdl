@@ -9,9 +9,7 @@ Creates a SDL window and provides a renderer to the application.
 `SDL_go` terminates when [`SDL_QUIT`](#TODO) occurs.
 
 ```
-code/await SDL_go (var _char&& title,
-                   var int width, var int height,
-                   var SDL_Color? bg)
+code/await SDL_go (var _char&& title, var int width, var int height, var SDL_Color? bg)
                     -> (var& _SDL_Renderer ren)
                         -> void
 ```
@@ -24,14 +22,14 @@ code/await SDL_go (var _char&& title,
 - Initialization
     - `ren`:    alias to managed renderer
 - Return
-    - `void`:   terminates on `SDL_QUIT` and returns no value
+    - terminates on `SDL_QUIT` and returns no value
 
-`SDL_go` performs a number of initializations to put SDL-Céu in an usable state:
-    - inititalizes SDL
-    - creates a window
-    - creates a renderer
-    - initializes TTF
-    - initializes audio
+`SDL_go` performs a number of initializations to put Céu-SDL in an usable state:
+- inititalizes SDL
+- creates a window
+- creates a renderer
+- initializes TTF
+- initializes audio
 
 All allocated resources are released on termination.
 
