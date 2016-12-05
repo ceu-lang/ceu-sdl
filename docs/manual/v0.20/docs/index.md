@@ -8,5 +8,6 @@ language Céu:
 * [Introduction](010-introduction.md)
 * [Modes of Operation](020-modes.md)
 * [Input Events](030-inputs.md)
+* [Code/Awaits](050-code-awaits.md)
 * [License](license.md)
 

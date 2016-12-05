@@ -2,12 +2,12 @@
     "docs": [
         {
             "location": "/", 
-            "text": "C\u00e9u-SDL v0.20 - Reference Manual\n\n\nC\u00e9u-SDL supports the development of SDL applications in the programming\nlanguage C\u00e9u:\n\n\nhttps://github.com/fsantanna/ceu-sdl\n\n\n\n\nIntroduction\n\n\nModes of Operation\n\n\nInput Events\n\n\nLicense", 
+            "text": "C\u00e9u-SDL v0.20 - Reference Manual\n\n\nC\u00e9u-SDL supports the development of SDL applications in the programming\nlanguage C\u00e9u:\n\n\nhttps://github.com/fsantanna/ceu-sdl\n\n\n\n\nIntroduction\n\n\nModes of Operation\n\n\nInput Events\n\n\nCode/Awaits\n\n\nLicense", 
             "title": "Home"
         }, 
         {
             "location": "/#ceu-sdl-v020-reference-manual", 
-            "text": "C\u00e9u-SDL supports the development of SDL applications in the programming\nlanguage C\u00e9u:  https://github.com/fsantanna/ceu-sdl   Introduction  Modes of Operation  Input Events  License", 
+            "text": "C\u00e9u-SDL supports the development of SDL applications in the programming\nlanguage C\u00e9u:  https://github.com/fsantanna/ceu-sdl   Introduction  Modes of Operation  Input Events  Code/Awaits  License", 
             "title": "C\u00e9u-SDL v0.20 - Reference Manual"
         }, 
         {
