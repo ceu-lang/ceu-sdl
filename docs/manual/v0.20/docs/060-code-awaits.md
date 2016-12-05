@@ -69,13 +69,13 @@ SDL References:
     [`SDL_SetRenderDrawColor`](#TODO),
     [`SDL_RenderClear`](#TODO).
 
-SDL_Open_Texture
-----------------
+SDL_Open_Image
+--------------
 
-Opens an image to a texture and manages it.
+Opens an image into a texture and manages it.
 
 ```ceu
-code/await SDL_Open_Texture (var& _SDL_Renderer ren, var _char&& path)
+code/await SDL_Open_Image (var& _SDL_Renderer ren, var _char&& path)
                                 -> (var& SDL_Texture tex)
                                     -> FOREVER
 ```
@@ -98,7 +98,7 @@ Example:
 var& _SDL_Renderer ren; ;
 watching SDL_Init("Image", 68,68, SDL_Color(0xFF,0xFF,0x00,0xFF)) -> (&ren) do
     var& SDL_Texture img;
-    spawn SDL_Open_Texture(&ren, "img.png") -> (&img);
+    spawn SDL_Open_Image(&ren, "img.png") -> (&img);
     var SDL_Rect rect = val SDL_Rect(10,10 , img.width,img.height);
     every SDL_REDRAW do
         _SDL_RenderCopy(&&ren, &&img.tex, null, &&rect as _SDL_Rect&&);
