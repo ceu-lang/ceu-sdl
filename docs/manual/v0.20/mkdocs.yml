@@ -3,10 +3,11 @@ theme:     readthedocs
 #site_dir:  site/v0.20
 
 pages:
-- Home:                 index.md
-- Introduction:         010-introduction.md
-- Modes of Operation:   020-modes.md
-- Input Events:         030-inputs.md
-- Code/Awaits:          050-code-awaits.md
-- License:              license.md
+- Home:                    index.md
+- Introduction:            010-introduction.md
+- Modes of Operation:      020-modes.md
+- Input Events:            030-inputs.md
+- Data Abstractions:       040-datas.md
+- Code/Await Abstractions: 060-code-awaits.md
+- License:                 license.md
 

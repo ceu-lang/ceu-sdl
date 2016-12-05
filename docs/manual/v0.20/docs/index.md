@@ -8,6 +8,7 @@ language Céu:
 * [Introduction](010-introduction.md)
 * [Modes of Operation](020-modes.md)
 * [Input Events](030-inputs.md)
-* [Code/Awaits](050-code-awaits.md)
+* [Data Abstractions](040-datas.md)
+* [Code/Await Abstractions](060-code-awaits.md)
 * [License](license.md)
 
