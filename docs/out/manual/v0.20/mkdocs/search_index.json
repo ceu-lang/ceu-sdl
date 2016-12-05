@@ -96,6 +96,41 @@
             "title": "SDL_MOUSEMOTION"
         }, 
         {
+            "location": "/050-code-awaits/", 
+            "text": "Code/Awaits\n\n\nSDL_go\n\n\nCreates a SDL window and provides a renderer to the application.\n\n\nSDL_go\n terminates when \nSDL_QUIT\n occurs.\n\n\ncode/await SDL_go (var _char\n title,\n                   var int width, var int height,\n                   var SDL_Color? bg)\n                    -\n (var\n _SDL_Renderer ren)\n                        -\n void\n\n\n\n\n\n\nParameters\n\n\ntitle\n:  the title  of the window\n\n\nwidth\n:  the width  of the window in pixels\n\n\nheight\n: the height of the window in pixels\n\n\nbg\n:     the background color of the window (optional)\n\n\n\n\n\n\nInitialization\n\n\nren\n:    alias to managed renderer\n\n\n\n\n\n\nReturn\n\n\nvoid\n:   terminates on \nSDL_QUIT\n and returns no value\n\n\n\n\n\n\n\n\nSDL_go\n performs a number of initializations to put SDL-C\u00e9u in an usable state:\n    - inititalizes SDL\n    - creates a window\n    - creates a renderer\n    - initializes TTF\n    - initializes audio\n\n\nAll allocated resources are released on termination.\n\n\nExample:\n\n\n#include \nsdl/sdl.ceu\n\n\nvar\n _SDL_Renderer ren; ;\nwatching SDL_go(\nTitle\n, 300,300, SDL_Color(0xFF,0xFF,0x00,0xFF)) -\n (\nren) do\n    var SDL_Rect rect = val SDL_Rect(100,100 , 100,100);\n    every SDL_REDRAW do\n        _SDL_SetRenderDrawColor(\nren, 0xFF,0x00,0x00,0xFF);\n        _SDL_RenderFillRect(\nren, (\nrect as _SDL_Rect\n));\n    end\nend\n\nescape 0;\n\n\n\n\nDraws a \n100x100\n red rectangle centered in a \n300x300\n yellow window.\n\n\nSDL_open_texture\n\n\ncode/await SDL_open_texture (var\n _SDL_Renderer ren, var _char\n path)\n                                -\n (var\n SDL_Texture tex)\n                                    -\n FOREVER\n\n\n\n\nSDL_open_font\n\n\ncode/await SDL_open_font (var _char\n path, var int size)\n                            -\n (var\n _TTF_Font font)\n                                -\n FOREVER\n\n\n\n\nSDL_new_text\n\n\ncode/await SDL_new_text (var\n _SDL_Renderer ren, var\n _TTF_Font font,\n                         var _char\n text, var SDL_Color color)\n                            -\n (var\n SDL_Texture tex)\n                                -\n FOREVER\n\n\n\n\nSDL_open_sound\n\n\ncode/await SDL_open_sound (var _char\n path)\n                            -\n (var\n _Mix_Chunk sound)\n                                -\n FOREVER", 
+            "title": "Code/Awaits"
+        }, 
+        {
+            "location": "/050-code-awaits/#codeawaits", 
+            "text": "", 
+            "title": "Code/Awaits"
+        }, 
+        {
+            "location": "/050-code-awaits/#sdl_go", 
+            "text": "Creates a SDL window and provides a renderer to the application.  SDL_go  terminates when  SDL_QUIT  occurs.  code/await SDL_go (var _char  title,\n                   var int width, var int height,\n                   var SDL_Color? bg)\n                    -  (var  _SDL_Renderer ren)\n                        -  void   Parameters  title :  the title  of the window  width :  the width  of the window in pixels  height : the height of the window in pixels  bg :     the background color of the window (optional)    Initialization  ren :    alias to managed renderer    Return  void :   terminates on  SDL_QUIT  and returns no value     SDL_go  performs a number of initializations to put SDL-C\u00e9u in an usable state:\n    - inititalizes SDL\n    - creates a window\n    - creates a renderer\n    - initializes TTF\n    - initializes audio  All allocated resources are released on termination.  Example:  #include  sdl/sdl.ceu \n\nvar  _SDL_Renderer ren; ;\nwatching SDL_go( Title , 300,300, SDL_Color(0xFF,0xFF,0x00,0xFF)) -  ( ren) do\n    var SDL_Rect rect = val SDL_Rect(100,100 , 100,100);\n    every SDL_REDRAW do\n        _SDL_SetRenderDrawColor( ren, 0xFF,0x00,0x00,0xFF);\n        _SDL_RenderFillRect( ren, ( rect as _SDL_Rect ));\n    end\nend\n\nescape 0;  Draws a  100x100  red rectangle centered in a  300x300  yellow window.", 
+            "title": "SDL_go"
+        }, 
+        {
+            "location": "/050-code-awaits/#sdl_open_texture", 
+            "text": "code/await SDL_open_texture (var  _SDL_Renderer ren, var _char  path)\n                                -  (var  SDL_Texture tex)\n                                    -  FOREVER", 
+            "title": "SDL_open_texture"
+        }, 
+        {
+            "location": "/050-code-awaits/#sdl_open_font", 
+            "text": "code/await SDL_open_font (var _char  path, var int size)\n                            -  (var  _TTF_Font font)\n                                -  FOREVER", 
+            "title": "SDL_open_font"
+        }, 
+        {
+            "location": "/050-code-awaits/#sdl_new_text", 
+            "text": "code/await SDL_new_text (var  _SDL_Renderer ren, var  _TTF_Font font,\n                         var _char  text, var SDL_Color color)\n                            -  (var  SDL_Texture tex)\n                                -  FOREVER", 
+            "title": "SDL_new_text"
+        }, 
+        {
+            "location": "/050-code-awaits/#sdl_open_sound", 
+            "text": "code/await SDL_open_sound (var _char  path)\n                            -  (var  _Mix_Chunk sound)\n                                -  FOREVER", 
+            "title": "SDL_open_sound"
+        }, 
+        {
             "location": "/license/", 
             "text": "License\n\n\nC\u00e9u-Arduino is distributed under the MIT license reproduced below:\n\n\n Copyright (C) 2012-2016 Francisco Sant'Anna\n\n Permission is hereby granted, free of charge, to any person obtaining a copy of\n this software and associated documentation files (the \nSoftware\n), to deal in\n the Software without restriction, including without limitation the rights to\n use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies\n of the Software, and to permit persons to whom the Software is furnished to do\n so, subject to the following conditions:\n\n The above copyright notice and this permission notice shall be included in all\n copies or substantial portions of the Software.\n\n THE SOFTWARE IS PROVIDED \nAS IS\n, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\n SOFTWARE.", 
             "title": "License"
