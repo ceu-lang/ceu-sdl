@@ -458,9 +458,9 @@ do
 #endif
 end
 
-code/await SDL_Open_Texture (var& _SDL_Renderer ren, var _char&& path)
-                                -> (var& SDL_Texture tex)
-                                    -> FOREVER
+code/await SDL_Open_Image (var& _SDL_Renderer ren, var _char&& path)
+                            -> (var& SDL_Texture tex)
+                                -> FOREVER
 do
     var&? _SDL_Texture tex__ = &_IMG_LoadTexture(&&ren, path)
         finalize (tex__) with
