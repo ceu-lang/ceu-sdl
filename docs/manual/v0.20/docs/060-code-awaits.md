@@ -32,8 +32,6 @@ code/await SDL_Init (var _char&& title, var int width, var int height, var SDL_C
 - creates a renderer
 - initializes the text and audio subsystems
 
-All allocated resources are released on termination.
-
 If a `bg` is provided, `SDL_Init` fills the window background with the provided
 color on every `SDL_REDRAW`.
 
@@ -70,6 +68,8 @@ SDL References:
     [`SDL_SetRenderDrawColor`](#TODO),
     [`SDL_RenderClear`](#TODO).
 
+*Note: all allocated SDL resources are automatically released on termination.*
+
 SDL_Open_Image
 --------------
 
@@ -88,8 +88,6 @@ code/await SDL_Open_Image (var& _SDL_Renderer ren, var _char&& path)
     - `tex`:  alias to created [texture](#TODO)
 - Return
     - never terminates naturally
-
-All allocated resources are released on termination.
 
 Example:
 
@@ -116,6 +114,8 @@ SDL References:
     [`SDL_DestroyTexture`](#TODO),
     [`SDL_QueryTexture`](#TODO).
 
+*Note: all allocated SDL resources are automatically released on termination.*
+
 SDL_Open_Font
 -------------
 
@@ -134,8 +134,6 @@ code/await SDL_Open_Font (var _char&& path, var int size)
     - `font`: alias to created font
 - Return
     - never terminates naturally
-
-All allocated resources are released on termination.
 
 Example:
 
@@ -167,6 +165,8 @@ SDL References:
     [`_TTF_WasInit`](#TODO),
     [`_TTF_CloseFont`](#TODO).
 
+*Note: all allocated SDL resources are automatically released on termination.*
+
 SDL_New_Text
 ------------
 
@@ -187,8 +187,6 @@ code/await SDL_New_Text (var& _SDL_Renderer ren, var& _TTF_Font font, var _char&
     - `tex`:  alias to created [texture](#TODO)
 - Return
     - never terminates naturally
-
-All allocated resources are released on termination.
 
 Example:
 
@@ -222,6 +220,8 @@ SDL References:
     [`_SDL_DestroyTexture`],
     [`_SDL_QueryTexture`].
 
+*Note: all allocated SDL resources are automatically released on termination.*
+
 SDL_Open_Sound
 --------------
 
@@ -239,8 +239,6 @@ code/await SDL_Open_Sound (var _char&& path)
     - `sound`: alias to created sound
 - Return
     - never terminates naturally
-
-All allocated resources are released on termination.
 
 Example:
 
@@ -267,3 +265,5 @@ Plays `sound.wav` every second.
 SDL References:
     [`_Mix_LoadWAV`](#TODO),
     [`_Mix_FreeChunk`](#TODO).
+
+*Note: all allocated SDL resources are automatically released on termination.*

@@ -186,7 +186,6 @@ application.</p>
 <li>creates a renderer</li>
 <li>initializes the text and audio subsystems</li>
 </ul>
-<p>All allocated resources are released on termination.</p>
 <p>If a <code>bg</code> is provided, <code>SDL_Init</code> fills the window background with the provided
 color on every <code>SDL_REDRAW</code>.</p>
 <p>Example:</p>
@@ -218,6 +217,7 @@ escape 0;
     <a href="#TODO"><code>Mix_CloseAudio</code></a>,
     <a href="#TODO"><code>SDL_SetRenderDrawColor</code></a>,
     <a href="#TODO"><code>SDL_RenderClear</code></a>.</p>
+<p><em>Note: all allocated SDL resources are automatically released on termination.</em></p>
 <h2 id="sdl_open_image">SDL_Open_Image</h2>
 <p>Opens an image file into a new texture.</p>
 <pre><code class="ceu">code/await SDL_Open_Image (var&amp; _SDL_Renderer ren, var _char&amp;&amp; path)
@@ -240,7 +240,6 @@ escape 0;
 </ul>
 </li>
 </ul>
-<p>All allocated resources are released on termination.</p>
 <p>Example:</p>
 <pre><code class="ceu">#include &quot;sdl/sdl.ceu&quot;
 
@@ -262,6 +261,7 @@ escape 0;
     <a href="#TODO"><code>IMG_LoadTexture</code></a>,
     <a href="#TODO"><code>SDL_DestroyTexture</code></a>,
     <a href="#TODO"><code>SDL_QueryTexture</code></a>.</p>
+<p><em>Note: all allocated SDL resources are automatically released on termination.</em></p>
 <h2 id="sdl_open_font">SDL_Open_Font</h2>
 <p>Opens a <code>TTF</code> font file.</p>
 <pre><code class="ceu">code/await SDL_Open_Font (var _char&amp;&amp; path, var int size)
@@ -284,7 +284,6 @@ escape 0;
 </ul>
 </li>
 </ul>
-<p>All allocated resources are released on termination.</p>
 <p>Example:</p>
 <pre><code class="ceu">#include &quot;sdl/sdl.ceu&quot;
 
@@ -311,6 +310,7 @@ escape 0;
     <a href="#TODO"><code>_TTF_OpenFont</code></a>,
     <a href="#TODO"><code>_TTF_WasInit</code></a>,
     <a href="#TODO"><code>_TTF_CloseFont</code></a>.</p>
+<p><em>Note: all allocated SDL resources are automatically released on termination.</em></p>
 <h2 id="sdl_new_text">SDL_New_Text</h2>
 <p>Writes a text into a new texture.</p>
 <pre><code class="ceu">code/await SDL_New_Text (var&amp; _SDL_Renderer ren, var&amp; _TTF_Font font, var _char&amp;&amp; text, var SDL_Color color)
@@ -335,7 +335,6 @@ escape 0;
 </ul>
 </li>
 </ul>
-<p>All allocated resources are released on termination.</p>
 <p>Example:</p>
 <pre><code class="ceu">#include &quot;sdl/sdl.ceu&quot;
 
@@ -364,6 +363,7 @@ escape 0;
     [<code>_SDL_CreateTextureFromSurface</code>],
     [<code>_SDL_DestroyTexture</code>],
     [<code>_SDL_QueryTexture</code>].</p>
+<p><em>Note: all allocated SDL resources are automatically released on termination.</em></p>
 <h2 id="sdl_open_sound">SDL_Open_Sound</h2>
 <p>Opens a sound file.</p>
 <pre><code class="ceu">code/await SDL_Open_Sound (var _char&amp;&amp; path)
@@ -385,7 +385,6 @@ escape 0;
 </ul>
 </li>
 </ul>
-<p>All allocated resources are released on termination.</p>
 <p>Example:</p>
 <pre><code class="ceu">#include &quot;sdl/sdl.ceu&quot;
 
@@ -408,6 +407,7 @@ escape 0;
 <p>SDL References:
     <a href="#TODO"><code>_Mix_LoadWAV</code></a>,
     <a href="#TODO"><code>_Mix_FreeChunk</code></a>.</p>
+<p><em>Note: all allocated SDL resources are automatically released on termination.</em></p>
               
             </div>
           </div>
