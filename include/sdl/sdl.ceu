@@ -301,28 +301,24 @@ native/pos do
 
     tceu_callback_ret ceu_sdl_callback (int cmd, tceu_callback_arg p1, tceu_callback_arg p2)
     {
-        tceu_callback_ret ret;
+        tceu_callback_ret ret = { .is_handled=1 };
 
         switch (cmd) {
             case CEU_CALLBACK_START:
                 CEU_SDL_inited = 0;
                 break;
             case CEU_CALLBACK_WCLOCK_DT:
-                ret.is_handled = 1;
                 ret.value.num = ceu_sdl_dt();
                 break;
             case CEU_CALLBACK_WCLOCK_MIN:
-                ret.is_handled = 1;
                 CEU_SDL_WCLOCK_min = p1.num;
                 break;
             case CEU_CALLBACK_STEP:
-                ret.is_handled = 1;
                 ceu_sdl_step();
                 break;
             case CEU_CALLBACK_THREAD_TERMINATING: {
                 SDL_Event evt;
                 evt.type = SDL_USEREVENT;
-                ret.is_handled = 1;
                 SDL_PushEvent(&evt);
                 break;
             }
