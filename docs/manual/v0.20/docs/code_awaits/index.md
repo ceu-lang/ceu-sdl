@@ -21,7 +21,7 @@ code/await SDL_Init (var _char&& title, var int width, var int height, var SDL_C
     - `height`: height of the window in pixels
     - `bg`:     background color of the window (optional)
 - Initialization
-    - `ren`:    alias to managed renderer
+    - `ren`:    created renderer
 - Return
     - terminates on `SDL_QUIT` and returns no value
 
@@ -85,7 +85,7 @@ code/await SDL_Open_Image (var& _SDL_Renderer ren, var _char&& path)
     - `ren`:  rendering context
     - `path`: path to the image
 - Initialization
-    - `tex`:  alias to created [texture](#TODO)
+    - `tex`:  created [texture](#TODO)
 - Return
     - never terminates naturally
 
@@ -131,7 +131,7 @@ code/await SDL_Open_Font (var _char&& path, var int size)
     - `path`: path to the font
     - `size`: size of the font
 - Initialization
-    - `font`: alias to created font
+    - `font`: created font
 - Return
     - never terminates naturally
 
@@ -184,7 +184,7 @@ code/await SDL_New_Text (var& _SDL_Renderer ren, var& _TTF_Font font, var _char&
     - `text`:  text to write
     - `color`: text color
 - Initialization
-    - `tex`:  alias to created [texture](#TODO)
+    - `tex`:  created [texture](#TODO)
 - Return
     - never terminates naturally
 
@@ -236,7 +236,7 @@ code/await SDL_Open_Sound (var _char&& path)
 - Parameters
     - `path`: path to the sound
 - Initialization
-    - `sound`: alias to created sound
+    - `sound`: created sound
 - Return
     - never terminates naturally
 

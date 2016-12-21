@@ -3,11 +3,18 @@ theme:     readthedocs
 #site_dir:  site/v0.20
 
 pages:
-- Home:                    index.md
-- Introduction:            010-introduction.md
-- Modes of Operation:      020-modes.md
-- Input Events:            030-inputs.md
-- Data Abstractions:       040-datas.md
-- Code/Await Abstractions: 060-code-awaits.md
-- License:                 license.md
+    - Home:                     'index.md'
+    - Modes of Operation:
+        - Modes of Operation:   'modes/index.md'
+        - Polling:              'modes/polling.md'
+        - Waiting:              'modes/waiting.md'
+        - Frame:                'modes/frame.md'
+    - Input Events:
+        - Input Events:         'inputs/index.md'
+        - General:              'inputs/general.md'
+        - Keyboard:             'inputs/keyboard.md'
+        - Mouse:                'inputs/mouse.md'
+    - Data Abstractions:        'datas/index.md'
+    - Code/Await Abstractions:  'code_awaits/index.md'
+    - License:                  'license.md'
 

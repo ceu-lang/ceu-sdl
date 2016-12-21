@@ -2,162 +2,197 @@
     "docs": [
         {
             "location": "/", 
-            "text": "C\u00e9u-SDL v0.20 - Reference Manual\n\n\nC\u00e9u-SDL supports the development of SDL applications in the programming\nlanguage C\u00e9u:\n\n\nhttps://github.com/fsantanna/ceu-sdl\n\n\n\n\nIntroduction\n\n\nModes of Operation\n\n\nInput Events\n\n\nData Abstractions\n\n\nCode/Await Abstractions\n\n\nLicense", 
+            "text": "C\u00e9u-SDL v0.20 - Reference Manual\n\n\nC\u00e9u-SDL supports the development of SDL applications in the programming\nlanguage C\u00e9u:\n\n\nhttps://github.com/fsantanna/ceu-sdl", 
             "title": "Home"
         }, 
         {
             "location": "/#ceu-sdl-v020-reference-manual", 
-            "text": "C\u00e9u-SDL supports the development of SDL applications in the programming\nlanguage C\u00e9u:  https://github.com/fsantanna/ceu-sdl   Introduction  Modes of Operation  Input Events  Data Abstractions  Code/Await Abstractions  License", 
+            "text": "C\u00e9u-SDL supports the development of SDL applications in the programming\nlanguage C\u00e9u:  https://github.com/fsantanna/ceu-sdl", 
             "title": "C\u00e9u-SDL v0.20 - Reference Manual"
         }, 
         {
-            "location": "/010-introduction/", 
-            "text": "Introduction\n\n\nTODO", 
-            "title": "Introduction"
-        }, 
-        {
-            "location": "/010-introduction/#introduction", 
-            "text": "TODO", 
-            "title": "Introduction"
-        }, 
-        {
-            "location": "/020-modes/", 
-            "text": "Modes of Operation\n\n\nA mode of operation specifies how C\u00e9u-SDL captures events from the environment\n(e.g., key presses) and redirects them to the C\u00e9u application.\n\n\nC\u00e9u-SDL supports \npolling\n, \nwaiting\n, and \nframe-based\n modes of operation.\n\n\nEach mode of operation uses a different compilation flag:\n\n\n$ make CEU_ARGS=\n-DCEU_SDL_MODE_POLLING\n  CEU_SRC=\npath-to-ceu-application\n\n$ make CEU_ARGS=\n-DCEU_SDL_MODE_WAITING\n  CEU_SRC=\npath-to-ceu-application\n\n$ make CEU_ARGS=\n-DCEU_SDL_MODE_FRAME=33\n CEU_SRC=\npath-to-ceu-application\n\n\n\n\n\nThe frame-based mode also requires the desired period of the frame (in\nmilliseconds).\n\n\nThe frame-based mode is the default mode of operation and is preset to 33\nmilliseconds.\n\n\nThe modes of operation are implemented in C and are part of C\u00e9u-SDL.\nEach mode is described in pseudo-code as follows.\n\n\nPolling Mode\n\n\nThe \npolling mode\n of C\u00e9u-SDL continually checks for SDL input events in an\ninfinite loop:\n\n\nint main (void) {\n    ceu_start();\n    while (\nprogram-is-running\n) {\n        if (SDL_PollEvent(\n...\n)) {\n            ceu_input(CEU_INPUT__*, \n...\n);     /* input SDL_QUIT, SDL_KEY*, SDL_MOUSE*, etc */\n        }\n        ceu_input(CEU_INPUT__NONE, \ntime\n);     /* input async and timer */\n        ceu_input(CEU_INPUT_SDL_REDRAW, \n...\n); /* input SDL_REDRAW after every input */\n    }\n    ceu_stop();\n    return \nprogram-escape-value\n;\n}\n\n\n\n\nThe inputs are polled on each loop iteration and changes are notified to the\nC\u00e9u application through \nceu_input\n calls.\n\n\nThe polling mode uses \n100%\n of the CPU time.\n\n\nWaiting Mode\n\n\nThe \nwaiting mode\n of C\u00e9u-SDL continually waits for SDL input events in an\ninfinite loop:\n\n\nint main (void) {\n    ceu_start();\n    while (\nprogram-is-running\n) {\n        int timeout = (\nprogram-has-pending-async\n) ? 0 : \nnext-timer-in-ms\n;\n        if (SDL_WaitEventTimeout(\n...\n, timeout);\n            ceu_input(CEU_INPUT__*, \n...\n);     /* input SDL_QUIT, SDL_KEY*, SDL_MOUSE*, etc */\n        }\n        ceu_input(CEU_INPUT__NONE, \ntime\n);     /* input async and timer */\n        ceu_input(CEU_INPUT_SDL_REDRAW, \n...\n); /* input SDL_REDRAW after every input */\n    }\n    ceu_stop();\n    return \nprogram-escape-value\n;\n}\n\n\n\n\nThe inputs are polled on each loop iteration and changes are notified to the\nC\u00e9u application through \nceu_input\n calls.\n\n\nFrame-Based Mode\n\n\nThe \nframe-based mode\n of C\u00e9u-SDL continually waits for SDL input events in an\ninfinite loop.\nThe waiting period is limited to the next frame period:\n\n\nint main (void) {\n    ceu_start();\n    while (\nprogram-is-running\n) {\n        int timeout = (\nprogram-has-pending-async\n) ?\n                        0 : MIN(\nnext-timer-in-ms\n,\nnext-frame-in-ms\n);\n        if (\nnext-frame-expired\n) {\n            ceu_input(CEU_INPUT_SDL_DT, CEU_SDL_MODE_FRAME);\n        }\n        if (SDL_WaitEventTimeout(\n...\n, timeout);\n            ceu_input(CEU_INPUT__*, \n...\n);     /* input SDL_QUIT, SDL_KEY*, SDL_MOUSE*, etc */\n        }\n        ceu_input(CEU_INPUT__NONE, \ntime\n);     /* input async and timer */\n        ceu_input(CEU_INPUT_SDL_REDRAW, \n...\n); /* input SDL_REDRAW after every input */\n    }\n    ceu_stop();\n    return \nprogram-escape-value\n;\n}\n\n\n\n\nThe inputs are polled on each loop iteration and changes are notified to the\nC\u00e9u application through \nceu_input\n calls.\n\n\nThe frame-based mode also provides the \nCEU_SDL_DT\n input, which is notified\nafter each frame period expires.", 
+            "location": "/modes/", 
+            "text": "Modes of Operation\n\n\nA mode of operation specifies how C\u00e9u-SDL captures events from the environment\n(e.g., key presses) and redirects them to the C\u00e9u application.\n\n\nC\u00e9u-SDL supports \npolling\n, \nwaiting\n, and \nframe-based\n modes of operation.\n\n\nEach mode of operation uses a different compilation flag:\n\n\n$ make CEU_ARGS=\n-DCEU_SDL_MODE_POLLING\n  CEU_SRC=\npath-to-ceu-application\n\n$ make CEU_ARGS=\n-DCEU_SDL_MODE_WAITING\n  CEU_SRC=\npath-to-ceu-application\n\n$ make CEU_ARGS=\n-DCEU_SDL_MODE_FRAME=33\n CEU_SRC=\npath-to-ceu-application\n\n\n\n\n\nThe frame-based mode also requires the desired period of the frame (in\nmilliseconds).\n\n\nThe frame-based mode is the default mode of operation and is preset to 33\nmilliseconds.\n\n\nThe modes of operation are implemented in C and are part of C\u00e9u-SDL.\nEach mode is described in pseudo-code as follows.", 
             "title": "Modes of Operation"
         }, 
         {
-            "location": "/020-modes/#modes-of-operation", 
+            "location": "/modes/#modes-of-operation", 
             "text": "A mode of operation specifies how C\u00e9u-SDL captures events from the environment\n(e.g., key presses) and redirects them to the C\u00e9u application.  C\u00e9u-SDL supports  polling ,  waiting , and  frame-based  modes of operation.  Each mode of operation uses a different compilation flag:  $ make CEU_ARGS= -DCEU_SDL_MODE_POLLING   CEU_SRC= path-to-ceu-application \n$ make CEU_ARGS= -DCEU_SDL_MODE_WAITING   CEU_SRC= path-to-ceu-application \n$ make CEU_ARGS= -DCEU_SDL_MODE_FRAME=33  CEU_SRC= path-to-ceu-application   The frame-based mode also requires the desired period of the frame (in\nmilliseconds).  The frame-based mode is the default mode of operation and is preset to 33\nmilliseconds.  The modes of operation are implemented in C and are part of C\u00e9u-SDL.\nEach mode is described in pseudo-code as follows.", 
             "title": "Modes of Operation"
         }, 
         {
-            "location": "/020-modes/#polling-mode", 
+            "location": "/modes/polling/", 
+            "text": "Polling\n\n\nThe \npolling mode\n of C\u00e9u-SDL continually checks for SDL input events in an\ninfinite loop:\n\n\nint main (void) {\n    ceu_start();\n    while (\nprogram-is-running\n) {\n        if (SDL_PollEvent(\n...\n)) {\n            ceu_input(CEU_INPUT__*, \n...\n);     /* input SDL_QUIT, SDL_KEY*, SDL_MOUSE*, etc */\n        }\n        ceu_input(CEU_INPUT__NONE, \ntime\n);     /* input async and timer */\n        ceu_input(CEU_INPUT_SDL_REDRAW, \n...\n); /* input SDL_REDRAW after every input */\n    }\n    ceu_stop();\n    return \nprogram-escape-value\n;\n}\n\n\n\n\nThe inputs are polled on each loop iteration and changes are notified to the\nC\u00e9u application through \nceu_input\n calls.\n\n\nThe polling mode uses \n100%\n of the CPU time.", 
+            "title": "Polling"
+        }, 
+        {
+            "location": "/modes/polling/#polling", 
             "text": "The  polling mode  of C\u00e9u-SDL continually checks for SDL input events in an\ninfinite loop:  int main (void) {\n    ceu_start();\n    while ( program-is-running ) {\n        if (SDL_PollEvent( ... )) {\n            ceu_input(CEU_INPUT__*,  ... );     /* input SDL_QUIT, SDL_KEY*, SDL_MOUSE*, etc */\n        }\n        ceu_input(CEU_INPUT__NONE,  time );     /* input async and timer */\n        ceu_input(CEU_INPUT_SDL_REDRAW,  ... ); /* input SDL_REDRAW after every input */\n    }\n    ceu_stop();\n    return  program-escape-value ;\n}  The inputs are polled on each loop iteration and changes are notified to the\nC\u00e9u application through  ceu_input  calls.  The polling mode uses  100%  of the CPU time.", 
-            "title": "Polling Mode"
+            "title": "Polling"
         }, 
         {
-            "location": "/020-modes/#waiting-mode", 
+            "location": "/modes/waiting/", 
+            "text": "Waiting\n\n\nThe \nwaiting mode\n of C\u00e9u-SDL continually waits for SDL input events in an\ninfinite loop:\n\n\nint main (void) {\n    ceu_start();\n    while (\nprogram-is-running\n) {\n        int timeout = (\nprogram-has-pending-async\n) ? 0 : \nnext-timer-in-ms\n;\n        if (SDL_WaitEventTimeout(\n...\n, timeout);\n            ceu_input(CEU_INPUT__*, \n...\n);     /* input SDL_QUIT, SDL_KEY*, SDL_MOUSE*, etc */\n        }\n        ceu_input(CEU_INPUT__NONE, \ntime\n);     /* input async and timer */\n        ceu_input(CEU_INPUT_SDL_REDRAW, \n...\n); /* input SDL_REDRAW after every input */\n    }\n    ceu_stop();\n    return \nprogram-escape-value\n;\n}\n\n\n\n\nThe inputs are polled on each loop iteration and changes are notified to the\nC\u00e9u application through \nceu_input\n calls.", 
+            "title": "Waiting"
+        }, 
+        {
+            "location": "/modes/waiting/#waiting", 
             "text": "The  waiting mode  of C\u00e9u-SDL continually waits for SDL input events in an\ninfinite loop:  int main (void) {\n    ceu_start();\n    while ( program-is-running ) {\n        int timeout = ( program-has-pending-async ) ? 0 :  next-timer-in-ms ;\n        if (SDL_WaitEventTimeout( ... , timeout);\n            ceu_input(CEU_INPUT__*,  ... );     /* input SDL_QUIT, SDL_KEY*, SDL_MOUSE*, etc */\n        }\n        ceu_input(CEU_INPUT__NONE,  time );     /* input async and timer */\n        ceu_input(CEU_INPUT_SDL_REDRAW,  ... ); /* input SDL_REDRAW after every input */\n    }\n    ceu_stop();\n    return  program-escape-value ;\n}  The inputs are polled on each loop iteration and changes are notified to the\nC\u00e9u application through  ceu_input  calls.", 
-            "title": "Waiting Mode"
+            "title": "Waiting"
         }, 
         {
-            "location": "/020-modes/#frame-based-mode", 
+            "location": "/modes/frame/", 
+            "text": "Frame\n\n\nThe \nframe-based mode\n of C\u00e9u-SDL continually waits for SDL input events in an\ninfinite loop.\nThe waiting period is limited to the next frame period:\n\n\nint main (void) {\n    ceu_start();\n    while (\nprogram-is-running\n) {\n        int timeout = (\nprogram-has-pending-async\n) ?\n                        0 : MIN(\nnext-timer-in-ms\n,\nnext-frame-in-ms\n);\n        if (\nnext-frame-expired\n) {\n            ceu_input(CEU_INPUT_SDL_DT, CEU_SDL_MODE_FRAME);\n        }\n        if (SDL_WaitEventTimeout(\n...\n, timeout);\n            ceu_input(CEU_INPUT__*, \n...\n);     /* input SDL_QUIT, SDL_KEY*, SDL_MOUSE*, etc */\n        }\n        ceu_input(CEU_INPUT__NONE, \ntime\n);     /* input async and timer */\n        ceu_input(CEU_INPUT_SDL_REDRAW, \n...\n); /* input SDL_REDRAW after every input */\n    }\n    ceu_stop();\n    return \nprogram-escape-value\n;\n}\n\n\n\n\nThe inputs are polled on each loop iteration and changes are notified to the\nC\u00e9u application through \nceu_input\n calls.\n\n\nThe frame-based mode also provides the \nCEU_SDL_DT\n input, which is notified\nafter each frame period expires.", 
+            "title": "Frame"
+        }, 
+        {
+            "location": "/modes/frame/#frame", 
             "text": "The  frame-based mode  of C\u00e9u-SDL continually waits for SDL input events in an\ninfinite loop.\nThe waiting period is limited to the next frame period:  int main (void) {\n    ceu_start();\n    while ( program-is-running ) {\n        int timeout = ( program-has-pending-async ) ?\n                        0 : MIN( next-timer-in-ms , next-frame-in-ms );\n        if ( next-frame-expired ) {\n            ceu_input(CEU_INPUT_SDL_DT, CEU_SDL_MODE_FRAME);\n        }\n        if (SDL_WaitEventTimeout( ... , timeout);\n            ceu_input(CEU_INPUT__*,  ... );     /* input SDL_QUIT, SDL_KEY*, SDL_MOUSE*, etc */\n        }\n        ceu_input(CEU_INPUT__NONE,  time );     /* input async and timer */\n        ceu_input(CEU_INPUT_SDL_REDRAW,  ... ); /* input SDL_REDRAW after every input */\n    }\n    ceu_stop();\n    return  program-escape-value ;\n}  The inputs are polled on each loop iteration and changes are notified to the\nC\u00e9u application through  ceu_input  calls.  The frame-based mode also provides the  CEU_SDL_DT  input, which is notified\nafter each frame period expires.", 
-            "title": "Frame-Based Mode"
+            "title": "Frame"
         }, 
         {
-            "location": "/030-inputs/", 
-            "text": "Input Events\n\n\nC\u00e9u-SDL provides mappings to all SDL events:\n\n\nhttps://wiki.libsdl.org/SDL_Event\n\n\nTODO: not all inputs have been mapped\n\n\nIn addition, it provides the \nSDL_REDRAW\n and \nSDL_DT\n input events.\n\n\nSDL_REDRAW\n\n\ninput _SDL_Renderer\n SDL_REDRAW;\n\n\n\n\nOccurs in the end of every loop iteration in all \nmodes of operation\n.\n\n\nTODO: payload\n\n\nSDL_DT\n\n\ninput int SDL_DT;\n\n\n\n\nOccurs in the beginning of every loop iteration in the \nframe-based\n\n\nmode of operation\n.\n\n\nThe input value of type \nint\n is always equal to \nCEU_SDL_MODE_FRAME\n.\n\n\nSDL_QUIT\n\n\ninput void SDL_QUIT;\n\n\n\n\nSDL Reference: \nhttps://wiki.libsdl.org/SDL_QuitEvent\n\n\nSDL_KEYDOWN\n\n\ninput _SDL_KeyboardEvent\n SDL_KEYDOWN;\n\n\n\n\nSDL Reference: \nhttps://wiki.libsdl.org/SDL_KeyboardEvent\n\n\nSDL_KEYUP\n\n\ninput _SDL_KeyboardEvent\n SDL_KEYUP;\n\n\n\n\nSDL Reference: \nhttps://wiki.libsdl.org/SDL_KeyboardEvent\n\n\nSDL_MOUSEBUTTONDOWN\n\n\ninput _SDL_MouseButtonEvent\n SDL_MOUSEBUTTONDOWN;\n\n\n\n\nSDL Reference: \nhttps://wiki.libsdl.org/SDL_MouseButtonEvent\n\n\nSDL_MOUSEBUTTONUP\n\n\ninput _SDL_MouseButtonEvent\n SDL_MOUSEBUTTONUP;\n\n\n\n\nSDL Reference: \nhttps://wiki.libsdl.org/SDL_MouseButtonEvent\n\n\nSDL_MOUSEMOTION\n\n\ninput _SDL_MouseMotionEvent\n SDL_MOUSEMOTION;\n\n\n\n\nSDL Reference: \nhttps://wiki.libsdl.org/SDL_MouseMotionEvent", 
+            "location": "/inputs/", 
+            "text": "Input Events\n\n\nC\u00e9u-SDL provides mappings to all SDL events:\n\n\nhttps://wiki.libsdl.org/SDL_Event\n\n\nTODO: not all inputs have been mapped\n\n\nIn addition, it provides the \nSDL_REDRAW\n and \nSDL_DT\n input events.", 
             "title": "Input Events"
         }, 
         {
-            "location": "/030-inputs/#input-events", 
+            "location": "/inputs/#input-events", 
             "text": "C\u00e9u-SDL provides mappings to all SDL events:  https://wiki.libsdl.org/SDL_Event  TODO: not all inputs have been mapped  In addition, it provides the  SDL_REDRAW  and  SDL_DT  input events.", 
             "title": "Input Events"
         }, 
         {
-            "location": "/030-inputs/#sdl_redraw", 
+            "location": "/inputs/general/", 
+            "text": "General\n\n\nSDL_REDRAW\n\n\ninput _SDL_Renderer\n SDL_REDRAW;\n\n\n\n\nOccurs in the end of every loop iteration in all \nmodes of operation\n.\n\n\nTODO: payload\n\n\nSDL_DT\n\n\ninput int SDL_DT;\n\n\n\n\nOccurs in the beginning of every loop iteration in the \nframe-based\n\n\nmode of operation\n.\n\n\nThe input value of type \nint\n is always equal to \nCEU_SDL_MODE_FRAME\n.\n\n\nSDL_QUIT\n\n\ninput void SDL_QUIT;\n\n\n\n\nSDL Reference: \nhttps://wiki.libsdl.org/SDL_QuitEvent", 
+            "title": "General"
+        }, 
+        {
+            "location": "/inputs/general/#general", 
+            "text": "", 
+            "title": "General"
+        }, 
+        {
+            "location": "/inputs/general/#sdl_redraw", 
             "text": "input _SDL_Renderer  SDL_REDRAW;  Occurs in the end of every loop iteration in all  modes of operation .  TODO: payload", 
             "title": "SDL_REDRAW"
         }, 
         {
-            "location": "/030-inputs/#sdl_dt", 
+            "location": "/inputs/general/#sdl_dt", 
             "text": "input int SDL_DT;  Occurs in the beginning of every loop iteration in the  frame-based  mode of operation .  The input value of type  int  is always equal to  CEU_SDL_MODE_FRAME .", 
             "title": "SDL_DT"
         }, 
         {
-            "location": "/030-inputs/#sdl_quit", 
+            "location": "/inputs/general/#sdl_quit", 
             "text": "input void SDL_QUIT;  SDL Reference:  https://wiki.libsdl.org/SDL_QuitEvent", 
             "title": "SDL_QUIT"
         }, 
         {
-            "location": "/030-inputs/#sdl_keydown", 
+            "location": "/inputs/keyboard/", 
+            "text": "Keyboard\n\n\nSDL_KEYDOWN\n\n\ninput _SDL_KeyboardEvent\n SDL_KEYDOWN;\n\n\n\n\nSDL Reference: \nhttps://wiki.libsdl.org/SDL_KeyboardEvent\n\n\nSDL_KEYUP\n\n\ninput _SDL_KeyboardEvent\n SDL_KEYUP;\n\n\n\n\nSDL Reference: \nhttps://wiki.libsdl.org/SDL_KeyboardEvent", 
+            "title": "Keyboard"
+        }, 
+        {
+            "location": "/inputs/keyboard/#keyboard", 
+            "text": "", 
+            "title": "Keyboard"
+        }, 
+        {
+            "location": "/inputs/keyboard/#sdl_keydown", 
             "text": "input _SDL_KeyboardEvent  SDL_KEYDOWN;  SDL Reference:  https://wiki.libsdl.org/SDL_KeyboardEvent", 
             "title": "SDL_KEYDOWN"
         }, 
         {
-            "location": "/030-inputs/#sdl_keyup", 
+            "location": "/inputs/keyboard/#sdl_keyup", 
             "text": "input _SDL_KeyboardEvent  SDL_KEYUP;  SDL Reference:  https://wiki.libsdl.org/SDL_KeyboardEvent", 
             "title": "SDL_KEYUP"
         }, 
         {
-            "location": "/030-inputs/#sdl_mousebuttondown", 
+            "location": "/inputs/mouse/", 
+            "text": "Mouse\n\n\nSDL_MOUSEBUTTONDOWN\n\n\ninput _SDL_MouseButtonEvent\n SDL_MOUSEBUTTONDOWN;\n\n\n\n\nSDL Reference: \nhttps://wiki.libsdl.org/SDL_MouseButtonEvent\n\n\nSDL_MOUSEBUTTONUP\n\n\ninput _SDL_MouseButtonEvent\n SDL_MOUSEBUTTONUP;\n\n\n\n\nSDL Reference: \nhttps://wiki.libsdl.org/SDL_MouseButtonEvent\n\n\nSDL_MOUSEMOTION\n\n\ninput _SDL_MouseMotionEvent\n SDL_MOUSEMOTION;\n\n\n\n\nSDL Reference: \nhttps://wiki.libsdl.org/SDL_MouseMotionEvent", 
+            "title": "Mouse"
+        }, 
+        {
+            "location": "/inputs/mouse/#mouse", 
+            "text": "", 
+            "title": "Mouse"
+        }, 
+        {
+            "location": "/inputs/mouse/#sdl_mousebuttondown", 
             "text": "input _SDL_MouseButtonEvent  SDL_MOUSEBUTTONDOWN;  SDL Reference:  https://wiki.libsdl.org/SDL_MouseButtonEvent", 
             "title": "SDL_MOUSEBUTTONDOWN"
         }, 
         {
-            "location": "/030-inputs/#sdl_mousebuttonup", 
+            "location": "/inputs/mouse/#sdl_mousebuttonup", 
             "text": "input _SDL_MouseButtonEvent  SDL_MOUSEBUTTONUP;  SDL Reference:  https://wiki.libsdl.org/SDL_MouseButtonEvent", 
             "title": "SDL_MOUSEBUTTONUP"
         }, 
         {
-            "location": "/030-inputs/#sdl_mousemotion", 
+            "location": "/inputs/mouse/#sdl_mousemotion", 
             "text": "input _SDL_MouseMotionEvent  SDL_MOUSEMOTION;  SDL Reference:  https://wiki.libsdl.org/SDL_MouseMotionEvent", 
             "title": "SDL_MOUSEMOTION"
         }, 
         {
-            "location": "/040-datas/", 
+            "location": "/datas/", 
             "text": "Data Abstractions\n\n\nSDL_Color\n\n\ndata SDL_Color with\n    var u8 r;\n    var u8 g;\n    var u8 b;\n    var u8 a;\nend\n\n\n\n\nSDL Reference: \nhttps://wiki.libsdl.org/SDL_Color\n\n\nSDL_Point\n\n\ndata SDL_Point with\n    var int x;\n    var int y;\nend\n\n\n\n\nSDL Reference: \nhttps://wiki.libsdl.org/SDL_Point\n\n\nSDL_Rect\n\n\ndata SDL_Rect with\n    var int x;\n    var int y;\n    var int w;\n    var int h;\nend\n\n\n\n\nSDL Reference: \nhttps://wiki.libsdl.org/SDL_Rect\n\n\nSDL_Texture\n\n\ndata SDL_Texture with\n    var\n _SDL_Texture tex;\n    var  int          width;\n    var  int          height;\nend\n\n\n\n\nSDL Reference: \nhttps://wiki.libsdl.org/SDL_Texture", 
             "title": "Data Abstractions"
         }, 
         {
-            "location": "/040-datas/#data-abstractions", 
+            "location": "/datas/#data-abstractions", 
             "text": "", 
             "title": "Data Abstractions"
         }, 
         {
-            "location": "/040-datas/#sdl_color", 
+            "location": "/datas/#sdl_color", 
             "text": "data SDL_Color with\n    var u8 r;\n    var u8 g;\n    var u8 b;\n    var u8 a;\nend  SDL Reference:  https://wiki.libsdl.org/SDL_Color", 
             "title": "SDL_Color"
         }, 
         {
-            "location": "/040-datas/#sdl_point", 
+            "location": "/datas/#sdl_point", 
             "text": "data SDL_Point with\n    var int x;\n    var int y;\nend  SDL Reference:  https://wiki.libsdl.org/SDL_Point", 
             "title": "SDL_Point"
         }, 
         {
-            "location": "/040-datas/#sdl_rect", 
+            "location": "/datas/#sdl_rect", 
             "text": "data SDL_Rect with\n    var int x;\n    var int y;\n    var int w;\n    var int h;\nend  SDL Reference:  https://wiki.libsdl.org/SDL_Rect", 
             "title": "SDL_Rect"
         }, 
         {
-            "location": "/040-datas/#sdl_texture", 
+            "location": "/datas/#sdl_texture", 
             "text": "data SDL_Texture with\n    var  _SDL_Texture tex;\n    var  int          width;\n    var  int          height;\nend  SDL Reference:  https://wiki.libsdl.org/SDL_Texture", 
             "title": "SDL_Texture"
         }, 
         {
-            "location": "/060-code-awaits/", 
-            "text": "Code/Await Abstractions\n\n\nSDL_Init\n\n\nInitializes C\u00e9u-SDL, creates a SDL window, and provides a renderer to the\napplication.\n\n\nSDL_Init\n terminates once \nSDL_QUIT\n occurs.\n\n\ncode/await SDL_Init (var _char\n title, var int width, var int height, var SDL_Color? bg)\n                        -\n (var\n _SDL_Renderer ren)\n                            -\n void\n\n\n\n\n\n\nParameters\n\n\ntitle\n:  title  of the window\n\n\nwidth\n:  width  of the window in pixels\n\n\nheight\n: height of the window in pixels\n\n\nbg\n:     background color of the window (optional)\n\n\n\n\n\n\nInitialization\n\n\nren\n:    alias to managed renderer\n\n\n\n\n\n\nReturn\n\n\nterminates on \nSDL_QUIT\n and returns no value\n\n\n\n\n\n\n\n\nSDL_Init\n performs a number of initializations on C\u00e9u-SDL:\n\n\n\n\ninitializes SDL\n\n\ncreates a window\n\n\ncreates a renderer\n\n\ninitializes the text and audio subsystems\n\n\n\n\nIf a \nbg\n is provided, \nSDL_Init\n fills the window background with the provided\ncolor on every \nSDL_REDRAW\n.\n\n\nExample:\n\n\n#include \nsdl/sdl.ceu\n\n\nvar\n _SDL_Renderer ren; ;\nwatching SDL_Init(\nRectangle\n, 300,300, SDL_Color(0xFF,0xFF,0x00,0xFF)) -\n (\nren) do\n    var SDL_Rect rect = val SDL_Rect(100,100 , 100,100);\n    every SDL_REDRAW do\n        _SDL_SetRenderDrawColor(\nren, 0xFF,0x00,0x00,0xFF);\n        _SDL_RenderFillRect(\nren, (\nrect as _SDL_Rect\n));\n    end\nend\n\nescape 0;\n\n\n\n\nDraws a \n100x100\n red rectangle centered in a \n300x300\n yellow window.\n\n\nSDL References:\n    \nSDL_Init\n,\n    \nSDL_Quit\n,\n    \nSDL_CreateWindow\n,\n    \nSDL_DestroyWindow\n,\n    \nSDL_CreateRenderer\n,\n    \nSDL_DestroyRenderer\n,\n    \nTTF_Init\n,\n    \nTTF_Quit\n,\n    \nMix_OpenAudio\n,\n    \nMix_CloseAudio\n,\n    \nSDL_SetRenderDrawColor\n,\n    \nSDL_RenderClear\n.\n\n\nNote: all allocated SDL resources are automatically released on termination.\n\n\nSDL_Open_Image\n\n\nOpens an image file into a new texture.\n\n\ncode/await SDL_Open_Image (var\n _SDL_Renderer ren, var _char\n path)\n                            -\n (var\n SDL_Texture tex)\n                                -\n FOREVER\n\n\n\n\n\n\nParameters\n\n\nren\n:  rendering context\n\n\npath\n: path to the image\n\n\n\n\n\n\nInitialization\n\n\ntex\n:  alias to created \ntexture\n\n\n\n\n\n\nReturn\n\n\nnever terminates naturally\n\n\n\n\n\n\n\n\nExample:\n\n\n#include \nsdl/sdl.ceu\n\n\nvar\n _SDL_Renderer ren; ;\nwatching SDL_Init(\nImage\n, 68,68, SDL_Color(0xFF,0xFF,0x00,0xFF)) -\n (\nren) do\n    var\n SDL_Texture img;\n    spawn SDL_Open_Image(\nren, \nimg.png\n) -\n (\nimg);\n    var SDL_Rect rect = val SDL_Rect(10,10 , img.width,img.height);\n    every SDL_REDRAW do\n        _SDL_RenderCopy(\nren, \nimg.tex, null, \nrect as _SDL_Rect\n);\n    end\nend\n\nescape 0;\n\n\n\n\nDraws \nimg.png\n in a \n68x68\n yellow window.\n\n\nSDL References:\n    \nIMG_LoadTexture\n,\n    \nSDL_DestroyTexture\n,\n    \nSDL_QueryTexture\n.\n\n\nNote: all allocated SDL resources are automatically released on termination.\n\n\nSDL_Open_Font\n\n\nOpens a \nTTF\n font file.\n\n\ncode/await SDL_Open_Font (var _char\n path, var int size)\n                            -\n (var\n _TTF_Font font)\n                                -\n FOREVER\n\n\n\n\n\n\nParameters\n\n\npath\n: path to the font\n\n\nsize\n: size of the font\n\n\n\n\n\n\nInitialization\n\n\nfont\n: alias to created font\n\n\n\n\n\n\nReturn\n\n\nnever terminates naturally\n\n\n\n\n\n\n\n\nExample:\n\n\n#include \nsdl/sdl.ceu\n\n\nvar\n _SDL_Renderer ren; ;\nwatching SDL_Init(\nFont 1\n, 220,60, SDL_Color(0xFF,0xFF,0x00,0xFF)) -\n (\nren) do\n    var\n _TTF_Font font;\n    spawn SDL_Open_Font(\nsamples/Deutsch.ttf\n, 40) -\n (\nfont);\n\n    var\n SDL_Texture txt;\n    spawn SDL_New_Text(\nren, \nfont, \nHello World!\n, SDL_Color(0x00,0x00,0x00,0xFF))\n            -\n (\ntxt);\n    var SDL_Rect rect = val SDL_Rect(10, 10, txt.width, txt.height);\n\n    every SDL_REDRAW do\n        _SDL_RenderCopy(\nren, \ntxt.tex, null, \nrect as _SDL_Rect\n);\n    end\nend\n\nescape 0;\n\n\n\n\nDraws a black \nHello World!\n text in yellow window.\n\n\nSDL References:\n    \n_TTF_OpenFont\n,\n    \n_TTF_WasInit\n,\n    \n_TTF_CloseFont\n.\n\n\nNote: all allocated SDL resources are automatically released on termination.\n\n\nSDL_New_Text\n\n\nWrites a text into a new texture.\n\n\ncode/await SDL_New_Text (var\n _SDL_Renderer ren, var\n _TTF_Font font, var _char\n text, var SDL_Color color)\n                            -\n (var\n SDL_Texture tex)\n                                -\n FOREVER\n\n\n\n\n\n\nParameters\n\n\nren\n:   rendering context\n\n\nfont\n:  text font\n\n\ntext\n:  text to write\n\n\ncolor\n: text color\n\n\n\n\n\n\nInitialization\n\n\ntex\n:  alias to created \ntexture\n\n\n\n\n\n\nReturn\n\n\nnever terminates naturally\n\n\n\n\n\n\n\n\nExample:\n\n\n#include \nsdl/sdl.ceu\n\n\nvar\n _SDL_Renderer ren; ;\nwatching SDL_Init(\nFont 1\n, 220,60, SDL_Color(0xFF,0xFF,0x00,0xFF)) -\n (\nren) do\n    var\n _TTF_Font font;\n    spawn SDL_Open_Font(\nfont.ttf\n, 40) -\n (\nfont);\n\n    var\n SDL_Texture txt;\n    spawn SDL_New_Text(\nren, \nfont, \nHello World!\n, SDL_Color(0x00,0x00,0x00,0xFF))\n            -\n (\ntxt);\n    var SDL_Rect rect = val SDL_Rect(10, 10, txt.width, txt.height);\n\n    every SDL_REDRAW do\n        _SDL_RenderCopy(\nren, \ntxt.tex, null, \nrect as _SDL_Rect\n);\n    end\nend\n\nescape 0;\n\n\n\n\nDraws a black \nHello World!\n text in yellow window.\n\n\nSDL References:\n    [\n_TTF_RenderText_Blended\n],\n    [\n_SDL_FreeSurface\n],\n    [\n_SDL_CreateTextureFromSurface\n],\n    [\n_SDL_DestroyTexture\n],\n    [\n_SDL_QueryTexture\n].\n\n\nNote: all allocated SDL resources are automatically released on termination.\n\n\nSDL_Open_Sound\n\n\nOpens a sound file.\n\n\ncode/await SDL_Open_Sound (var _char\n path)\n                            -\n (var\n _Mix_Chunk sound)\n                                -\n FOREVER\n\n\n\n\n\n\nParameters\n\n\npath\n: path to the sound\n\n\n\n\n\n\nInitialization\n\n\nsound\n: alias to created sound\n\n\n\n\n\n\nReturn\n\n\nnever terminates naturally\n\n\n\n\n\n\n\n\nExample:\n\n\n#include \nsdl/sdl.ceu\n\n\nvar SDL_Color bg = val SDL_Color(0x00,0x00,0x00,0xFF);\n\nvar\n _SDL_Renderer ren;\nwatching SDL_Init(\nSound 1\n, 10,10, bg) -\n (\nren)\ndo\n    var\n _Mix_Chunk sound;\n    spawn SDL_Open_Sound(\nsound.wav\n) -\n (\nsound);\n    every 1s do\n        _Mix_PlayChannel(-1, \nsound, 0);\n    end\nend\n\nescape 0;\n\n\n\n\nPlays \nsound.wav\n every second.\n\n\nSDL References:\n    \n_Mix_LoadWAV\n,\n    \n_Mix_FreeChunk\n.\n\n\nNote: all allocated SDL resources are automatically released on termination.", 
+            "location": "/code_awaits/", 
+            "text": "Code/Await Abstractions\n\n\nSDL_Init\n\n\nInitializes C\u00e9u-SDL, creates a SDL window, and provides a renderer to the\napplication.\n\n\nSDL_Init\n terminates once \nSDL_QUIT\n occurs.\n\n\ncode/await SDL_Init (var _char\n title, var int width, var int height, var SDL_Color? bg)\n                        -\n (var\n _SDL_Renderer ren)\n                            -\n void\n\n\n\n\n\n\nParameters\n\n\ntitle\n:  title  of the window\n\n\nwidth\n:  width  of the window in pixels\n\n\nheight\n: height of the window in pixels\n\n\nbg\n:     background color of the window (optional)\n\n\n\n\n\n\nInitialization\n\n\nren\n:    created renderer\n\n\n\n\n\n\nReturn\n\n\nterminates on \nSDL_QUIT\n and returns no value\n\n\n\n\n\n\n\n\nSDL_Init\n performs a number of initializations on C\u00e9u-SDL:\n\n\n\n\ninitializes SDL\n\n\ncreates a window\n\n\ncreates a renderer\n\n\ninitializes the text and audio subsystems\n\n\n\n\nIf a \nbg\n is provided, \nSDL_Init\n fills the window background with the provided\ncolor on every \nSDL_REDRAW\n.\n\n\nExample:\n\n\n#include \nsdl/sdl.ceu\n\n\nvar\n _SDL_Renderer ren; ;\nwatching SDL_Init(\nRectangle\n, 300,300, SDL_Color(0xFF,0xFF,0x00,0xFF)) -\n (\nren) do\n    var SDL_Rect rect = val SDL_Rect(100,100 , 100,100);\n    every SDL_REDRAW do\n        _SDL_SetRenderDrawColor(\nren, 0xFF,0x00,0x00,0xFF);\n        _SDL_RenderFillRect(\nren, (\nrect as _SDL_Rect\n));\n    end\nend\n\nescape 0;\n\n\n\n\nDraws a \n100x100\n red rectangle centered in a \n300x300\n yellow window.\n\n\nSDL References:\n    \nSDL_Init\n,\n    \nSDL_Quit\n,\n    \nSDL_CreateWindow\n,\n    \nSDL_DestroyWindow\n,\n    \nSDL_CreateRenderer\n,\n    \nSDL_DestroyRenderer\n,\n    \nTTF_Init\n,\n    \nTTF_Quit\n,\n    \nMix_OpenAudio\n,\n    \nMix_CloseAudio\n,\n    \nSDL_SetRenderDrawColor\n,\n    \nSDL_RenderClear\n.\n\n\nNote: all allocated SDL resources are automatically released on termination.\n\n\nSDL_Open_Image\n\n\nOpens an image file into a new texture.\n\n\ncode/await SDL_Open_Image (var\n _SDL_Renderer ren, var _char\n path)\n                            -\n (var\n SDL_Texture tex)\n                                -\n FOREVER\n\n\n\n\n\n\nParameters\n\n\nren\n:  rendering context\n\n\npath\n: path to the image\n\n\n\n\n\n\nInitialization\n\n\ntex\n:  created \ntexture\n\n\n\n\n\n\nReturn\n\n\nnever terminates naturally\n\n\n\n\n\n\n\n\nExample:\n\n\n#include \nsdl/sdl.ceu\n\n\nvar\n _SDL_Renderer ren; ;\nwatching SDL_Init(\nImage\n, 68,68, SDL_Color(0xFF,0xFF,0x00,0xFF)) -\n (\nren) do\n    var\n SDL_Texture img;\n    spawn SDL_Open_Image(\nren, \nimg.png\n) -\n (\nimg);\n    var SDL_Rect rect = val SDL_Rect(10,10 , img.width,img.height);\n    every SDL_REDRAW do\n        _SDL_RenderCopy(\nren, \nimg.tex, null, \nrect as _SDL_Rect\n);\n    end\nend\n\nescape 0;\n\n\n\n\nDraws \nimg.png\n in a \n68x68\n yellow window.\n\n\nSDL References:\n    \nIMG_LoadTexture\n,\n    \nSDL_DestroyTexture\n,\n    \nSDL_QueryTexture\n.\n\n\nNote: all allocated SDL resources are automatically released on termination.\n\n\nSDL_Open_Font\n\n\nOpens a \nTTF\n font file.\n\n\ncode/await SDL_Open_Font (var _char\n path, var int size)\n                            -\n (var\n _TTF_Font font)\n                                -\n FOREVER\n\n\n\n\n\n\nParameters\n\n\npath\n: path to the font\n\n\nsize\n: size of the font\n\n\n\n\n\n\nInitialization\n\n\nfont\n: created font\n\n\n\n\n\n\nReturn\n\n\nnever terminates naturally\n\n\n\n\n\n\n\n\nExample:\n\n\n#include \nsdl/sdl.ceu\n\n\nvar\n _SDL_Renderer ren; ;\nwatching SDL_Init(\nFont 1\n, 220,60, SDL_Color(0xFF,0xFF,0x00,0xFF)) -\n (\nren) do\n    var\n _TTF_Font font;\n    spawn SDL_Open_Font(\nsamples/Deutsch.ttf\n, 40) -\n (\nfont);\n\n    var\n SDL_Texture txt;\n    spawn SDL_New_Text(\nren, \nfont, \nHello World!\n, SDL_Color(0x00,0x00,0x00,0xFF))\n            -\n (\ntxt);\n    var SDL_Rect rect = val SDL_Rect(10, 10, txt.width, txt.height);\n\n    every SDL_REDRAW do\n        _SDL_RenderCopy(\nren, \ntxt.tex, null, \nrect as _SDL_Rect\n);\n    end\nend\n\nescape 0;\n\n\n\n\nDraws a black \nHello World!\n text in yellow window.\n\n\nSDL References:\n    \n_TTF_OpenFont\n,\n    \n_TTF_WasInit\n,\n    \n_TTF_CloseFont\n.\n\n\nNote: all allocated SDL resources are automatically released on termination.\n\n\nSDL_New_Text\n\n\nWrites a text into a new texture.\n\n\ncode/await SDL_New_Text (var\n _SDL_Renderer ren, var\n _TTF_Font font, var _char\n text, var SDL_Color color)\n                            -\n (var\n SDL_Texture tex)\n                                -\n FOREVER\n\n\n\n\n\n\nParameters\n\n\nren\n:   rendering context\n\n\nfont\n:  text font\n\n\ntext\n:  text to write\n\n\ncolor\n: text color\n\n\n\n\n\n\nInitialization\n\n\ntex\n:  created \ntexture\n\n\n\n\n\n\nReturn\n\n\nnever terminates naturally\n\n\n\n\n\n\n\n\nExample:\n\n\n#include \nsdl/sdl.ceu\n\n\nvar\n _SDL_Renderer ren; ;\nwatching SDL_Init(\nFont 1\n, 220,60, SDL_Color(0xFF,0xFF,0x00,0xFF)) -\n (\nren) do\n    var\n _TTF_Font font;\n    spawn SDL_Open_Font(\nfont.ttf\n, 40) -\n (\nfont);\n\n    var\n SDL_Texture txt;\n    spawn SDL_New_Text(\nren, \nfont, \nHello World!\n, SDL_Color(0x00,0x00,0x00,0xFF))\n            -\n (\ntxt);\n    var SDL_Rect rect = val SDL_Rect(10, 10, txt.width, txt.height);\n\n    every SDL_REDRAW do\n        _SDL_RenderCopy(\nren, \ntxt.tex, null, \nrect as _SDL_Rect\n);\n    end\nend\n\nescape 0;\n\n\n\n\nDraws a black \nHello World!\n text in yellow window.\n\n\nSDL References:\n    [\n_TTF_RenderText_Blended\n],\n    [\n_SDL_FreeSurface\n],\n    [\n_SDL_CreateTextureFromSurface\n],\n    [\n_SDL_DestroyTexture\n],\n    [\n_SDL_QueryTexture\n].\n\n\nNote: all allocated SDL resources are automatically released on termination.\n\n\nSDL_Open_Sound\n\n\nOpens a sound file.\n\n\ncode/await SDL_Open_Sound (var _char\n path)\n                            -\n (var\n _Mix_Chunk sound)\n                                -\n FOREVER\n\n\n\n\n\n\nParameters\n\n\npath\n: path to the sound\n\n\n\n\n\n\nInitialization\n\n\nsound\n: created sound\n\n\n\n\n\n\nReturn\n\n\nnever terminates naturally\n\n\n\n\n\n\n\n\nExample:\n\n\n#include \nsdl/sdl.ceu\n\n\nvar SDL_Color bg = val SDL_Color(0x00,0x00,0x00,0xFF);\n\nvar\n _SDL_Renderer ren;\nwatching SDL_Init(\nSound 1\n, 10,10, bg) -\n (\nren)\ndo\n    var\n _Mix_Chunk sound;\n    spawn SDL_Open_Sound(\nsound.wav\n) -\n (\nsound);\n    every 1s do\n        _Mix_PlayChannel(-1, \nsound, 0);\n    end\nend\n\nescape 0;\n\n\n\n\nPlays \nsound.wav\n every second.\n\n\nSDL References:\n    \n_Mix_LoadWAV\n,\n    \n_Mix_FreeChunk\n.\n\n\nNote: all allocated SDL resources are automatically released on termination.", 
             "title": "Code/Await Abstractions"
         }, 
         {
-            "location": "/060-code-awaits/#codeawait-abstractions", 
+            "location": "/code_awaits/#codeawait-abstractions", 
             "text": "", 
             "title": "Code/Await Abstractions"
         }, 
         {
-            "location": "/060-code-awaits/#sdl_init", 
-            "text": "Initializes C\u00e9u-SDL, creates a SDL window, and provides a renderer to the\napplication.  SDL_Init  terminates once  SDL_QUIT  occurs.  code/await SDL_Init (var _char  title, var int width, var int height, var SDL_Color? bg)\n                        -  (var  _SDL_Renderer ren)\n                            -  void   Parameters  title :  title  of the window  width :  width  of the window in pixels  height : height of the window in pixels  bg :     background color of the window (optional)    Initialization  ren :    alias to managed renderer    Return  terminates on  SDL_QUIT  and returns no value     SDL_Init  performs a number of initializations on C\u00e9u-SDL:   initializes SDL  creates a window  creates a renderer  initializes the text and audio subsystems   If a  bg  is provided,  SDL_Init  fills the window background with the provided\ncolor on every  SDL_REDRAW .  Example:  #include  sdl/sdl.ceu \n\nvar  _SDL_Renderer ren; ;\nwatching SDL_Init( Rectangle , 300,300, SDL_Color(0xFF,0xFF,0x00,0xFF)) -  ( ren) do\n    var SDL_Rect rect = val SDL_Rect(100,100 , 100,100);\n    every SDL_REDRAW do\n        _SDL_SetRenderDrawColor( ren, 0xFF,0x00,0x00,0xFF);\n        _SDL_RenderFillRect( ren, ( rect as _SDL_Rect ));\n    end\nend\n\nescape 0;  Draws a  100x100  red rectangle centered in a  300x300  yellow window.  SDL References:\n     SDL_Init ,\n     SDL_Quit ,\n     SDL_CreateWindow ,\n     SDL_DestroyWindow ,\n     SDL_CreateRenderer ,\n     SDL_DestroyRenderer ,\n     TTF_Init ,\n     TTF_Quit ,\n     Mix_OpenAudio ,\n     Mix_CloseAudio ,\n     SDL_SetRenderDrawColor ,\n     SDL_RenderClear .  Note: all allocated SDL resources are automatically released on termination.", 
+            "location": "/code_awaits/#sdl_init", 
+            "text": "Initializes C\u00e9u-SDL, creates a SDL window, and provides a renderer to the\napplication.  SDL_Init  terminates once  SDL_QUIT  occurs.  code/await SDL_Init (var _char  title, var int width, var int height, var SDL_Color? bg)\n                        -  (var  _SDL_Renderer ren)\n                            -  void   Parameters  title :  title  of the window  width :  width  of the window in pixels  height : height of the window in pixels  bg :     background color of the window (optional)    Initialization  ren :    created renderer    Return  terminates on  SDL_QUIT  and returns no value     SDL_Init  performs a number of initializations on C\u00e9u-SDL:   initializes SDL  creates a window  creates a renderer  initializes the text and audio subsystems   If a  bg  is provided,  SDL_Init  fills the window background with the provided\ncolor on every  SDL_REDRAW .  Example:  #include  sdl/sdl.ceu \n\nvar  _SDL_Renderer ren; ;\nwatching SDL_Init( Rectangle , 300,300, SDL_Color(0xFF,0xFF,0x00,0xFF)) -  ( ren) do\n    var SDL_Rect rect = val SDL_Rect(100,100 , 100,100);\n    every SDL_REDRAW do\n        _SDL_SetRenderDrawColor( ren, 0xFF,0x00,0x00,0xFF);\n        _SDL_RenderFillRect( ren, ( rect as _SDL_Rect ));\n    end\nend\n\nescape 0;  Draws a  100x100  red rectangle centered in a  300x300  yellow window.  SDL References:\n     SDL_Init ,\n     SDL_Quit ,\n     SDL_CreateWindow ,\n     SDL_DestroyWindow ,\n     SDL_CreateRenderer ,\n     SDL_DestroyRenderer ,\n     TTF_Init ,\n     TTF_Quit ,\n     Mix_OpenAudio ,\n     Mix_CloseAudio ,\n     SDL_SetRenderDrawColor ,\n     SDL_RenderClear .  Note: all allocated SDL resources are automatically released on termination.", 
             "title": "SDL_Init"
         }, 
         {
-            "location": "/060-code-awaits/#sdl_open_image", 
-            "text": "Opens an image file into a new texture.  code/await SDL_Open_Image (var  _SDL_Renderer ren, var _char  path)\n                            -  (var  SDL_Texture tex)\n                                -  FOREVER   Parameters  ren :  rendering context  path : path to the image    Initialization  tex :  alias to created  texture    Return  never terminates naturally     Example:  #include  sdl/sdl.ceu \n\nvar  _SDL_Renderer ren; ;\nwatching SDL_Init( Image , 68,68, SDL_Color(0xFF,0xFF,0x00,0xFF)) -  ( ren) do\n    var  SDL_Texture img;\n    spawn SDL_Open_Image( ren,  img.png ) -  ( img);\n    var SDL_Rect rect = val SDL_Rect(10,10 , img.width,img.height);\n    every SDL_REDRAW do\n        _SDL_RenderCopy( ren,  img.tex, null,  rect as _SDL_Rect );\n    end\nend\n\nescape 0;  Draws  img.png  in a  68x68  yellow window.  SDL References:\n     IMG_LoadTexture ,\n     SDL_DestroyTexture ,\n     SDL_QueryTexture .  Note: all allocated SDL resources are automatically released on termination.", 
+            "location": "/code_awaits/#sdl_open_image", 
+            "text": "Opens an image file into a new texture.  code/await SDL_Open_Image (var  _SDL_Renderer ren, var _char  path)\n                            -  (var  SDL_Texture tex)\n                                -  FOREVER   Parameters  ren :  rendering context  path : path to the image    Initialization  tex :  created  texture    Return  never terminates naturally     Example:  #include  sdl/sdl.ceu \n\nvar  _SDL_Renderer ren; ;\nwatching SDL_Init( Image , 68,68, SDL_Color(0xFF,0xFF,0x00,0xFF)) -  ( ren) do\n    var  SDL_Texture img;\n    spawn SDL_Open_Image( ren,  img.png ) -  ( img);\n    var SDL_Rect rect = val SDL_Rect(10,10 , img.width,img.height);\n    every SDL_REDRAW do\n        _SDL_RenderCopy( ren,  img.tex, null,  rect as _SDL_Rect );\n    end\nend\n\nescape 0;  Draws  img.png  in a  68x68  yellow window.  SDL References:\n     IMG_LoadTexture ,\n     SDL_DestroyTexture ,\n     SDL_QueryTexture .  Note: all allocated SDL resources are automatically released on termination.", 
             "title": "SDL_Open_Image"
         }, 
         {
-            "location": "/060-code-awaits/#sdl_open_font", 
-            "text": "Opens a  TTF  font file.  code/await SDL_Open_Font (var _char  path, var int size)\n                            -  (var  _TTF_Font font)\n                                -  FOREVER   Parameters  path : path to the font  size : size of the font    Initialization  font : alias to created font    Return  never terminates naturally     Example:  #include  sdl/sdl.ceu \n\nvar  _SDL_Renderer ren; ;\nwatching SDL_Init( Font 1 , 220,60, SDL_Color(0xFF,0xFF,0x00,0xFF)) -  ( ren) do\n    var  _TTF_Font font;\n    spawn SDL_Open_Font( samples/Deutsch.ttf , 40) -  ( font);\n\n    var  SDL_Texture txt;\n    spawn SDL_New_Text( ren,  font,  Hello World! , SDL_Color(0x00,0x00,0x00,0xFF))\n            -  ( txt);\n    var SDL_Rect rect = val SDL_Rect(10, 10, txt.width, txt.height);\n\n    every SDL_REDRAW do\n        _SDL_RenderCopy( ren,  txt.tex, null,  rect as _SDL_Rect );\n    end\nend\n\nescape 0;  Draws a black  Hello World!  text in yellow window.  SDL References:\n     _TTF_OpenFont ,\n     _TTF_WasInit ,\n     _TTF_CloseFont .  Note: all allocated SDL resources are automatically released on termination.", 
+            "location": "/code_awaits/#sdl_open_font", 
+            "text": "Opens a  TTF  font file.  code/await SDL_Open_Font (var _char  path, var int size)\n                            -  (var  _TTF_Font font)\n                                -  FOREVER   Parameters  path : path to the font  size : size of the font    Initialization  font : created font    Return  never terminates naturally     Example:  #include  sdl/sdl.ceu \n\nvar  _SDL_Renderer ren; ;\nwatching SDL_Init( Font 1 , 220,60, SDL_Color(0xFF,0xFF,0x00,0xFF)) -  ( ren) do\n    var  _TTF_Font font;\n    spawn SDL_Open_Font( samples/Deutsch.ttf , 40) -  ( font);\n\n    var  SDL_Texture txt;\n    spawn SDL_New_Text( ren,  font,  Hello World! , SDL_Color(0x00,0x00,0x00,0xFF))\n            -  ( txt);\n    var SDL_Rect rect = val SDL_Rect(10, 10, txt.width, txt.height);\n\n    every SDL_REDRAW do\n        _SDL_RenderCopy( ren,  txt.tex, null,  rect as _SDL_Rect );\n    end\nend\n\nescape 0;  Draws a black  Hello World!  text in yellow window.  SDL References:\n     _TTF_OpenFont ,\n     _TTF_WasInit ,\n     _TTF_CloseFont .  Note: all allocated SDL resources are automatically released on termination.", 
             "title": "SDL_Open_Font"
         }, 
         {
-            "location": "/060-code-awaits/#sdl_new_text", 
-            "text": "Writes a text into a new texture.  code/await SDL_New_Text (var  _SDL_Renderer ren, var  _TTF_Font font, var _char  text, var SDL_Color color)\n                            -  (var  SDL_Texture tex)\n                                -  FOREVER   Parameters  ren :   rendering context  font :  text font  text :  text to write  color : text color    Initialization  tex :  alias to created  texture    Return  never terminates naturally     Example:  #include  sdl/sdl.ceu \n\nvar  _SDL_Renderer ren; ;\nwatching SDL_Init( Font 1 , 220,60, SDL_Color(0xFF,0xFF,0x00,0xFF)) -  ( ren) do\n    var  _TTF_Font font;\n    spawn SDL_Open_Font( font.ttf , 40) -  ( font);\n\n    var  SDL_Texture txt;\n    spawn SDL_New_Text( ren,  font,  Hello World! , SDL_Color(0x00,0x00,0x00,0xFF))\n            -  ( txt);\n    var SDL_Rect rect = val SDL_Rect(10, 10, txt.width, txt.height);\n\n    every SDL_REDRAW do\n        _SDL_RenderCopy( ren,  txt.tex, null,  rect as _SDL_Rect );\n    end\nend\n\nescape 0;  Draws a black  Hello World!  text in yellow window.  SDL References:\n    [ _TTF_RenderText_Blended ],\n    [ _SDL_FreeSurface ],\n    [ _SDL_CreateTextureFromSurface ],\n    [ _SDL_DestroyTexture ],\n    [ _SDL_QueryTexture ].  Note: all allocated SDL resources are automatically released on termination.", 
+            "location": "/code_awaits/#sdl_new_text", 
+            "text": "Writes a text into a new texture.  code/await SDL_New_Text (var  _SDL_Renderer ren, var  _TTF_Font font, var _char  text, var SDL_Color color)\n                            -  (var  SDL_Texture tex)\n                                -  FOREVER   Parameters  ren :   rendering context  font :  text font  text :  text to write  color : text color    Initialization  tex :  created  texture    Return  never terminates naturally     Example:  #include  sdl/sdl.ceu \n\nvar  _SDL_Renderer ren; ;\nwatching SDL_Init( Font 1 , 220,60, SDL_Color(0xFF,0xFF,0x00,0xFF)) -  ( ren) do\n    var  _TTF_Font font;\n    spawn SDL_Open_Font( font.ttf , 40) -  ( font);\n\n    var  SDL_Texture txt;\n    spawn SDL_New_Text( ren,  font,  Hello World! , SDL_Color(0x00,0x00,0x00,0xFF))\n            -  ( txt);\n    var SDL_Rect rect = val SDL_Rect(10, 10, txt.width, txt.height);\n\n    every SDL_REDRAW do\n        _SDL_RenderCopy( ren,  txt.tex, null,  rect as _SDL_Rect );\n    end\nend\n\nescape 0;  Draws a black  Hello World!  text in yellow window.  SDL References:\n    [ _TTF_RenderText_Blended ],\n    [ _SDL_FreeSurface ],\n    [ _SDL_CreateTextureFromSurface ],\n    [ _SDL_DestroyTexture ],\n    [ _SDL_QueryTexture ].  Note: all allocated SDL resources are automatically released on termination.", 
             "title": "SDL_New_Text"
         }, 
         {
-            "location": "/060-code-awaits/#sdl_open_sound", 
-            "text": "Opens a sound file.  code/await SDL_Open_Sound (var _char  path)\n                            -  (var  _Mix_Chunk sound)\n                                -  FOREVER   Parameters  path : path to the sound    Initialization  sound : alias to created sound    Return  never terminates naturally     Example:  #include  sdl/sdl.ceu \n\nvar SDL_Color bg = val SDL_Color(0x00,0x00,0x00,0xFF);\n\nvar  _SDL_Renderer ren;\nwatching SDL_Init( Sound 1 , 10,10, bg) -  ( ren)\ndo\n    var  _Mix_Chunk sound;\n    spawn SDL_Open_Sound( sound.wav ) -  ( sound);\n    every 1s do\n        _Mix_PlayChannel(-1,  sound, 0);\n    end\nend\n\nescape 0;  Plays  sound.wav  every second.  SDL References:\n     _Mix_LoadWAV ,\n     _Mix_FreeChunk .  Note: all allocated SDL resources are automatically released on termination.", 
+            "location": "/code_awaits/#sdl_open_sound", 
+            "text": "Opens a sound file.  code/await SDL_Open_Sound (var _char  path)\n                            -  (var  _Mix_Chunk sound)\n                                -  FOREVER   Parameters  path : path to the sound    Initialization  sound : created sound    Return  never terminates naturally     Example:  #include  sdl/sdl.ceu \n\nvar SDL_Color bg = val SDL_Color(0x00,0x00,0x00,0xFF);\n\nvar  _SDL_Renderer ren;\nwatching SDL_Init( Sound 1 , 10,10, bg) -  ( ren)\ndo\n    var  _Mix_Chunk sound;\n    spawn SDL_Open_Sound( sound.wav ) -  ( sound);\n    every 1s do\n        _Mix_PlayChannel(-1,  sound, 0);\n    end\nend\n\nescape 0;  Plays  sound.wav  every second.  SDL References:\n     _Mix_LoadWAV ,\n     _Mix_FreeChunk .  Note: all allocated SDL resources are automatically released on termination.", 
             "title": "SDL_Open_Sound"
         }, 
         {

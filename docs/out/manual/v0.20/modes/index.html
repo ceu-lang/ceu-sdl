@@ -8,7 +8,7 @@
   
   
   
-  <title>Introduction - Céu-SDL v0.20 - Reference Manual</title>
+  <title>Modes of Operation - Céu-SDL v0.20 - Reference Manual</title>
   
 
   <link rel="shortcut icon" href="../img/favicon.ico">
@@ -23,9 +23,9 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Introduction";
-    var mkdocs_page_input_path = "010-introduction.md";
-    var mkdocs_page_url = "/010-introduction/";
+    var mkdocs_page_name = "Modes of Operation";
+    var mkdocs_page_input_path = "modes/index.md";
+    var mkdocs_page_url = "/modes/";
   </script>
   
   <script src="../js/jquery-2.1.1.min.js"></script>
@@ -62,43 +62,94 @@
 <li>
           
             <li>
+    <ul class="subnav">
+    <li><span>Modes of Operation</span></li>
+
+        
+            
     <li class="toctree-l1 current">
-        <a class="current" href="./">Introduction</a>
+        <a class="current" href="./">Modes of Operation</a>
         
             <ul>
             
-                <li class="toctree-l3"><a href="#introduction">Introduction</a></li>
+                <li class="toctree-l3"><a href="#modes-of-operation">Modes of Operation</a></li>
                 
             
             </ul>
         
     </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="polling/">Polling</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="waiting/">Waiting</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="frame/">Frame</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Input Events</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../inputs/">Input Events</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../inputs/general/">General</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../inputs/keyboard/">Keyboard</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../inputs/mouse/">Mouse</a>
+        
+    </li>
+
+        
+    </ul>
 <li>
           
             <li>
     <li class="toctree-l1 ">
-        <a class="" href="../020-modes/">Modes of Operation</a>
+        <a class="" href="../datas/">Data Abstractions</a>
         
     </li>
 <li>
           
             <li>
     <li class="toctree-l1 ">
-        <a class="" href="../030-inputs/">Input Events</a>
-        
-    </li>
-<li>
-          
-            <li>
-    <li class="toctree-l1 ">
-        <a class="" href="../040-datas/">Data Abstractions</a>
-        
-    </li>
-<li>
-          
-            <li>
-    <li class="toctree-l1 ">
-        <a class="" href="../060-code-awaits/">Code/Await Abstractions</a>
+        <a class="" href="../code_awaits/">Code/Await Abstractions</a>
         
     </li>
 <li>
@@ -131,8 +182,12 @@
     <li><a href="..">Docs</a> &raquo;</li>
     
       
+        
+          <li>Modes of Operation &raquo;</li>
+        
+      
     
-    <li>Introduction</li>
+    <li>Modes of Operation</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -142,8 +197,22 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="introduction">Introduction</h1>
-<p><code>TODO</code></p>
+                <h1 id="modes-of-operation">Modes of Operation</h1>
+<p>A mode of operation specifies how Céu-SDL captures events from the environment
+(e.g., key presses) and redirects them to the Céu application.</p>
+<p>Céu-SDL supports <em>polling</em>, <em>waiting</em>, and <em>frame-based</em> modes of operation.</p>
+<p>Each mode of operation uses a different compilation flag:</p>
+<pre><code>$ make CEU_ARGS=&quot;-DCEU_SDL_MODE_POLLING&quot;  CEU_SRC=&lt;path-to-ceu-application&gt;
+$ make CEU_ARGS=&quot;-DCEU_SDL_MODE_WAITING&quot;  CEU_SRC=&lt;path-to-ceu-application&gt;
+$ make CEU_ARGS=&quot;-DCEU_SDL_MODE_FRAME=33&quot; CEU_SRC=&lt;path-to-ceu-application&gt;
+</code></pre>
+
+<p>The frame-based mode also requires the desired period of the frame (in
+milliseconds).</p>
+<p>The frame-based mode is the default mode of operation and is preset to 33
+milliseconds.</p>
+<p>The modes of operation are implemented in C and are part of Céu-SDL.
+Each mode is described in pseudo-code as follows.</p>
               
             </div>
           </div>
@@ -151,7 +220,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../020-modes/" class="btn btn-neutral float-right" title="Modes of Operation">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="polling/" class="btn btn-neutral float-right" title="Polling">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
         <a href=".." class="btn btn-neutral" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
@@ -183,7 +252,7 @@
         <span><a href=".." style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../020-modes/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="polling/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

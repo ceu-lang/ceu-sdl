@@ -24,8 +24,8 @@
   <script>
     // Current page data
     var mkdocs_page_name = "Input Events";
-    var mkdocs_page_input_path = "030-inputs.md";
-    var mkdocs_page_url = "/030-inputs/";
+    var mkdocs_page_input_path = "inputs/index.md";
+    var mkdocs_page_url = "/inputs/";
   </script>
   
   <script src="../js/jquery-2.1.1.min.js"></script>
@@ -62,20 +62,47 @@
 <li>
           
             <li>
+    <ul class="subnav">
+    <li><span>Modes of Operation</span></li>
+
+        
+            
     <li class="toctree-l1 ">
-        <a class="" href="../010-introduction/">Introduction</a>
+        <a class="" href="../modes/">Modes of Operation</a>
         
     </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../modes/polling/">Polling</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../modes/waiting/">Waiting</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../modes/frame/">Frame</a>
+        
+    </li>
+
+        
+    </ul>
 <li>
           
             <li>
-    <li class="toctree-l1 ">
-        <a class="" href="../020-modes/">Modes of Operation</a>
+    <ul class="subnav">
+    <li><span>Input Events</span></li>
+
         
-    </li>
-<li>
-          
-            <li>
+            
     <li class="toctree-l1 current">
         <a class="current" href="./">Input Events</a>
         
@@ -83,38 +110,46 @@
             
                 <li class="toctree-l3"><a href="#input-events">Input Events</a></li>
                 
-                    <li><a class="toctree-l4" href="#sdl_redraw">SDL_REDRAW</a></li>
-                
-                    <li><a class="toctree-l4" href="#sdl_dt">SDL_DT</a></li>
-                
-                    <li><a class="toctree-l4" href="#sdl_quit">SDL_QUIT</a></li>
-                
-                    <li><a class="toctree-l4" href="#sdl_keydown">SDL_KEYDOWN</a></li>
-                
-                    <li><a class="toctree-l4" href="#sdl_keyup">SDL_KEYUP</a></li>
-                
-                    <li><a class="toctree-l4" href="#sdl_mousebuttondown">SDL_MOUSEBUTTONDOWN</a></li>
-                
-                    <li><a class="toctree-l4" href="#sdl_mousebuttonup">SDL_MOUSEBUTTONUP</a></li>
-                
-                    <li><a class="toctree-l4" href="#sdl_mousemotion">SDL_MOUSEMOTION</a></li>
-                
             
             </ul>
         
     </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="general/">General</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="keyboard/">Keyboard</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="mouse/">Mouse</a>
+        
+    </li>
+
+        
+    </ul>
 <li>
           
             <li>
     <li class="toctree-l1 ">
-        <a class="" href="../040-datas/">Data Abstractions</a>
+        <a class="" href="../datas/">Data Abstractions</a>
         
     </li>
 <li>
           
             <li>
     <li class="toctree-l1 ">
-        <a class="" href="../060-code-awaits/">Code/Await Abstractions</a>
+        <a class="" href="../code_awaits/">Code/Await Abstractions</a>
         
     </li>
 <li>
@@ -147,6 +182,10 @@
     <li><a href="..">Docs</a> &raquo;</li>
     
       
+        
+          <li>Input Events &raquo;</li>
+        
+      
     
     <li>Input Events</li>
     <li class="wy-breadcrumbs-aside">
@@ -163,49 +202,6 @@
 <p><a href="https://wiki.libsdl.org/SDL_Event">https://wiki.libsdl.org/SDL_Event</a></p>
 <p><code>TODO: not all inputs have been mapped</code></p>
 <p>In addition, it provides the <code>SDL_REDRAW</code> and <code>SDL_DT</code> input events.</p>
-<h2 id="sdl_redraw">SDL_REDRAW</h2>
-<pre><code class="ceu">input _SDL_Renderer&amp;&amp;&amp;&amp; SDL_REDRAW;
-</code></pre>
-
-<p>Occurs in the end of every loop iteration in all <a href="#TODO">modes of operation</a>.</p>
-<p><code>TODO: payload</code></p>
-<h2 id="sdl_dt">SDL_DT</h2>
-<pre><code class="ceu">input int SDL_DT;
-</code></pre>
-
-<p>Occurs in the beginning of every loop iteration in the <a href="#TODO">frame-based</a>
-<a href="#TODO">mode of operation</a>.</p>
-<p>The input value of type <code>int</code> is always equal to <a href="#TODO"><code>CEU_SDL_MODE_FRAME</code></a>.</p>
-<h2 id="sdl_quit">SDL_QUIT</h2>
-<pre><code class="ceu">input void SDL_QUIT;
-</code></pre>
-
-<p>SDL Reference: <a href="https://wiki.libsdl.org/SDL_QuitEvent">https://wiki.libsdl.org/SDL_QuitEvent</a></p>
-<h2 id="sdl_keydown">SDL_KEYDOWN</h2>
-<pre><code class="ceu">input _SDL_KeyboardEvent&amp;&amp; SDL_KEYDOWN;
-</code></pre>
-
-<p>SDL Reference: <a href="https://wiki.libsdl.org/SDL_KeyboardEvent">https://wiki.libsdl.org/SDL_KeyboardEvent</a></p>
-<h2 id="sdl_keyup">SDL_KEYUP</h2>
-<pre><code class="ceu">input _SDL_KeyboardEvent&amp;&amp; SDL_KEYUP;
-</code></pre>
-
-<p>SDL Reference: <a href="https://wiki.libsdl.org/SDL_KeyboardEvent">https://wiki.libsdl.org/SDL_KeyboardEvent</a></p>
-<h2 id="sdl_mousebuttondown">SDL_MOUSEBUTTONDOWN</h2>
-<pre><code class="ceu">input _SDL_MouseButtonEvent&amp;&amp; SDL_MOUSEBUTTONDOWN;
-</code></pre>
-
-<p>SDL Reference: <a href="https://wiki.libsdl.org/SDL_MouseButtonEvent">https://wiki.libsdl.org/SDL_MouseButtonEvent</a></p>
-<h2 id="sdl_mousebuttonup">SDL_MOUSEBUTTONUP</h2>
-<pre><code class="ceu">input _SDL_MouseButtonEvent&amp;&amp; SDL_MOUSEBUTTONUP;
-</code></pre>
-
-<p>SDL Reference: <a href="https://wiki.libsdl.org/SDL_MouseButtonEvent">https://wiki.libsdl.org/SDL_MouseButtonEvent</a></p>
-<h2 id="sdl_mousemotion">SDL_MOUSEMOTION</h2>
-<pre><code class="ceu">input _SDL_MouseMotionEvent&amp;&amp; SDL_MOUSEMOTION;
-</code></pre>
-
-<p>SDL Reference: <a href="https://wiki.libsdl.org/SDL_MouseMotionEvent">https://wiki.libsdl.org/SDL_MouseMotionEvent</a></p>
               
             </div>
           </div>
@@ -213,10 +209,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../040-datas/" class="btn btn-neutral float-right" title="Data Abstractions">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="general/" class="btn btn-neutral float-right" title="General">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../020-modes/" class="btn btn-neutral" title="Modes of Operation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../modes/frame/" class="btn btn-neutral" title="Frame"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -242,10 +238,10 @@
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
-        <span><a href="../020-modes/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../modes/frame/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../040-datas/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="general/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
