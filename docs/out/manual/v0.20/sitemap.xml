@@ -4,71 +4,31 @@
     
     <url>
      <loc>None/</loc>
-     <lastmod>2016-12-21</lastmod>
+     <lastmod>2017-01-21</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
 
     
-        
     <url>
      <loc>None/modes/</loc>
-     <lastmod>2016-12-21</lastmod>
+     <lastmod>2017-01-21</lastmod>
      <changefreq>daily</changefreq>
     </url>
-        
-    <url>
-     <loc>None/modes/polling/</loc>
-     <lastmod>2016-12-21</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-        
-    <url>
-     <loc>None/modes/waiting/</loc>
-     <lastmod>2016-12-21</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-        
-    <url>
-     <loc>None/modes/frame/</loc>
-     <lastmod>2016-12-21</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-        
     
 
     
-        
     <url>
      <loc>None/inputs/</loc>
-     <lastmod>2016-12-21</lastmod>
+     <lastmod>2017-01-21</lastmod>
      <changefreq>daily</changefreq>
     </url>
-        
-    <url>
-     <loc>None/inputs/general/</loc>
-     <lastmod>2016-12-21</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-        
-    <url>
-     <loc>None/inputs/keyboard/</loc>
-     <lastmod>2016-12-21</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-        
-    <url>
-     <loc>None/inputs/mouse/</loc>
-     <lastmod>2016-12-21</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-        
     
 
     
     <url>
      <loc>None/datas/</loc>
-     <lastmod>2016-12-21</lastmod>
+     <lastmod>2017-01-21</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
@@ -76,7 +36,7 @@
     
     <url>
      <loc>None/code_awaits/</loc>
-     <lastmod>2016-12-21</lastmod>
+     <lastmod>2017-01-21</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
@@ -84,7 +44,7 @@
     
     <url>
      <loc>None/license/</loc>
-     <lastmod>2016-12-21</lastmod>
+     <lastmod>2017-01-21</lastmod>
      <changefreq>daily</changefreq>
     </url>
     

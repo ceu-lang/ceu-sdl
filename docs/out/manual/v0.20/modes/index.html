@@ -56,17 +56,12 @@
           
             <li>
     <li class="toctree-l1 ">
-        <a class="" href="..">Home</a>
+        <a class="" href="..">Introduction</a>
         
     </li>
 <li>
           
             <li>
-    <ul class="subnav">
-    <li><span>Modes of Operation</span></li>
-
-        
-            
     <li class="toctree-l1 current">
         <a class="current" href="./">Modes of Operation</a>
         
@@ -74,70 +69,23 @@
             
                 <li class="toctree-l3"><a href="#modes-of-operation">Modes of Operation</a></li>
                 
+                    <li><a class="toctree-l4" href="#polling">Polling</a></li>
+                
+                    <li><a class="toctree-l4" href="#waiting">Waiting</a></li>
+                
+                    <li><a class="toctree-l4" href="#frame">Frame</a></li>
+                
             
             </ul>
         
     </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="polling/">Polling</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="waiting/">Waiting</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="frame/">Frame</a>
-        
-    </li>
-
-        
-    </ul>
 <li>
           
             <li>
-    <ul class="subnav">
-    <li><span>Input Events</span></li>
-
-        
-            
     <li class="toctree-l1 ">
         <a class="" href="../inputs/">Input Events</a>
         
     </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../inputs/general/">General</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../inputs/keyboard/">Keyboard</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../inputs/mouse/">Mouse</a>
-        
-    </li>
-
-        
-    </ul>
 <li>
           
             <li>
@@ -182,10 +130,6 @@
     <li><a href="..">Docs</a> &raquo;</li>
     
       
-        
-          <li>Modes of Operation &raquo;</li>
-        
-      
     
     <li>Modes of Operation</li>
     <li class="wy-breadcrumbs-aside">
@@ -197,7 +141,7 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="modes-of-operation">Modes of Operation</h1>
+                <h1 id="modes-of-operation">Modes of Operation<a class="headerlink" href="#modes-of-operation" title="Permanent link">&para;</a></h1>
 <p>A mode of operation specifies how Céu-SDL captures events from the environment
 (e.g., key presses) and redirects them to the Céu application.</p>
 <p>Céu-SDL supports <em>polling</em>, <em>waiting</em>, and <em>frame-based</em> modes of operation.</p>
@@ -213,6 +157,73 @@ milliseconds).</p>
 milliseconds.</p>
 <p>The modes of operation are implemented in C and are part of Céu-SDL.
 Each mode is described in pseudo-code as follows.</p>
+<h2 id="polling">Polling<a class="headerlink" href="#polling" title="Permanent link">&para;</a></h2>
+<p>The <em>polling mode</em> of Céu-SDL continually checks for SDL input events in an
+infinite loop:</p>
+<pre><code class="c">int main (void) {
+    ceu_start();
+    while (&lt;program-is-running&gt;) {
+        if (SDL_PollEvent(&lt;...&gt;)) {
+            ceu_input(CEU_INPUT__*, &lt;...&gt;);     /* input SDL_QUIT, SDL_KEY*, SDL_MOUSE*, etc */
+        }
+        ceu_input(CEU_INPUT__NONE, &lt;time&gt;);     /* input async and timer */
+        ceu_input(CEU_INPUT_SDL_REDRAW, &lt;...&gt;); /* input SDL_REDRAW after every input */
+    }
+    ceu_stop();
+    return &lt;program-escape-value&gt;;
+}
+</code></pre>
+
+<p>The inputs are polled on each loop iteration and changes are notified to the
+Céu application through <code>ceu_input</code> calls.</p>
+<p>The polling mode uses <em>100%</em> of the CPU time.</p>
+<h2 id="waiting">Waiting<a class="headerlink" href="#waiting" title="Permanent link">&para;</a></h2>
+<p>The <em>waiting mode</em> of Céu-SDL continually waits for SDL input events in an
+infinite loop:</p>
+<pre><code class="c">int main (void) {
+    ceu_start();
+    while (&lt;program-is-running&gt;) {
+        int timeout = (&lt;program-has-pending-async&gt;) ? 0 : &lt;next-timer-in-ms&gt;;
+        if (SDL_WaitEventTimeout(&lt;...&gt;, timeout);
+            ceu_input(CEU_INPUT__*, &lt;...&gt;);     /* input SDL_QUIT, SDL_KEY*, SDL_MOUSE*, etc */
+        }
+        ceu_input(CEU_INPUT__NONE, &lt;time&gt;);     /* input async and timer */
+        ceu_input(CEU_INPUT_SDL_REDRAW, &lt;...&gt;); /* input SDL_REDRAW after every input */
+    }
+    ceu_stop();
+    return &lt;program-escape-value&gt;;
+}
+</code></pre>
+
+<p>The inputs are polled on each loop iteration and changes are notified to the
+Céu application through <code>ceu_input</code> calls.</p>
+<h2 id="frame">Frame<a class="headerlink" href="#frame" title="Permanent link">&para;</a></h2>
+<p>The <em>frame-based mode</em> of Céu-SDL continually waits for SDL input events in an
+infinite loop.
+The waiting period is limited to the next frame period:</p>
+<pre><code class="c">int main (void) {
+    ceu_start();
+    while (&lt;program-is-running&gt;) {
+        int timeout = (&lt;program-has-pending-async&gt;) ?
+                        0 : MIN(&lt;next-timer-in-ms&gt;,&lt;next-frame-in-ms&gt;);
+        if (&lt;next-frame-expired&gt;) {
+            ceu_input(CEU_INPUT_SDL_DT, CEU_SDL_MODE_FRAME);
+        }
+        if (SDL_WaitEventTimeout(&lt;...&gt;, timeout);
+            ceu_input(CEU_INPUT__*, &lt;...&gt;);     /* input SDL_QUIT, SDL_KEY*, SDL_MOUSE*, etc */
+        }
+        ceu_input(CEU_INPUT__NONE, &lt;time&gt;);     /* input async and timer */
+        ceu_input(CEU_INPUT_SDL_REDRAW, &lt;...&gt;); /* input SDL_REDRAW after every input */
+    }
+    ceu_stop();
+    return &lt;program-escape-value&gt;;
+}
+</code></pre>
+
+<p>The inputs are polled on each loop iteration and changes are notified to the
+Céu application through <code>ceu_input</code> calls.</p>
+<p>The frame-based mode also provides the <code>CEU_SDL_DT</code> input, which is notified
+after each frame period expires.</p>
               
             </div>
           </div>
@@ -220,10 +231,10 @@ Each mode is described in pseudo-code as follows.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="polling/" class="btn btn-neutral float-right" title="Polling">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../inputs/" class="btn btn-neutral float-right" title="Input Events">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href=".." class="btn btn-neutral" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href=".." class="btn btn-neutral" title="Introduction"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -252,7 +263,7 @@ Each mode is described in pseudo-code as follows.</p>
         <span><a href=".." style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="polling/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../inputs/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

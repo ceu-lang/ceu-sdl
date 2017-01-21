@@ -21,3 +21,9 @@ milliseconds.
 
 The modes of operation are implemented in C and are part of Céu-SDL.
 Each mode is described in pseudo-code as follows.
+
+{!modes/polling.md!}
+
+{!modes/waiting.md!}
+
+{!modes/frame.md!}

@@ -56,81 +56,23 @@
           
             <li>
     <li class="toctree-l1 ">
-        <a class="" href="..">Home</a>
+        <a class="" href="..">Introduction</a>
         
     </li>
 <li>
           
             <li>
-    <ul class="subnav">
-    <li><span>Modes of Operation</span></li>
-
-        
-            
     <li class="toctree-l1 ">
         <a class="" href="../modes/">Modes of Operation</a>
         
     </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../modes/polling/">Polling</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../modes/waiting/">Waiting</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../modes/frame/">Frame</a>
-        
-    </li>
-
-        
-    </ul>
 <li>
           
             <li>
-    <ul class="subnav">
-    <li><span>Input Events</span></li>
-
-        
-            
     <li class="toctree-l1 ">
         <a class="" href="../inputs/">Input Events</a>
         
     </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../inputs/general/">General</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../inputs/keyboard/">Keyboard</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../inputs/mouse/">Mouse</a>
-        
-    </li>
-
-        
-    </ul>
 <li>
           
             <li>
@@ -203,8 +145,8 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="codeawait-abstractions">Code/Await Abstractions</h1>
-<h2 id="sdl_init">SDL_Init</h2>
+                <h1 id="codeawait-abstractions">Code/Await Abstractions<a class="headerlink" href="#codeawait-abstractions" title="Permanent link">&para;</a></h1>
+<h2 id="sdl_init">SDL_Init<a class="headerlink" href="#sdl_init" title="Permanent link">&para;</a></h2>
 <p>Initializes Céu-SDL, creates a SDL window, and provides a renderer to the
 application.</p>
 <p><code>SDL_Init</code> terminates once <a href="#TODO"><code>SDL_QUIT</code></a> occurs.</p>
@@ -269,7 +211,7 @@ escape 0;
     <a href="#TODO"><code>SDL_SetRenderDrawColor</code></a>,
     <a href="#TODO"><code>SDL_RenderClear</code></a>.</p>
 <p><em>Note: all allocated SDL resources are automatically released on termination.</em></p>
-<h2 id="sdl_open_image">SDL_Open_Image</h2>
+<h2 id="sdl_open_image">SDL_Open_Image<a class="headerlink" href="#sdl_open_image" title="Permanent link">&para;</a></h2>
 <p>Opens an image file into a new texture.</p>
 <pre><code class="ceu">code/await SDL_Open_Image (var&amp; _SDL_Renderer ren, var _char&amp;&amp; path)
                             -&gt; (var&amp; SDL_Texture tex)
@@ -313,7 +255,7 @@ escape 0;
     <a href="#TODO"><code>SDL_DestroyTexture</code></a>,
     <a href="#TODO"><code>SDL_QueryTexture</code></a>.</p>
 <p><em>Note: all allocated SDL resources are automatically released on termination.</em></p>
-<h2 id="sdl_open_font">SDL_Open_Font</h2>
+<h2 id="sdl_open_font">SDL_Open_Font<a class="headerlink" href="#sdl_open_font" title="Permanent link">&para;</a></h2>
 <p>Opens a <code>TTF</code> font file.</p>
 <pre><code class="ceu">code/await SDL_Open_Font (var _char&amp;&amp; path, var int size)
                             -&gt; (var&amp; _TTF_Font font)
@@ -362,7 +304,7 @@ escape 0;
     <a href="#TODO"><code>_TTF_WasInit</code></a>,
     <a href="#TODO"><code>_TTF_CloseFont</code></a>.</p>
 <p><em>Note: all allocated SDL resources are automatically released on termination.</em></p>
-<h2 id="sdl_new_text">SDL_New_Text</h2>
+<h2 id="sdl_new_text">SDL_New_Text<a class="headerlink" href="#sdl_new_text" title="Permanent link">&para;</a></h2>
 <p>Writes a text into a new texture.</p>
 <pre><code class="ceu">code/await SDL_New_Text (var&amp; _SDL_Renderer ren, var&amp; _TTF_Font font, var _char&amp;&amp; text, var SDL_Color color)
                             -&gt; (var&amp; SDL_Texture tex)
@@ -415,7 +357,7 @@ escape 0;
     [<code>_SDL_DestroyTexture</code>],
     [<code>_SDL_QueryTexture</code>].</p>
 <p><em>Note: all allocated SDL resources are automatically released on termination.</em></p>
-<h2 id="sdl_open_sound">SDL_Open_Sound</h2>
+<h2 id="sdl_open_sound">SDL_Open_Sound<a class="headerlink" href="#sdl_open_sound" title="Permanent link">&para;</a></h2>
 <p>Opens a sound file.</p>
 <pre><code class="ceu">code/await SDL_Open_Sound (var _char&amp;&amp; path)
                             -&gt; (var&amp; _Mix_Chunk sound)

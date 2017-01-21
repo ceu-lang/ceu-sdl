@@ -2,19 +2,17 @@ site_name: Céu-SDL v0.20 - Reference Manual
 theme:     readthedocs
 #site_dir:  site/v0.20
 
+markdown_extensions:
+    - markdown_include.include:
+        base_path: docs
+    - toc:
+        permalink: True
+    #- codehilite(linenums=true)
+
 pages:
-    - Home:                     'index.md'
-    - Modes of Operation:
-        - Modes of Operation:   'modes/index.md'
-        - Polling:              'modes/polling.md'
-        - Waiting:              'modes/waiting.md'
-        - Frame:                'modes/frame.md'
-    - Input Events:
-        - Input Events:         'inputs/index.md'
-        - General:              'inputs/general.md'
-        - Keyboard:             'inputs/keyboard.md'
-        - Mouse:                'inputs/mouse.md'
+    - Introduction:             'index.md'
+    - Modes of Operation:       'modes/index.md'
+    - Input Events:             'inputs/index.md'
     - Data Abstractions:        'datas/index.md'
     - Code/Await Abstractions:  'code_awaits/index.md'
     - License:                  'license.md'
-
