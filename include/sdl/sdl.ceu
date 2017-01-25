@@ -238,6 +238,9 @@ native/pos do
 #ifdef CEU_SDL_MODE_FRAME
             timeout = (CEU_SDL_inited && min>CEU_SDL_FRAME_nxt) ?
                         CEU_SDL_FRAME_nxt : min;
+            if (timeout < 0) {
+                timeout = 0;
+            }
 #else
             timeout = min; // possibly CEU_WCLOCK_INACTIVE
 #endif
@@ -255,7 +258,10 @@ native/pos do
             CEU_SDL_FRAME_nxt -= dt;
             if (CEU_SDL_FRAME_nxt <= 0) {
                 CEU_SDL_FRAME_nxt += CEU_SDL_MODE_FRAME;
-                ceu_dbg_assert(CEU_SDL_FRAME_nxt > 0);
+                if (CEU_SDL_FRAME_nxt <= 0) {
+                    ceu_dbg_log("[SDL] frame is late");
+                }
+                //ceu_dbg_assert(CEU_SDL_FRAME_nxt > 0);
                 s32 mspf = CEU_SDL_MODE_FRAME;
                 ceu_input(CEU_INPUT_SDL_DT, &mspf);
             }
