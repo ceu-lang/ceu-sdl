@@ -3,31 +3,27 @@
 var SDL_Color bg = val SDL_Color(0x00,0x00,0x00,0xFF);
 
 var& _SDL_Renderer ren;
-watching SDL_Init("SDL 8", 800,480, bg) -> (&ren)
-do
-    var& _Mix_Chunk sound;
-    spawn SDL_Open_Sound("samples/click1.wav") -> (&sound);
+var&? SDL_Init sdl = spawn SDL_Init("SDL 8", 800,480, bg);
+watching sdl do
+    var& SDL_Open_Sound sound = spawn SDL_Open_Sound("samples/click1.wav");
 
-    var& SDL_Texture img_tex;
-    spawn SDL_Open_Image(&ren, "samples/img.png") -> (&img_tex);
-    var SDL_Rect img_rct = val SDL_Rect(100, 100, img_tex.width, img_tex.height);
+    var& SDL_Open_Image img = spawn SDL_Open_Image(&sdl!.ren, "samples/img.png");
+    var SDL_Rect img_rct = val SDL_Rect(100, 100, img.tex.width, img.tex.height);
 
-    var& _TTF_Font font;
-    spawn SDL_Open_Font("samples/Deutsch.ttf", 40) -> (&font);
+    var& SDL_Open_Font font = spawn SDL_Open_Font("samples/Deutsch.ttf", 40);
 
-    var& SDL_Texture txt_tex;
-    spawn SDL_New_Text(&ren, &font, "Hello World!", SDL_Color(0xFF,0xFF,0xFF,0xFF))
-            -> (&txt_tex);
-    var SDL_Rect txt_rct = val SDL_Rect(300, 200, txt_tex.width, txt_tex.height);
+    var& SDL_New_Text txt =
+        spawn SDL_New_Text(&sdl!.ren, &font.font, "Hello World!", SDL_Color(0xFF,0xFF,0xFF,0xFF));
+    var SDL_Rect txt_rct = val SDL_Rect(300, 200, txt.tex.width, txt.tex.height);
 
     par do
         every 5s do
-            _Mix_PlayChannel(-1, &&sound, 0);
+            _Mix_PlayChannel(-1, &&sound.sound, 0);
         end
     with
         every SDL_REDRAW do
-            _SDL_RenderCopy(&&ren, &&img_tex.tex, null, &&img_rct as _SDL_Rect&&);
-            _SDL_RenderCopy(&&ren, &&txt_tex.tex, null, &&txt_rct as _SDL_Rect&&);
+            _SDL_RenderCopy(&&sdl!.ren, &&img.tex.tex, null, &&img_rct as _SDL_Rect&&);
+            _SDL_RenderCopy(&&sdl!.ren, &&txt.tex.tex, null, &&txt_rct as _SDL_Rect&&);
         end
     end
 end

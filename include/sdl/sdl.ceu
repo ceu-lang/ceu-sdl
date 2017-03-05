@@ -361,11 +361,13 @@ data SDL_Texture with
     var int height;
 end
 
-input void SDL_QUIT;
-input int  SDL_DT;
-input _SDL_Renderer&&&& SDL_REDRAW;
-input _SDL_KeyboardEvent&&    SDL_KEYDOWN,         SDL_KEYUP;
-input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP;
+input void                    SDL_QUIT;
+input int                     SDL_DT;
+input _SDL_Renderer&&&&       SDL_REDRAW;
+input _SDL_KeyboardEvent&&    SDL_KEYDOWN;
+input _SDL_KeyboardEvent&&    SDL_KEYUP;
+input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONDOWN;
+input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONUP;
 input _SDL_MouseMotionEvent&& SDL_MOUSEMOTION;
 
 native

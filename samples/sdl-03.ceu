@@ -22,13 +22,13 @@ end
 
 var SDL_Color bg = val SDL_Color(0x00,0x00,0x00,0xFF);
 
-var& _SDL_Renderer ren;
-watching SDL_Init("SDL 3", 800,480, bg) -> (&ren) do
+var&? SDL_Init sdl = spawn SDL_Init("SDL 3", 800,480, bg);
+watching sdl do
     loop do
         watching 10s do
             pool[5] Rect rs;
             every 1s do
-                spawn Rect(&ren, SDL_Rect(100,50+_rand()%380,20,20), 25) in rs;
+                spawn Rect(&sdl!.ren, SDL_Rect(100,50+_rand()%380,20,20), 25) in rs;
             end
         end
     end

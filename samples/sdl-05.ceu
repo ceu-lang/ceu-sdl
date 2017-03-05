@@ -3,8 +3,8 @@
 
 var SDL_Color bg = val SDL_Color(0x00,0x00,0x00,0xFF);
 
-var& _SDL_Renderer ren;
-watching SDL_Init("SDL 5", 800,480, bg) -> (&ren) do
+var&? SDL_Init sdl = spawn SDL_Init("SDL 5", 800,480, bg);
+watching sdl do
     par do
         var&? _Mix_Chunk snd = &_Mix_LoadWAV("samples/click1.wav")
             finalize (snd) with
@@ -16,7 +16,7 @@ watching SDL_Init("SDL 5", 800,480, bg) -> (&ren) do
     with
         var SDL_Rect img_r = val SDL_Rect(100,100, 20,20);
         var&? _SDL_Texture img_tex =
-            &_IMG_LoadTexture(&&ren, "samples/img.png")
+            &_IMG_LoadTexture(&&sdl!.ren, "samples/img.png")
                 finalize (img_tex) with
                     _SDL_DestroyTexture(&&img_tex!);
                 end;
@@ -38,7 +38,7 @@ watching SDL_Init("SDL 5", 800,480, bg) -> (&ren) do
                     end
 
             do
-                str_tex = &_SDL_CreateTextureFromSurface(&&ren, &&sfc!);
+                str_tex = &_SDL_CreateTextureFromSurface(&&sdl!.ren, &&sfc!);
             finalize (str_tex) with
                 //_SDL_DestroyTexture(str_tex!);
             end
@@ -56,8 +56,8 @@ watching SDL_Init("SDL 5", 800,480, bg) -> (&ren) do
             end
         with
             every SDL_REDRAW do
-                _SDL_RenderCopy(&&ren, &&img_tex!, null, &&img_r as _SDL_Rect&&);
-                _SDL_RenderCopy(&&ren, &&str_tex!, null, &&str_r as _SDL_Rect&&);
+                _SDL_RenderCopy(&&sdl!.ren, &&img_tex!, null, &&img_r as _SDL_Rect&&);
+                _SDL_RenderCopy(&&sdl!.ren, &&str_tex!, null, &&str_r as _SDL_Rect&&);
             end
         end
     end

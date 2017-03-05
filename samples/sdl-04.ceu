@@ -39,15 +39,15 @@ event bool go_pause_all;
 
 var SDL_Color bg = val SDL_Color(0x00,0x00,0x00,0xFF);
 
-var& _SDL_Renderer ren;
-watching SDL_Init("SDL 4", 800,480, bg) -> (&ren) do
+var&? SDL_Init sdl = spawn SDL_Init("SDL 4", 800,480, bg);
+watching sdl do
     loop do
         par/or do
             pause/if go_pause_all do
                 do
                     pool[5] Rect rs;
                     every 1s do
-                        spawn Rect(&ren, SDL_Rect(100,50+_rand()%380,20,20),
+                        spawn Rect(&sdl!.ren, SDL_Rect(100,50+_rand()%380,20,20),
                                          10 + _rand()%20)
                                 in rs;
                     end

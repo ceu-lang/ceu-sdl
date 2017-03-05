@@ -66,9 +66,8 @@ code/await Rect (var& _SDL_Renderer ren, var SDL_Rect rect, var int speed) -> vo
 end
 
 var SDL_Color bg = val SDL_Color(0x00,0x00,0x00,0xFF);
-
-var& _SDL_Renderer ren;
-watching SDL_Init("SDL 6", 800,480, bg) -> (&ren) do
+var&? SDL_Init sdl = spawn SDL_Init("SDL 6", 800,480, bg);
+watching sdl do
     par do
         loop do
             watching 30s do
@@ -76,7 +75,7 @@ watching SDL_Init("SDL 6", 800,480, bg) -> (&ren) do
                 every 40ms do
                     var int i;
                     loop i in [0->30[ do
-                        spawn Rect(&ren, SDL_Rect(50,40+_rand()%380,20,20),
+                        spawn Rect(&sdl!.ren, SDL_Rect(50,40+_rand()%380,20,20),
                                          50 + _rand()%20)
                                         in rs;
                     end

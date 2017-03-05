@@ -3,8 +3,8 @@
 
 var SDL_Color bg = val SDL_Color(0xAA,0xAA,0x00,0xFF);
 
-var& _SDL_Renderer ren;
-watching SDL_Init("SDL 7", 800,480, bg) -> (&ren) do
+var&? SDL_Init sdl = spawn SDL_Init("SDL 7", 800,480, bg);
+watching sdl do
 
     var SDL_Rect fg = val SDL_Rect(100,100, 100,100);
 
@@ -18,19 +18,19 @@ watching SDL_Init("SDL 7", 800,480, bg) -> (&ren) do
         vector[5] s16 t = [ 200, 210, 250, 225, 300 ];
 
         every SDL_REDRAW do
-            _SDL_SetRenderDrawColor(&&ren, 0xFF,0x00,0x00,0xFF);
-            _SDL_RenderFillRect(&&ren, (&&fg as _SDL_Rect&&));
+            _SDL_SetRenderDrawColor(&&sdl!.ren, 0xFF,0x00,0x00,0xFF);
+            _SDL_RenderFillRect(&&sdl!.ren, (&&fg as _SDL_Rect&&));
 
             var int i;
             loop i in [0->1000[ do
-                _pixelRGBA(&&ren, 200+_rand()%100, 50+_rand()%100, 100,100,100, 0xFF);
+                _pixelRGBA(&&sdl!.ren, 200+_rand()%100, 50+_rand()%100, 100,100,100, 0xFF);
             end
 
-            _filledPolygonRGBA(&&ren, &&s[0], &&t[0], 5, 0x00, 0xFF,0x00, 0xFF);
+            _filledPolygonRGBA(&&sdl!.ren, &&s[0], &&t[0], 5, 0x00, 0xFF,0x00, 0xFF);
 
-            _boxRGBA(&&ren, 500,200, 550,250, 0x00, 0x00, 0xFF, 0xBB);
-            _roundedBoxRGBA(&&ren, 520,220, 570,270, 4, 0x00, 0xFF, 0x00, 0xBB);
-            _roundedRectangleRGBA(&&ren, 540,240, 590,290, 8, 0xFF, 0x00, 0x00,0x99);
+            _boxRGBA(&&sdl!.ren, 500,200, 550,250, 0x00, 0x00, 0xFF, 0xBB);
+            _roundedBoxRGBA(&&sdl!.ren, 520,220, 570,270, 4, 0x00, 0xFF, 0x00, 0xBB);
+            _roundedRectangleRGBA(&&sdl!.ren, 540,240, 590,290, 8, 0xFF, 0x00, 0x00,0x99);
         end
     end
 end
