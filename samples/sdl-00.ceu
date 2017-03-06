@@ -17,19 +17,19 @@ _ceu_callback_assert_msg(err == 0, "SDL_Init failed");
         _SDL_Quit();
     end
 
-var&? _SDL_Window win =
+var& _SDL_Window win =
     &_SDL_CreateWindow("SDL 0",
                        _SDL_WINDOWPOS_CENTERED, _SDL_WINDOWPOS_CENTERED,
                        800, 480,
                        _SDL_WINDOW_SHOWN)
         finalize (win) with
-            _SDL_DestroyWindow(&&win!);
+            _SDL_DestroyWindow(&&win);
         end
 
-var&? _SDL_Renderer ren =
-    &_SDL_CreateRenderer(&&win!, -1, 0)
+var& _SDL_Renderer ren =
+    &_SDL_CreateRenderer(&&win, -1, 0)
         finalize (ren) with
-            _SDL_DestroyRenderer(&&ren!);
+            _SDL_DestroyRenderer(&&ren);
         end
 
 var int x = 100;
@@ -45,16 +45,16 @@ with
 with
     every SDL_REDRAW do
         var _SDL_Rect bg = { (SDL_Rect){0,0,800,480} };
-        _SDL_SetRenderDrawColor(&&ren!, 0xFF,0xFF,0x00,0xFF);
-        _SDL_RenderFillRect(&&ren!, &&bg);
+        _SDL_SetRenderDrawColor(&&ren, 0xFF,0xFF,0x00,0xFF);
+        _SDL_RenderFillRect(&&ren, &&bg);
 
         var _SDL_Rect fg = { (SDL_Rect){0,0,100,100} };
                       fg.x = x;
                       fg.y = y;
-        _SDL_SetRenderDrawColor(&&ren!, 0xFF,0x00,0x00,0xFF);
-        _SDL_RenderFillRect(&&ren!, &&fg);
+        _SDL_SetRenderDrawColor(&&ren, 0xFF,0x00,0x00,0xFF);
+        _SDL_RenderFillRect(&&ren, &&fg);
 
-        _SDL_RenderPresent(&&ren!);
+        _SDL_RenderPresent(&&ren);
     end
 with
     await async do

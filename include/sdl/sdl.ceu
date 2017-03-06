@@ -392,21 +392,20 @@ do
             _SDL_Quit();
         end
 
-    var&? _SDL_Window win_ =
+    var& _SDL_Window win =
         &_SDL_CreateWindow(title,
                            _SDL_WINDOWPOS_CENTERED, _SDL_WINDOWPOS_CENTERED,
                            width, height,
                            _SDL_WINDOW_SHOWN)
-            finalize (win_) with
-                _SDL_DestroyWindow(&&win_!);
-            end
+            finalize (win) with
+                _SDL_DestroyWindow(&&win);
+            end;
 
-    var&? _SDL_Renderer ren__ =
-        &_SDL_CreateRenderer(&&win_!, -1, 0)
-            finalize (ren__) with
-                _SDL_DestroyRenderer(&&ren__!);
-            end
-    var& _SDL_Renderer ren_ = &ren__!;
+    var& _SDL_Renderer ren_ =
+        &_SDL_CreateRenderer(&&win, -1, 0)
+            finalize (ren_) with
+                _SDL_DestroyRenderer(&&ren_);
+            end;
     ren = &ren_;
 
     _TTF_Init();
@@ -436,10 +435,10 @@ do
             end
             var _SDL_Renderer&&&& ptr_ptr;
             every ptr_ptr in SDL_REDRAW do
-                *ptr_ptr = &&ren_;
+                *ptr_ptr = &&ren;
                 if bg? then
-                    _SDL_SetRenderDrawColor(&&ren_, bg_.r,bg_.g,bg_.b,bg_.a);
-                    _SDL_RenderClear(&&ren_);
+                    _SDL_SetRenderDrawColor(&&ren, bg_.r,bg_.g,bg_.b,bg_.a);
+                    _SDL_RenderClear(&&ren);
                 end
             end
         with
@@ -466,17 +465,16 @@ do
 end
 
 code/await SDL_Open_Image (var& _SDL_Renderer ren, var _char&& path)
-                            -> (var& SDL_Texture tex)
+                            -> (var SDL_Texture tex)
                                 -> FOREVER
 do
-    var&? _SDL_Texture tex__ = &_IMG_LoadTexture(&&ren, path)
-        finalize (tex__) with
-            _SDL_DestroyTexture(&&tex__!);
+    var& _SDL_Texture tex_ = &_IMG_LoadTexture(&&ren, path)
+        finalize (tex_) with
+            _SDL_DestroyTexture(&&tex_);
         end
 
-    var SDL_Texture tex_ = val SDL_Texture(&tex__!, _, _);
-    _SDL_QueryTexture(&&tex_.tex, null, null, &&tex_.width, &&tex_.height);
-    tex = &tex_;
+    tex = val SDL_Texture(&tex_, _, _);
+    _SDL_QueryTexture(&&tex.tex, null, null, &&tex.width, &&tex.height);
 
     await FOREVER;
 end
@@ -485,23 +483,23 @@ code/await SDL_Open_Font (var _char&& path, var int size)
                             -> (var& _TTF_Font font)
                                 -> FOREVER
 do
-    var&? _TTF_Font font_ =
+    var& _TTF_Font font_ =
         &_TTF_OpenFont(path, size)
             finalize (font_) with
                 if _TTF_WasInit() as bool then
-                    _TTF_CloseFont(&&font_!);
+                    _TTF_CloseFont(&&font_);
                 end
             end;
-    font = &font_!;
+    font = &font_;
     await FOREVER;
 end
 
 code/await SDL_New_Text (var& _SDL_Renderer ren, var& _TTF_Font font,
                          var _char&& text, var SDL_Color color)
-                            -> (var& SDL_Texture tex)
+                            -> (var SDL_Texture tex)
                                 -> FOREVER
 do
-    var&? _SDL_Texture tex__;
+    var& _SDL_Texture tex_;
     do
         var _SDL_Color c = _;
                        c.r = color.r;
@@ -509,25 +507,24 @@ do
                        c.b = color.b;
                        c.a = color.a;
 
-        var&? _SDL_Surface sfc =
+        var& _SDL_Surface sfc =
             &_TTF_RenderText_Blended(&&font, text, c)
                 finalize (sfc) with
-                    _SDL_FreeSurface(&&sfc!);
+                    _SDL_FreeSurface(&&sfc);
                 end
 
         do
-            tex__ = &_SDL_CreateTextureFromSurface(&&ren, &&sfc!);
-        finalize (tex__) with
-            //_SDL_DestroyTexture(tex__!);
+            tex_ = &_SDL_CreateTextureFromSurface(&&ren, &&sfc);
+        finalize (tex_) with
+            //_SDL_DestroyTexture(tex_);
         end
     end
     do finalize with
-        _SDL_DestroyTexture(&&tex__!);
+        _SDL_DestroyTexture(&&tex_);
     end
 
-    var SDL_Texture tex_ = val SDL_Texture(&tex__!, _, _);
-    _SDL_QueryTexture(&&tex_.tex, null, null, &&tex_.width, &&tex_.height);
-    tex = &tex_;
+    tex = val SDL_Texture(&tex_, _, _);
+    _SDL_QueryTexture(&&tex.tex, null, null, &&tex.width, &&tex.height);
 
     await FOREVER;
 end
@@ -536,11 +533,11 @@ code/await SDL_Open_Sound (var _char&& path)
                             -> (var& _Mix_Chunk sound)
                                 -> FOREVER
 do
-    var&? _Mix_Chunk sound_ = &_Mix_LoadWAV(path)
+    var& _Mix_Chunk sound_ = &_Mix_LoadWAV(path)
         finalize (sound_) with
-            _Mix_FreeChunk(&&sound_!);
+            _Mix_FreeChunk(&&sound_);
         end
-    sound = &sound_!;
+    sound = &sound_;
     await FOREVER;
 end
 
