@@ -200,8 +200,6 @@ native/pre do
 end
 
 native/pos do
-    ##define ceu_callback_env(cmd,evt,params) ceu_sdl_callback(cmd,evt,params)
-
     bool CEU_SDL_inited;
 
     u32 CEU_SDL_WCLOCK_old;
@@ -305,7 +303,7 @@ native/pos do
         }
     }
 
-    tceu_callback_ret ceu_sdl_callback (int cmd, tceu_callback_arg p1, tceu_callback_arg p2)
+    tceu_callback_ret ceu_callback_sdl (int cmd, tceu_callback_arg p1, tceu_callback_arg p2)
     {
         tceu_callback_ret ret = { .is_handled=1 };
 
@@ -334,7 +332,12 @@ native/pos do
 
         return ret;
     }
+    tceu_callback CEU_CALLBACK_SDL = { &ceu_callback_sdl, NULL };
 end
+
+{
+    ceu_callback_register(&CEU_CALLBACK_SDL);
+}
 
 data SDL_Color with
     var u8 r;
