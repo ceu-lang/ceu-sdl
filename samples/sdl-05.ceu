@@ -6,7 +6,7 @@ var SDL_Color bg = val SDL_Color(0x00,0x00,0x00,0xFF);
 var&? SDL_Init sdl = spawn SDL_Init("SDL 5", 800,480, bg);
 watching sdl do
     par do
-        var& _Mix_Chunk snd = &_Mix_LoadWAV("samples/click1.wav")
+        var& _Mix_Chunk snd = &_Mix_LoadWAV("click1.wav")
             finalize (snd) with
                 _Mix_FreeChunk(&&snd);
             end
@@ -16,7 +16,7 @@ watching sdl do
     with
         var SDL_Rect img_r = val SDL_Rect(100,100, 20,20);
         var& _SDL_Texture img_tex =
-            &_IMG_LoadTexture(&&sdl!.ren, "samples/img.png")
+            &_IMG_LoadTexture(&&sdl!.ren, "img.png")
                 finalize (img_tex) with
                     _SDL_DestroyTexture(&&img_tex);
                 end;
@@ -25,7 +25,7 @@ watching sdl do
         var& _SDL_Texture str_tex;
         do
             var& _TTF_Font fnt =
-                &_TTF_OpenFont("samples/Deutsch.ttf", 40)
+                &_TTF_OpenFont("Deutsch.ttf", 40)
                     finalize (fnt) with
                         _TTF_CloseFont(&&fnt);
                     end;

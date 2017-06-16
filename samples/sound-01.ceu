@@ -3,7 +3,7 @@
 var SDL_Color bg = val SDL_Color(0x00,0x00,0x00,0xFF);
 
 watching SDL_Init("Sound 1", 10,10, bg) do
-    var& SDL_Open_Sound sound = spawn SDL_Open_Sound("samples/click1.wav");
+    var& SDL_Open_Sound sound = spawn SDL_Open_Sound("click1.wav");
     every 1s do
         _Mix_PlayChannel(-1, &&sound.sound, 0);
     end

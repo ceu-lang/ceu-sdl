@@ -13,6 +13,7 @@ native/const _GL_SCISSOR_TEST, _GL_TEXTURE_2D;
 native _glEnable, _glDisable, _glScissor;
 
 native/plain  _SDL_Rect, _SDL_Point, _SDL_Color,
+              _SDL_Keycode,
               _SDL_MouseButtonEvent,
               _SDL_MouseMotionEvent,
               _SDL_KeyboardEvent,
@@ -80,6 +81,7 @@ native/nohold _SDL_GL_BindTexture,
               _SDL_DestroyWindow,
               _SDL_FreeSurface,
               _SDL_GetMouseState,
+              _SDL_GetRenderDrawColor,
               _SDL_GetRendererInfo,
               _SDL_GetRendererOutputSize,
               _SDL_GetWindowSize,
@@ -157,6 +159,7 @@ native/pre do
     ##include <SDL2/SDL_image.h>
     ##include <SDL2/SDL_mixer.h>
     ##include <SDL2/SDL_ttf.h>
+    ##include <SDL2/SDL_net.h>
     ##include <SDL2/SDL2_gfxPrimitives.h>
 
     int SDL_Rect_vs_Mouse (SDL_Rect* r, SDL_MouseButtonEvent* but) {
@@ -385,7 +388,7 @@ native
 code/await SDL_Init (var _char&& title,
                    var int width, var int height,
                    var SDL_Color? bg)
-                    -> (var& _SDL_Renderer ren)
+                    -> (var& _SDL_Window win, var& _SDL_Renderer ren)
                         -> void
 do
     var int err = _SDL_Init(_SDL_INIT_EVERYTHING);
@@ -395,14 +398,15 @@ do
             _SDL_Quit();
         end
 
-    var& _SDL_Window win =
+    var& _SDL_Window win_ =
         &_SDL_CreateWindow(title,
                            _SDL_WINDOWPOS_CENTERED, _SDL_WINDOWPOS_CENTERED,
                            width, height,
                            _SDL_WINDOW_SHOWN)
-            finalize (win) with
-                _SDL_DestroyWindow(&&win);
+            finalize (win_) with
+                _SDL_DestroyWindow(&&win_);
             end;
+    win = &win_;
 
     var& _SDL_Renderer ren_ =
         &_SDL_CreateRenderer(&&win, -1, 0)
@@ -432,15 +436,11 @@ do
 #if 1
     watching SDL_QUIT do
         par do
-            var SDL_Color bg_ = _;
-            if bg? then
-                bg_ = bg!;
-            end
             var _SDL_Renderer&&&& ptr_ptr;
             every ptr_ptr in SDL_REDRAW do
                 *ptr_ptr = &&ren;
                 if bg? then
-                    _SDL_SetRenderDrawColor(&&ren, bg_.r,bg_.g,bg_.b,bg_.a);
+                    _SDL_SetRenderDrawColor(&&ren, bg!.r,bg!.g,bg!.b,bg!.a);
                     _SDL_RenderClear(&&ren);
                 end
             end
