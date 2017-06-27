@@ -28,7 +28,7 @@ watching sdl do
         watching 10s do
             pool[5] Rect rs;
             every 1s do
-                spawn Rect(&sdl!.ren, SDL_Rect(100,50+_rand()%380,20,20), 25) in rs;
+                spawn Rect(&sdl.ren, SDL_Rect(100,50+_rand()%380,20,20), 25) in rs;
             end
         end
     end

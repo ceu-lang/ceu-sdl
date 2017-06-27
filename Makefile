@@ -10,8 +10,8 @@ all:
 	          --env-main=$(CEU_DIR)/env/main.c                          \
 	          --env-output=/tmp/$$(basename $(CEU_SRC) .ceu).c          \
 	    --cc --cc-args="-lm -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lSDL2_gfx" \
-	         --cc-output=/tmp/$$(basename $(CEU_SRC) .ceu);             \
-	/tmp/$$(basename $(CEU_SRC) .ceu);
+	         --cc-output=/tmp/$$(basename $(CEU_SRC) .ceu)
+	cd $(dir $(CEU_SRC)) && /tmp/$$(basename $(CEU_SRC) .ceu)
 
 c:
 	ceu --cc --cc-args="-lm -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lSDL2_gfx" \
@@ -33,8 +33,8 @@ samples:
 	        --env --env-types=$(CEU_DIR)/env/types.h                        \
 	              --env-main=$(CEU_DIR)/env/main.c                          \
 	        --cc --cc-args="-lm -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lSDL2_gfx" \
-	             --cc-output=/tmp/$$(basename $$i .ceu);                     \
-	    /tmp/$$(basename $$i .ceu);                                         \
+	             --cc-output=/tmp/$$(basename $$i .ceu);                    \
+		cd samples/ && /tmp/$$(basename $$i .ceu) && cd -                   \
 	    echo ">>> OK";                                                      \
 	    echo;                                                               \
 	    echo;                                                               \

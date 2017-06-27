@@ -24,16 +24,16 @@ watching sdl do
     par do
         var SDL_Color bg = val SDL_Color(0x00,0x00,0x00,0xFF);
         every SDL_REDRAW do
-            _SDL_SetRenderDrawColor(&&sdl!.ren, bg.r,bg.g,bg.b,bg.a);
-            _SDL_RenderClear(&&sdl!.ren);
+            _SDL_SetRenderDrawColor(&&sdl.ren, bg.r,bg.g,bg.b,bg.a);
+            _SDL_RenderClear(&&sdl.ren);
         end
     with
         loop do
             watching 10s do
                 par do
-                    await Rect(&sdl!.ren, SDL_Rect(100,100,20,20), 25);
+                    await Rect(&sdl.ren, SDL_Rect(100,100,20,20), 25);
                 with
-                    await Rect(&sdl!.ren, SDL_Rect(100,200,40,40), 10);
+                    await Rect(&sdl.ren, SDL_Rect(100,200,40,40), 10);
                 end
             end
         end

@@ -5,11 +5,11 @@ watching sdl do
     var& SDL_Open_Font font = spawn SDL_Open_Font("Deutsch.ttf", 40);
 
     var& SDL_New_Text txt =
-        spawn SDL_New_Text(&sdl!.ren, &font.font, "Hello World!", SDL_Color(0x00,0x00,0x00,0xFF));
+        spawn SDL_New_Text(&sdl.ren, &font.font, "Hello World!", SDL_Color(0x00,0x00,0x00,0xFF));
     var SDL_Rect rect = val SDL_Rect(10, 10, txt.tex.width, txt.tex.height);
 
     every SDL_REDRAW do
-        _SDL_RenderCopy(&&sdl!.ren, &&txt.tex.tex, null, &&rect as _SDL_Rect&&);
+        _SDL_RenderCopy(&&sdl.ren, &&txt.tex.tex, null, &&rect as _SDL_Rect&&);
     end
 end
 

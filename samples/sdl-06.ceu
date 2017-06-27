@@ -75,7 +75,7 @@ watching sdl do
                 every 40ms do
                     var int i;
                     loop i in [0->30[ do
-                        spawn Rect(&sdl!.ren, SDL_Rect(50,40+_rand()%380,20,20),
+                        spawn Rect(&sdl.ren, SDL_Rect(50,40+_rand()%380,20,20),
                                          50 + _rand()%20)
                                         in rs;
                     end

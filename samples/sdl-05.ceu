@@ -16,7 +16,7 @@ watching sdl do
     with
         var SDL_Rect img_r = val SDL_Rect(100,100, 20,20);
         var& _SDL_Texture img_tex =
-            &_IMG_LoadTexture(&&sdl!.ren, "img.png")
+            &_IMG_LoadTexture(&&sdl.ren, "img.png")
                 finalize (img_tex) with
                     _SDL_DestroyTexture(&&img_tex);
                 end;
@@ -38,7 +38,7 @@ watching sdl do
                     end
 
             do
-                str_tex = &_SDL_CreateTextureFromSurface(&&sdl!.ren, &&sfc);
+                str_tex = &_SDL_CreateTextureFromSurface(&&sdl.ren, &&sfc);
             finalize (str_tex) with
                 //_SDL_DestroyTexture(str_tex);
             end
@@ -56,8 +56,8 @@ watching sdl do
             end
         with
             every SDL_REDRAW do
-                _SDL_RenderCopy(&&sdl!.ren, &&img_tex, null, &&img_r as _SDL_Rect&&);
-                _SDL_RenderCopy(&&sdl!.ren, &&str_tex, null, &&str_r as _SDL_Rect&&);
+                _SDL_RenderCopy(&&sdl.ren, &&img_tex, null, &&img_r as _SDL_Rect&&);
+                _SDL_RenderCopy(&&sdl.ren, &&str_tex, null, &&str_r as _SDL_Rect&&);
             end
         end
     end
