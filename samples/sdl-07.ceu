@@ -14,8 +14,8 @@ watching sdl do
             fg.y = fg.y + 10;
         end
     with
-        vector[5] s16 s = [ 500, 550, 650, 525, 400 ];
-        vector[5] s16 t = [ 200, 210, 250, 225, 300 ];
+        var[5] s16 s = [ 500, 550, 650, 525, 400 ];
+        var[5] s16 t = [ 200, 210, 250, 225, 300 ];
 
         every SDL_REDRAW do
             _SDL_SetRenderDrawColor(&&sdl.ren, 0xFF,0x00,0x00,0xFF);
