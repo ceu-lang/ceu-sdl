@@ -367,7 +367,7 @@ data SDL_Texture with
     var int height;
 end
 
-input void                    SDL_QUIT;
+input none                    SDL_QUIT;
 input int                     SDL_DT;
 input _SDL_Renderer&&&&       SDL_REDRAW;
 input _SDL_KeyboardEvent&&    SDL_KEYDOWN;
@@ -389,7 +389,7 @@ code/await SDL_Init (var _char&& title,
                    var int width, var int height,
                    var SDL_Color? bg)
                     -> (var& _SDL_Window win, var& _SDL_Renderer ren)
-                        -> void
+                        -> none
 do
     var int err = _SDL_Init(_SDL_INIT_EVERYTHING);
     _ceu_callback_assert_msg(err == 0, "SDL_Init failed");
@@ -469,7 +469,7 @@ end
 
 code/await SDL_Open_Image (var& _SDL_Renderer ren, var _char&& path)
                             -> (var SDL_Texture tex)
-                                -> FOREVER
+                                -> NEVER
 do
     var& _SDL_Texture tex_ = &_IMG_LoadTexture(&&ren, path)
         finalize (tex_) with
@@ -484,7 +484,7 @@ end
 
 code/await SDL_Open_Font (var _char&& path, var int size)
                             -> (var& _TTF_Font font)
-                                -> FOREVER
+                                -> NEVER
 do
     var& _TTF_Font font_ =
         &_TTF_OpenFont(path, size)
@@ -500,7 +500,7 @@ end
 code/await SDL_New_Text (var& _SDL_Renderer ren, var& _TTF_Font font,
                          var _char&& text, var SDL_Color color)
                             -> (var SDL_Texture tex)
-                                -> FOREVER
+                                -> NEVER
 do
     var& _SDL_Texture tex_;
     do
@@ -534,7 +534,7 @@ end
 
 code/await SDL_Open_Sound (var _char&& path)
                             -> (var& _Mix_Chunk sound)
-                                -> FOREVER
+                                -> NEVER
 do
     var& _Mix_Chunk sound_ = &_Mix_LoadWAV(path)
         finalize (sound_) with
