@@ -219,7 +219,7 @@ native/pos do
             return CEU_WCLOCK_INACTIVE;
         } else {
             u32 dt = (now - CEU_SDL_WCLOCK_old);
-            ceu_dbg_assert(dt >= 0);
+            ceu_assert(dt >= 0, "bug found");
             CEU_SDL_WCLOCK_old = now;
             return dt*1000;
         }
@@ -260,7 +260,7 @@ native/pos do
             if (CEU_SDL_FRAME_nxt <= 0) {
                 CEU_SDL_FRAME_nxt += CEU_SDL_MODE_FRAME;
                 if (CEU_SDL_FRAME_nxt <= 0) {
-                    ceu_dbg_log("[SDL] frame is late");
+                    ceu_log("[SDL] frame is late");
                 }
                 //ceu_dbg_assert(CEU_SDL_FRAME_nxt > 0);
                 s32 mspf = CEU_SDL_MODE_FRAME;
@@ -306,16 +306,20 @@ native/pos do
         }
     }
 
-    tceu_callback_ret ceu_callback_sdl (int cmd, tceu_callback_arg p1, tceu_callback_arg p2, const char* file, u32 line)
+    int ceu_callback_sdl (int cmd, tceu_callback_val p1, tceu_callback_val p2
+#ifdef CEU_FEATURES_TRACE
+                         , tceu_trace trace
+#endif
+                                       )
     {
-        tceu_callback_ret ret = { .is_handled=1 };
+        int ret = 1;
 
         switch (cmd) {
             case CEU_CALLBACK_START:
                 CEU_SDL_inited = 0;
                 break;
             case CEU_CALLBACK_WCLOCK_DT:
-                ret.value.num = ceu_sdl_dt();
+                ceu_callback_ret.num = ceu_sdl_dt();
                 break;
             case CEU_CALLBACK_WCLOCK_MIN:
                 CEU_SDL_WCLOCK_min = p1.num;
@@ -330,7 +334,7 @@ native/pos do
                 break;
             }
             default:
-                ret.is_handled = 0;
+                ret = 0;
         }
 
         return ret;
@@ -392,7 +396,7 @@ code/await SDL_Init (var _char&& title,
                         -> none
 do
     var int err = _SDL_Init(_SDL_INIT_EVERYTHING);
-    _ceu_callback_assert_msg(err == 0, "SDL_Init failed");
+    _ceu_assert(err == 0, "SDL_Init failed");
         do finalize with
             _CEU_SDL_inited = 0;
             _SDL_Quit();

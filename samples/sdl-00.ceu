@@ -1,5 +1,5 @@
-input void SDL_REDRAW;
-input void SDL_QUIT;
+input none SDL_REDRAW;
+input none SDL_QUIT;
 
 native _SDL_Init, _SDL_INIT_EVERYTHING, _SDL_Quit, _SDL_Window,
        _SDL_CreateWindow, _SDL_WINDOWPOS_CENTERED, _SDL_WINDOW_SHOWN,
@@ -12,7 +12,7 @@ native/pre do
 end
 
 var int err = _SDL_Init(_SDL_INIT_EVERYTHING);
-_ceu_callback_assert_msg(err == 0, "SDL_Init failed");
+_ceu_assert(err == 0, "SDL_Init failed");
     do finalize with
         _SDL_Quit();
     end

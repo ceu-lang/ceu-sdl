@@ -1,7 +1,7 @@
 #include "c.ceu"
 #include "sdl/sdl.ceu"
 
-code/await Rect (var& _SDL_Renderer ren, var SDL_Rect rect, var int speed) -> void do
+code/await Rect (var& _SDL_Renderer ren, var SDL_Rect rect, var int speed) -> none do
     event bool go_pause;
 
     par/or do

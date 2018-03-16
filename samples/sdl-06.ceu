@@ -6,7 +6,7 @@ native/pre do
     int ORGS = 0;
 end
 
-code/await Rect (var& _SDL_Renderer ren, var SDL_Rect rect, var int speed) -> void do
+code/await Rect (var& _SDL_Renderer ren, var SDL_Rect rect, var int speed) -> none do
     _ORGS = _ORGS + 1;
         do finalize with
             _ORGS = _ORGS - 1;
@@ -47,10 +47,10 @@ code/await Rect (var& _SDL_Renderer ren, var SDL_Rect rect, var int speed) -> vo
             end
         end
     with
-        var float fx = rect.x;
+        var real fx = rect.x;
         loop do
             var int dt = await SDL_DT;
-            fx = fx + ((speed*dt) as float)/1000;
+            fx = fx + ((speed*dt) as real)/1000;
             rect.x = (fx as int);
 
             if rect.x > 700 then
