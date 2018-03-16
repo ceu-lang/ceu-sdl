@@ -17,7 +17,7 @@ with
     await 2s;
 end
 
-_ceu_dbg_assert(ret == 100);
+_ceu_assert(ret == 100, "bug found");
 _printf("ok\n");
 
 escape 0;

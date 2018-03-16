@@ -11,7 +11,7 @@ watching SDL_Init("FPS-ASYNC 1", 800,480, SDL_Color(0xFF,0xFF,0x00,0xFF)) do
         end
     with
         await 3366ms;
-        _ceu_dbg_assert(0);
+        _ceu_assert(0, "bug");
     with
         await 3333ms;
         ret = ret + 1;
@@ -29,7 +29,7 @@ watching SDL_Init("FPS-ASYNC 1", 800,480, SDL_Color(0xFF,0xFF,0x00,0xFF)) do
     end
 
     _printf(">>> %d\n", ret);
-    _ceu_dbg_assert(ret == 3300+1+100);
+    _ceu_assert(ret == 3300+1+100, "bug");
 end
 
 escape 0;
