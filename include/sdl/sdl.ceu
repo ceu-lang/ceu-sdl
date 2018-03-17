@@ -219,7 +219,7 @@ native/pos do
             return CEU_WCLOCK_INACTIVE;
         } else {
             u32 dt = (now - CEU_SDL_WCLOCK_old);
-            ceu_assert(dt >= 0, "bug found");
+            ceu_assert_ex(dt >= 0, "bug found", CEU_TRACE_null);
             CEU_SDL_WCLOCK_old = now;
             return dt*1000;
         }
@@ -260,7 +260,7 @@ native/pos do
             if (CEU_SDL_FRAME_nxt <= 0) {
                 CEU_SDL_FRAME_nxt += CEU_SDL_MODE_FRAME;
                 if (CEU_SDL_FRAME_nxt <= 0) {
-                    ceu_log("[SDL] frame is late");
+                    ceu_log("[SDL] frame is late\n");
                 }
                 //ceu_dbg_assert(CEU_SDL_FRAME_nxt > 0);
                 s32 mspf = CEU_SDL_MODE_FRAME;
@@ -307,9 +307,9 @@ native/pos do
     }
 
     int ceu_callback_sdl (int cmd, tceu_callback_val p1, tceu_callback_val p2
-#ifdef CEU_FEATURES_TRACE
+##ifdef CEU_FEATURES_TRACE
                          , tceu_trace trace
-#endif
+##endif
                                        )
     {
         int ret = 1;
