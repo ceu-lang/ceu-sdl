@@ -47,6 +47,7 @@ https://github.com/fsantanna/ceu/
 ```
 $ git clone https://github.com/fsantanna/ceu-sdl
 $ cd ceu-sdl/
+$ git checkout v0.30
 ```
 
 ## Compile and Run
