@@ -1,8 +1,8 @@
 Céu-SDL supports the development of SDL applications in the programming
 language Céu:
 
-- Source Code:   https://github.com/fsantanna/ceu-sdl/
-- Documentation: http://fsantanna.github.io/ceu-sdl/
+- Source Code:   https://github.com/ceu-lang/ceu-sdl/
+- Documentation: http://ceu-lang.github.io/ceu-sdl/
 - Chat:          https://gitter.im/fsantanna/ceu
 
 [SDL](http://www.libsdl.org/) is a cross-platform software development library
@@ -13,7 +13,7 @@ Céu is a reactive language that aims to offer a higher-level and safer
 alternative to C:
 
 - Home Page:   http://www.ceu-lang.org/
-- Source code: https://github.com/fsantanna/ceu/
+- Source code: https://github.com/ceu-lang/ceu/
 
 Céu-SDL empowers the development of SDL applications with the following
 extensions:
@@ -40,12 +40,12 @@ $ sudo apt-get install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-t
 
 ## Install Céu:
 
-https://github.com/fsantanna/ceu/
+https://github.com/ceu-lang/ceu/
 
 ## Clone Céu-SDL:
 
 ```
-$ git clone https://github.com/fsantanna/ceu-sdl
+$ git clone https://github.com/ceu-lang/ceu-sdl
 $ cd ceu-sdl/
 $ git checkout v0.30
 ```
