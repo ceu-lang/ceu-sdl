@@ -16,23 +16,23 @@ data Anchor with
 end
 
 data IRect with
-    var   SDL_Rect off;
-    var   Anchor   a_off;
+    var   SDL_Rect offset;
+    var   Anchor   a_offset;
     var&? IRect    ref;
     var   Anchor?  a_ref;
     var   SDL_Rect abs;
-    event void     changed;
+    event none     changed;
 end
 
-code/await Rect (var IRect rect_) -> (var& IRect rect) -> FOREVER
+code/await Rect (var IRect rect_) -> (var& IRect rect) -> NEVER
 do
     rect = &rect_;
     loop do
         if rect.ref? then
-            rect.abs.x = rect.ref!.abs.x + rect.off.x;
-            rect.abs.y = rect.ref!.abs.y + rect.off.y;
-            rect.abs.w = rect.off.w;
-            rect.abs.h = rect.off.h;
+            rect.abs.x = rect.ref!.abs.x + rect.offset.x;
+            rect.abs.y = rect.ref!.abs.y + rect.offset.y;
+            rect.abs.w = rect.offset.w;
+            rect.abs.h = rect.offset.h;
 
             if rect.a_ref!.x is AnchorX.Center then
                 rect.abs.x = rect.abs.x + rect.ref!.abs.w/2;
@@ -47,18 +47,18 @@ do
             end
 
         else
-            rect.abs = rect.off;
+            rect.abs = rect.offset;
         end
 
-        if rect.a_off.x is AnchorX.Center then
+        if rect.a_offset.x is AnchorX.Center then
             rect.abs.x = rect.abs.x - rect.abs.w/2;
-        else/if rect.a_off.x is AnchorX.Right then
+        else/if rect.a_offset.x is AnchorX.Right then
             rect.abs.x = rect.abs.x - rect.abs.w;
         end
 
-        if rect.a_off.y is AnchorY.Center then
+        if rect.a_offset.y is AnchorY.Center then
             rect.abs.y = rect.abs.y - rect.abs.h/2;
-        else/if rect.a_off.y is AnchorY.Bottom then
+        else/if rect.a_offset.y is AnchorY.Bottom then
             rect.abs.y = rect.abs.y - rect.abs.h;
         end
 
@@ -77,7 +77,7 @@ end
 
 var IRect r1 = val IRect(SDL_Rect(0,0,100,100),
                          Anchor(AnchorX.Left(), AnchorY.Top()),
-                         nil,_,
+                         _,_,
                          _,_);
 var& Rect rr1 = spawn Rect(r1);
 
@@ -96,19 +96,19 @@ watching sdl do
     par do
         loop do
             await 1s;
-            rr1.rect.off.x = rr1.rect.off.x + 50;
+            rr1.rect.offset.x = rr1.rect.offset.x + 50;
             emit rr1.rect.changed;
 
             await 1s;
-            rr1.rect.off.w = rr1.rect.off.w + 50;
+            rr1.rect.offset.w = rr1.rect.offset.w + 50;
             emit rr1.rect.changed;
 
             await 1s;
-            rr1.rect.off.y = rr1.rect.off.y + 50;
+            rr1.rect.offset.y = rr1.rect.offset.y + 50;
             emit rr1.rect.changed;
 
             await 1s;
-            rr1.rect.off.h = rr1.rect.off.h + 50;
+            rr1.rect.offset.h = rr1.rect.offset.h + 50;
             emit rr1.rect.changed;
         end
     with

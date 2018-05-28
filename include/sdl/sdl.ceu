@@ -111,11 +111,11 @@ native/pos do
         int has = SDL_PollEvent(&evt);
 #else
         s32 timeout;
-#ifdef CEU_FEATURES_ASYNC
+##ifdef CEU_FEATURES_ASYNC
         if (CEU_APP.async_pending) {
             timeout = 0;
         } else
-#endif
+##endif
         {
             s32 min = (CEU_SDL_WCLOCK_min<=0 ? 0 : CEU_SDL_WCLOCK_min/1000);
 #ifdef CEU_SDL_MODE_FRAME

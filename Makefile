@@ -10,6 +10,8 @@ all:
 	          --ceu-features-pool=true \
 	          --ceu-features-pause=true \
 	          --ceu-features-os=true \
+	          --ceu-features-async=true \
+	          --ceu-features-trace=true \
 	    --env --env-types=$(CEU_DIR)/env/types.h                        \
 	          --env-main=$(CEU_DIR)/env/main.c                          \
 	          --env-output=/tmp/$$(basename $(CEU_SRC) .ceu).c          \
@@ -34,9 +36,16 @@ samples:
 	    ceu --pre --pre-args="-I$(CEU_DIR)/include -I./include"             \
 	              --pre-input=$$i                                           \
 	        --ceu --ceu-err-unused=pass --ceu-err-uninitialized=pass        \
+	              --ceu-features-dynamic=true \
+	              --ceu-features-pool=true \
+	              --ceu-features-pause=true \
+	              --ceu-features-os=true \
+	              --ceu-features-async=true \
+	              --ceu-features-trace=true \
 	        --env --env-types=$(CEU_DIR)/env/types.h                        \
 	              --env-main=$(CEU_DIR)/env/main.c                          \
-	        --cc --cc-args="-lm -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lSDL2_gfx" \
+	              --env-output=/tmp/$$(basename $$i .ceu).c          \
+	        --cc --cc-args="-g -lm -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lSDL2_gfx" \
 	             --cc-output=/tmp/$$(basename $$i .ceu);                    \
 		cd samples/ && /tmp/$$(basename $$i .ceu) && cd -                   \
 	    echo ">>> OK";                                                      \
