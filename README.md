@@ -92,5 +92,5 @@ The Birds Tutorial
 ------------------
 -->
 
-- https://github.com/ceu-lang/ceu-sdl-birds
-- https://github.com/ceu-lang/ceu-sdl-storm
+- https://github.com/fsantanna/ceu-sdl-birds
+- https://github.com/fsantanna/ceu-sdl-storm
