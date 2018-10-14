@@ -1,4 +1,5 @@
-CEU_DIR  = $(error set absolute path to "<ceu>" repository)
+include Makefile.conf
+
 CEU_SRC  ?= samples/sdl-01.ceu
 CEU_ARGS ?=
 
