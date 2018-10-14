@@ -9,150 +9,21 @@
 #endif
 #endif
 
-native/const _GL_SCISSOR_TEST, _GL_TEXTURE_2D;
-native _glEnable, _glDisable, _glScissor;
+#include "sdl_syms.ceu"
 
-native/plain  _SDL_Rect, _SDL_Point, _SDL_Color,
-              _SDL_Keycode,
-              _SDL_MouseButtonEvent,
-              _SDL_MouseMotionEvent,
-              _SDL_KeyboardEvent,
-              _SDL_Renderer,
-              _SDL_Surface,
-              _SDL_TouchFingerEvent,
-              _SDL_Texture,
-              _SDL_Window,
-              _Mix_Chunk,
-              _TTF_Font,
-;
+native/pre do
+    ##define ceu_callback_start(trace)              ceu_sdl_callback_start()
+    ##define ceu_callback_step(trace)               ceu_sdl_callback_step()
+    ##define ceu_callback_wclock_dt(trace)          ceu_sdl_callback_wclock_dt()
+    ##define ceu_callback_wclock_min(dt,trace)      ceu_sdl_callback_wclock_min(dt)
+    ##define ceu_callback_thread_terminating(trace) ceu_sdl_callback_thread_terminating()
 
-native/const  _SDL_TRUE, _SDL_FALSE,
-              _SDL_BLENDMODE_NONE, _SDL_BLENDMODE_BLEND,
-              _SDL_BUTTON_LEFT,
-              _SDL_BUTTON_RIGHT,
-              _SDL_INIT_EVERYTHING,
-              _SDL_KEYDOWN,
-              _SDL_MOUSEBUTTONDOWN,
-              _SDL_PIXELFORMAT_UNKNOWN,
-              _SDL_SCANCODE_AC_BACK,
-              _SDL_RENDERER_ACCELERATED,
-              _SDL_RENDERER_PRESENTVSYNC,
-              _SDL_TEXTINPUT,
-              _SDL_TEXTUREACCESS_STATIC,
-              _SDL_TEXTUREACCESS_TARGET,
-              _SDL_WINDOW_FULLSCREEN,
-              _SDL_WINDOW_SHOWN,
-              _SDL_WINDOW_MAXIMIZED,
-              _SDL_WINDOW_RESIZABLE,
-              _SDL_WINDOWEVENT_RESIZED,
-              _SDL_WINDOWPOS_CENTERED,
-              _SDL_WINDOWPOS_UNDEFINED,
-              _AUDIO_S16SYS;
-
-native/const
-    _SDLK_BACKSPACE,
-    _SDLK_COMMA,
-    _SDLK_DOWN,
-    _SDLK_ESCAPE,
-    _SDLK_LEFT,
-    _SDLK_PERIOD,
-    _SDLK_RETURN,
-    _SDLK_RIGHT,
-    _SDLK_SEMICOLON,
-    _SDLK_UP,
-    _SDLK_a, _SDLK_b, _SDLK_c, _SDLK_d,
-    _SDLK_n,
-    _SDLK_p,
-    _SDLK_r,
-    _SDLK_s,
-    _SDLK_w,
-    _SDLK_z,
-;
-
-native/nohold _SDL_GL_BindTexture,
-              _SDL_CreateRenderer,
-              _SDL_CreateSoftwareRenderer,
-              _SDL_CreateTexture,
-              _SDL_CreateTextureFromSurface,
-              _SDL_CreateWindow,
-              _SDL_Delay,
-              _SDL_DestroyRenderer,
-              _SDL_DestroyTexture,
-              _SDL_DestroyWindow,
-              _SDL_FreeSurface,
-              _SDL_GetMouseState,
-              _SDL_GetRenderDrawColor,
-              _SDL_GetRendererInfo,
-              _SDL_GetRendererOutputSize,
-              _SDL_GetWindowSize,
-              _SDL_HasIntersection,
-              _SDL_Init,
-              _SDL_QueryTexture,
-              _SDL_Quit,
-              _SDL_RenderClear,
-              _SDL_RenderCopy,
-              _SDL_RenderDrawLine,
-              _SDL_RenderDrawRect,
-              _SDL_RenderFillRect,
-              _SDL_RenderPresent,
-              _SDL_SetEventFilter,
-              _SDL_SetRenderDrawBlendMode,
-              _SDL_SetRenderDrawColor,
-              _SDL_SetRenderTarget,
-              _SDL_SetTextInputRect,
-              _SDL_SetWindowDisplayMode,
-              _SDL_SetWindowFullscreen,
-              _SDL_SetWindowTitle,
-              _SDL_StartTextInput,
-              _SDL_StopTextInput,
-              _IMG_LoadTexture,
-              _Mix_CloseAudio,
-              _Mix_FreeChunk,
-              _Mix_FreeMusic,
-              _Mix_LoadWAV,
-              _Mix_OpenAudio,
-              _Mix_PlayChannel,
-              _Mix_Playing,
-              _Mix_PlayMusic,
-              _TTF_CloseFont,
-              _TTF_Init,
-              _TTF_OpenFont,
-              _TTF_Quit,
-              _TTF_RenderText_Blended,
-              _TTF_RenderText_Shaded,
-              _TTF_RenderText_Solid,
-              _TTF_SizeText,
-              _TTF_WasInit;
-
-native/nohold _bezierRGBA,
-              _boxColor,
-              _boxRGBA,
-              _circleColor,
-              _circleRGBA,
-              _filledCircleColor,
-              _filledCircleRGBA,
-              _filledPolygonRGBA,
-              _lineRGBA,
-              _pixelRGBA,
-              _polygonColor,
-              _polygonRGBA,
-              _rectangleRGBA,
-              _roundedBoxRGBA,
-              _roundedRectangleRGBA,
-              _stringColor,
-              _stringRGBA,
-              _thickLineRGBA;
-
-native/nohold _SDL_Circle_vs_Mouse,
-              _SDL_Circle_vs_Point,
-              _SDL_Circle_vs_Circle,
-              _SDL_Rect_vs_Mouse,
-              _SDL_Rect_vs_Point,
-              _SDL_Rect2Point,
-              _SDL_Point2Rect,
-              _SDL_Touch2Point,
-              _SDL_GetTicks,
-;
+    void ceu_sdl_callback_start              (void);
+    void ceu_sdl_callback_step               (void);
+    s32  ceu_sdl_callback_wclock_dt          (void);
+    void ceu_sdl_callback_wclock_min         (s32 dt);
+    void ceu_sdl_callback_thread_terminating (void);
+end
 
 native/pre do
     ##include <SDL2/SDL.h>
@@ -213,7 +84,7 @@ native/pos do
     s32 CEU_SDL_FRAME_nxt;
 #endif
 
-    s32 ceu_sdl_dt (void) {
+    s32 ceu_sdl_callback_wclock_dt (void) {
         u32 now = SDL_GetTicks();
         if (now == 0) {
             return CEU_WCLOCK_INACTIVE;
@@ -225,16 +96,27 @@ native/pos do
         }
     }
 
-    void ceu_sdl_step (void) {
+    void ceu_sdl_callback_wclock_min (s32 dt) {
+        CEU_SDL_WCLOCK_min = dt;
+    }
+
+    void ceu_sdl_callback_start (void) {
+        CEU_SDL_inited = 0;
+    }
+
+    void ceu_sdl_callback_step (void) {
         SDL_Event evt;
 #ifdef CEU_SDL_MODE_POLLING
         /* CPU = 100% */
         int has = SDL_PollEvent(&evt);
 #else
         s32 timeout;
+##ifdef CEU_FEATURES_ASYNC
         if (CEU_APP.async_pending) {
             timeout = 0;
-        } else {
+        } else
+##endif
+        {
             s32 min = (CEU_SDL_WCLOCK_min<=0 ? 0 : CEU_SDL_WCLOCK_min/1000);
 #ifdef CEU_SDL_MODE_FRAME
             timeout = (CEU_SDL_inited && min>CEU_SDL_FRAME_nxt) ?
@@ -260,7 +142,7 @@ native/pos do
             if (CEU_SDL_FRAME_nxt <= 0) {
                 CEU_SDL_FRAME_nxt += CEU_SDL_MODE_FRAME;
                 if (CEU_SDL_FRAME_nxt <= 0) {
-                    ceu_log("[SDL] frame is late\n");
+                    ceu_callback_log_str("[SDL] frame is late\n", CEU_TRACE_null);
                 }
                 //ceu_dbg_assert(CEU_SDL_FRAME_nxt > 0);
                 s32 mspf = CEU_SDL_MODE_FRAME;
@@ -306,45 +188,12 @@ native/pos do
         }
     }
 
-    int ceu_callback_sdl (int cmd, tceu_callback_val p1, tceu_callback_val p2
-##ifdef CEU_FEATURES_TRACE
-                         , tceu_trace trace
-##endif
-                                       )
-    {
-        int ret = 1;
-
-        switch (cmd) {
-            case CEU_CALLBACK_START:
-                CEU_SDL_inited = 0;
-                break;
-            case CEU_CALLBACK_WCLOCK_DT:
-                ceu_callback_ret.num = ceu_sdl_dt();
-                break;
-            case CEU_CALLBACK_WCLOCK_MIN:
-                CEU_SDL_WCLOCK_min = p1.num;
-                break;
-            case CEU_CALLBACK_STEP:
-                ceu_sdl_step();
-                break;
-            case CEU_CALLBACK_THREAD_TERMINATING: {
-                SDL_Event evt;
-                evt.type = SDL_USEREVENT;
-                SDL_PushEvent(&evt);
-                break;
-            }
-            default:
-                ret = 0;
-        }
-
-        return ret;
+    void ceu_sdl_callback_thread_terminating (void) {
+        SDL_Event evt;
+        evt.type = SDL_USEREVENT;
+        SDL_PushEvent(&evt);
     }
-    tceu_callback CEU_CALLBACK_SDL = { &ceu_callback_sdl, NULL };
 end
-
-{
-    ceu_callback_register(&CEU_CALLBACK_SDL);
-}
 
 data SDL_Color with
     var u8 r;
