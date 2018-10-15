@@ -23,6 +23,8 @@ native/pre do
     s32  ceu_sdl_callback_wclock_dt          (void);
     void ceu_sdl_callback_wclock_min         (s32 dt);
     void ceu_sdl_callback_thread_terminating (void);
+
+    int CEU_SDL_FRAMES_SET = 1;
 end
 
 native/pre do
@@ -133,7 +135,7 @@ native/pos do
 
         // SDL_DT
 #ifdef CEU_SDL_MODE_FRAME
-        if (CEU_SDL_inited) {
+        if (CEU_SDL_inited && CEU_SDL_FRAMES_SET) {
             u32 now = SDL_GetTicks();
             u32 dt = (now - CEU_SDL_FRAME_old);
             CEU_SDL_FRAME_old = now;
@@ -178,7 +180,7 @@ native/pos do
 
         // SDL_REDRAW
         // TODO: on CEU_CALLBACK_STEP_END
-        {
+        if (CEU_SDL_FRAMES_SET) {
             SDL_Renderer*  ren = NULL;
             SDL_Renderer** ren_ = &ren;
             ceu_input(CEU_INPUT_SDL_REDRAW, &ren_);
