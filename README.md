@@ -47,19 +47,22 @@ https://github.com/ceu-lang/ceu/
 ```
 $ git clone https://github.com/ceu-lang/ceu-sdl
 $ cd ceu-sdl/
-$ git checkout v0.30
+$ git checkout v0.40
 ```
 
 ## Compile and Run
 
-Edit the `Makefile` to point to your `ceu` directory and then run `make`:
+Edit the `Makefile.conf` to point to your `ceu` directory and then run `make`:
 
 ```
 $ gedit Makefile
 $ make
 ```
 
-If necessary, configure the variables in the `Makefile`.
+<!--
+If necessary, configure the variables in the `Makefile.conf`.
+-->
+
 The default example moves a rectangle on screen.
 
 To compile and run another application, run `make` and set `CEU_SRC`:
