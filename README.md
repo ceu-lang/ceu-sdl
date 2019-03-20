@@ -47,7 +47,6 @@ https://github.com/ceu-lang/ceu/
 ```
 $ git clone https://github.com/ceu-lang/ceu-sdl
 $ cd ceu-sdl/
-$ git checkout v0.40
 ```
 
 ## Compile and Run
