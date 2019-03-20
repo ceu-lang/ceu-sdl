@@ -1,2 +1,3 @@
 .*.swp
 ceu-sdl-*/
+Makefile.conf

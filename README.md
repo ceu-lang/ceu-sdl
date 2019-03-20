@@ -55,7 +55,7 @@ $ git checkout v0.40
 Edit the `Makefile.conf` to point to your `ceu` directory and then run `make`:
 
 ```
-$ gedit Makefile
+$ gedit Makefile.conf
 $ make
 ```
 
